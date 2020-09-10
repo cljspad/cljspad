@@ -1,47 +1,31 @@
 (ns cljsfiddle.core
-  (:require [rehook.core :as rehook]
+  (:require [cljs.core.async :as async :refer-macros [go]]
+            [rehook.core :as rehook]
             [rehook.dom :refer-macros [defui ui]]
             [rehook.dom.browser :as dom.browser]
-            [cljs.js :as cljs.js]
-            [goog.net.XhrIo :as xhr]
-            [helpers]
-            [cognitect.transit :as transit]
+            [cljsfiddle]
             [cljs.reader :as reader]
+            [cljsfiddle.env.core :as env]
+            ["codemirror" :as CodeMirror]
             ["react" :as react]
             ["react-dom" :as react-dom]))
 
-(defn GET [path cb]
-  #_(xhr/send path
-            (fn [resp]
-              (cb (-> resp .-target .getResponseText)))))
-
-(defn load-cache [cstate db]
-  #_(let [path "cache/builds/app/dev/ana/helpers.cljs.cache.transit.json"]
-    (GET path (fn [source-map]
-                (try
-                  (let [rdr   (transit/reader :json)
-                        cache (transit/read rdr source-map)]
-                    (prn cache)
-                    (cljs/load-analysis-cache! cstate 'helpers cache)
-                    (swap! db assoc :loading? false))
-                  (catch :default e
-                    (prn e)
-                    (swap! db assoc :error e :loading? false)))))))
 
 (defn system []
-  {:compiler-state (cljs.js/empty-state)
+  {:compiler-state (env/state)
    :db             (atom {:loading? true :error? false})})
 
 (defn code-mirror-on-change [compiler-state x _]
   (let [s (.getValue x)]
-    (prn @compiler-state)
-    (cljs.js/eval compiler-state
-                  '(pprint 1)
-                  {:eval js/eval :context :expr}
-                  prn)))
+    (prn "update")
+    (try
+      (let [form (reader/read-string s)]
+        (env/eval! compiler-state form))
+      (catch :default e (prn e)))))
 
 (defui code-editor [{:keys [compiler-state]} _]
-  #_(let [container (react/useRef)]
+  (let [container (react/useRef)]
+
     (rehook/use-effect
      (fn []
        (let [dom         (aget container "current")
@@ -52,25 +36,31 @@
          (fn []
            (.toTextArea code-mirror))))
      [])
+
     [:div {:style {:width "50%" :height "100%"}}
      [:textarea {:ref      container
                  :value    "(inc 1)"
-                 :onChange (constantly nil)}]])
+                 :onChange (constantly nil)}]]))
 
-  [:div "foo"])
+(defui app [{:keys [compiler-state]} _]
+  #_(rehook/use-effect
+   (fn []
+     (cljs.js/eval compiler-state `(inc 1) {:eval cljs.js/js-eval} prn)
+     (constantly nil))
+   [])
 
-(defui app [_ _]
   [:div {:style {:display "flex"}}
-   [code-editor]
-   [:div "Right hand pane"]])
+   [code-editor]])
 
 (defui root-component [{:keys [db compiler-state]} _]
-  (let [[loading? _] (rehook/use-atom-path db [:loading?])
+  (let [[loading? set-loading] (rehook/use-atom-path db [:loading?])
         [error _] (rehook/use-atom-path db [:error])]
 
     (rehook/use-effect
      (fn []
-       (load-cache compiler-state db)
+       (go
+        (async/<! (env/init! compiler-state))
+        (set-loading false))
        (constantly nil))
      [])
 

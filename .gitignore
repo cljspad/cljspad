@@ -12,3 +12,10 @@ pom.xml.asc
 .lein-failures
 .nrepl-port
 .cpcache/
+node_modules/
+public/cache/
+public/cljs-runtime/
+public/main.js
+public/manifest.edn
+.idea/
+*.iml
