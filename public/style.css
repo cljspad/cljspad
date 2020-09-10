@@ -1,0 +1,31 @@
+body {
+  font-family: Hack, monospace;
+  font-size: 12px;
+  margin: 0;
+}
+
+.cljsfiddle-container {
+  display: flex;
+  height: calc(100vh - 55px);
+}
+
+.cljsfiddle-navbar {
+  height: 49px;
+  vertical-align: middle;
+  background-color: #fafafa;
+  border-bottom: 1px solid #ccc;
+}
+
+#app {
+  width: calc(50% - 1px);
+  border-right: 1px solid #ccc;
+}
+
+#right {
+  padding-top: 5px;
+  width: calc(50% - 5px);
+  margin-left: 5px;
+  height: 100%;
+  flex: 1 0 50%;
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+}
