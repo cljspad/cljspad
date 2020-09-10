@@ -10,7 +10,6 @@
             ["react" :as react]
             ["react-dom" :as react-dom]))
 
-
 (defn system []
   {:compiler-state (env/state)
    :db             (atom {:loading? true :error? false})})

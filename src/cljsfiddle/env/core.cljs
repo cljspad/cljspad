@@ -8,25 +8,33 @@
 (defn state []
   (cljs.js/empty-state))
 
+(goog-define cache-root
+  "cache/builds/app/dev/ana/")
+
 (defn load-ns!
   ([compiler-state sym]
-   (load-ns! compiler-state sym (constantly nil)))
+   (load-ns! compiler-state sym sym))
 
-  ([compiler-state sym cb]
-   (let [path (str "cache/builds/app/dev/ana/" (str/replace (name sym) "." "/") ".cljs.cache.transit.json")]
+  ([compiler-state sym alias]
+   (load-ns! compiler-state sym alias (constantly nil)))
+
+  ([compiler-state sym alias cb]
+   (let [path (str cache-root (str/replace (name sym) "." "/") ".cljs.cache.transit.json")]
      (-> (js/fetch path)
          (.then (fn [response]
                   (.text response)))
          (.then (fn [body]
                   (let [rdr   (transit/reader :json)
                         cache (transit/read rdr body)]
-                    (cljs.js/load-analysis-cache! compiler-state sym cache)
-                    (cb compiler-state sym cache))))))))
+                    (cljs.js/load-analysis-cache! compiler-state alias cache)
+                    (cb {:compiler-state compiler-state
+                         :sym            sym
+                         :alias          alias
+                         :cache          cache}))))))))
 
 (defn eval!
   [compiler-state form]
-  (js/Promise. (fn [respond]
-                 (cljs.js/eval compiler-state form {:eval cljs.js/js-eval} respond))))
+  (js/Promise. #(cljs.js/eval compiler-state form {:eval cljs.js/js-eval} %)))
 
 (defn init!
   [compiler-state]
