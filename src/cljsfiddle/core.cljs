@@ -42,13 +42,7 @@
                  :value    "(inc 1)"
                  :onChange (constantly nil)}]]))
 
-(defui app [{:keys [compiler-state]} _]
-  #_(rehook/use-effect
-   (fn []
-     (cljs.js/eval compiler-state `(inc 1) {:eval cljs.js/js-eval} prn)
-     (constantly nil))
-   [])
-
+(defui app [_ _]
   [:div {:style {:display "flex"}}
    [code-editor]])
 
