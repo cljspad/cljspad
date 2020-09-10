@@ -3,6 +3,8 @@
             ["react-dom" :as react-dom]
             [rehook.dom.browser :as dom.browser]
             [reagent.dom :as dom]
+            [reagent.core]
+            [re-frame.core]
             [rum.core :as rum]))
 
 (defn reagent-render!

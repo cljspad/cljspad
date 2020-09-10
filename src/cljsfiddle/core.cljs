@@ -6,17 +6,19 @@
             [cljsfiddle]
             [cljs.reader :as reader]
             [cljsfiddle.env.core :as env]
+            [cljsfiddle.env.packages :as packages]
             ["codemirror" :as CodeMirror]
             ["react" :as react]
             ["react-dom" :as react-dom]))
 
 (defn system []
   {:compiler-state (env/state)
-   :db             (atom {:loading? true :error? false})})
+   :db             (atom {:loading? true
+                          :error?   false
+                          :packages {:reagent true}})})
 
 (defn code-mirror-on-change [compiler-state x _]
   (let [s (.getValue x)]
-    (prn "update")
     (try
       (let [form (reader/read-string s)]
         (env/eval! compiler-state form))
@@ -41,9 +43,35 @@
                  :value    "(inc 1)"
                  :onChange (constantly nil)}]]))
 
+(defui package [{:keys [db]} {:keys [id]}]
+  (let [[checked? set-checked] (rehook/use-atom-path db [:packages id])]
+    [:div {:key (str "package-" (name id))}
+     [:input {:type     "checkbox"
+              :checked  (boolean checked?)
+              :onChange #(set-checked true)}]
+     [:label (name id)]]))
+
 (defui app [_ _]
-  [:div {:style {:display "flex"}}
+  [:div {:style {:display     "flex"
+                 :borderRight "1px solid #ccc"}}
+   [:div {:style {:width "200px"}}
+    [:h3 "Packages"]
+    (for [[k _] (sort (methods packages/load-package))]
+      [package {:id k}])]
+
    [code-editor]])
+
+(defui package-effect
+  [{:keys [compiler-state db]} _]
+  (let [[packages _] (rehook/use-atom-path db [:packages])]
+    (rehook/use-effect
+     (fn []
+       (doseq [[package enabled?] packages
+               :when enabled?]
+         (prn "Load " (pr-str package))
+         (packages/load-package {:compiler-state compiler-state} package))
+       (constantly nil))
+     [(pr-str packages)])))
 
 (defui root-component [{:keys [db compiler-state]} _]
   (let [[loading? set-loading] (rehook/use-atom-path db [:loading?])
@@ -57,10 +85,13 @@
        (constantly nil))
      [])
 
-    (cond
-      loading? [:div "loading"]
-      error [:div (str error)]
-      :else [app])))
+    [:<>
+     [package-effect]
+
+     (cond
+       loading? [:div "loading"]
+       error [:div (str error)]
+       :else [app])]))
 
 (defonce state
   (system))

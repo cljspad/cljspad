@@ -11,6 +11,12 @@
 (goog-define cache-root
   "cache/builds/app/dev/ana/")
 
+(defn sym->classpath [sym]
+  (-> sym
+      name
+      (str/replace "." "/")
+      (str/replace "-" "_")))
+
 (defn load-ns!
   ([compiler-state sym]
    (load-ns! compiler-state sym sym))
@@ -19,7 +25,7 @@
    (load-ns! compiler-state sym alias (constantly nil)))
 
   ([compiler-state sym alias cb]
-   (let [path (str cache-root (str/replace (name sym) "." "/") ".cljs.cache.transit.json")]
+   (let [path (str cache-root (sym->classpath sym)  ".cljs.cache.transit.json")]
      (-> (js/fetch path)
          (.then (fn [response]
                   (.text response)))
