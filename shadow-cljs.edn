@@ -1,0 +1,13 @@
+{:deps       true
+ :dev-http   {8000 "public"}
+ :cache-root "public/cache"
+ :builds     {:app {:target           :browser
+                    :output-dir       "public"
+                    :asset-path       "/"
+                    :compiler-options {:infer-externs  :auto
+                                       :cache-analysis true
+                                       :optimizations  :none}
+                    ;; TODO: bring static resources into this project...
+                    :devtools         {:watch-dir  "public"
+                                       :watch-path "/"}
+                    :modules          {:main {:init-fn site/main}}}}}
