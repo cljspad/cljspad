@@ -24,7 +24,7 @@ To render something (eg a React component) to the right-hand pane, a hook fn is 
 (defn my-component []
  [:div "Hello world"])
  
-(reagent-render! my-component)
+(cljsfiddle/reagent-render! my-component)
 ```
 
 Refer to the [Environments](#environments) section for examples of each hook fn
@@ -43,7 +43,10 @@ Load a gist into cljsfiddle:
 
 Eg: https://gist.github.com/wavejumper/5d395f78257aab1da2536e5875b12d3d
 
-Becomes: cljsfiddle.net/#!/wavejumper/5d395f78257aab1da2536e5875b12d3d
+Becomes: https://cljsfiddle.net/#!/wavejumper/5d395f78257aab1da2536e5875b12d3d
 
 # Contributing 
 
+1) Add desired library to `package.json` or `deps.edn`
+2) Add stubbed impl to [cljsfiddle.env.packages](https://github.com/wavejumper/cljsfiddle/blob/master/src/cljsfiddle/env/packages.cljs) 
+3) If you are rendering to the right-hand pane, add a render fn to [cljsfiddle](https://github.com/wavejumper/cljsfiddle/blob/master/src/cljsfiddle.cljs)
