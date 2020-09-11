@@ -1,6 +1,5 @@
 (ns cljsfiddle.core
-  (:require [cljs.core.async :as async :refer-macros [go]]
-            [rehook.core :as rehook]
+  (:require [rehook.core :as rehook]
             [rehook.dom :refer-macros [defui ui]]
             [rehook.dom.browser :as dom.browser]
             [cljsfiddle]
@@ -8,9 +7,14 @@
             [cljsfiddle.effects :as effects]
             [cljsfiddle.env.core :as env]
             [cljsfiddle.env.packages :as packages]
+            [goog.object :as obj]
+            [cljs.core.async :as async :refer-macros [go]]
+            ["xterm" :refer [Terminal]]
+            ["xterm-addon-fit" :refer [FitAddon]]
             ["codemirror" :as CodeMirror]
             ["react" :as react]
-            ["react-dom" :as react-dom])
+            ["react-dom" :as react-dom]
+            [clojure.string :as str])
   (:import (goog History)))
 
 (defn system []
@@ -46,7 +50,7 @@
            (.toTextArea code-mirror))))
      [source])
 
-    [:div {:style {:width "100%" :height "100%"}}
+    [:div {:style {:width "100%" :height "calc(100vH - 250px)"}}
      [:textarea {:ref      container
                  :value    ""
                  :onChange (constantly nil)}]]))
@@ -63,11 +67,66 @@
   (let [[st _] (rehook/use-atom-path compiler-state [:cljs.analyzer/namespaces])]
     [:code (pr-str (keys st))]))
 
+(defn terminal [fit-addon]
+  (doto (Terminal.)
+    (.loadAddon fit-addon)
+    (.setOption "theme" #js {:background "#fff" :foreground "#0c1323" :cursor "#0c1323"})
+    (.setOption "fontFamily" "Hack, monospace")
+    (.setOption "fontSize" 12)
+    (.setOption "cursorBlink" true)))
+
+(defn handle-repl-key
+  [compiler-state term form ev]
+  (let [key (aget ev "key")
+        code (obj/getValueByKeys ev "domEvent" "code")]
+    (case code
+      "Backspace"
+      (do (.write term "\b \b")
+          (swap! form #(apply str (butlast %))))
+
+      "Enter"
+      (try
+        (let [form (reader/read-string @form)]
+          (go (let [result (async/<! (env/eval! compiler-state form))]
+                (.writeln term "")
+                (.writeln term (if-some [value (:value result)]
+                                 (str value)
+                                 (str (:error result))))
+                (.write term "cljs.user => "))))
+        (catch :default e
+          (.writeln term "")
+          (.writeln term (str e))
+          (.write term "cljs.user => "))
+        (finally
+         (reset! form "")))
+
+      (do (swap! form str key)
+          (.write term key)))))
+
+(defui repl [{:keys [compiler-state]} _]
+  (let [container (react/useRef)]
+    (rehook/use-effect
+     (fn []
+       (let [fit  (FitAddon.)
+             term (terminal fit)
+             form (atom "")]
+         (let [current (aget container "current")]
+           (.open term current)
+           (.fit fit)
+           (.write term "cljs.user => ")
+           (.onKey term (partial handle-repl-key compiler-state term form))
+           (fn []
+             (.dispose term)))))
+     [])
+
+    [:div {:style {:width "100%" :height "200px"}
+           :ref container}]))
+
 (defui app [_ _]
   [:div {:style {:display     "flex"}}
    [:div {:style {:width "200px"
                   :padding "5px"
-                  :height "100vh"
+                  :height "calc(100vh - 51px)"
                   :borderRight "1px solid #ccc"}}
     [:h3 "Env"]
     [env-meta]
@@ -75,7 +134,12 @@
     (for [[k _] (sort (methods packages/load-package))]
       [package {:id k}])]
 
-   [code-editor]])
+   [:div {:style {:display "flex"
+                  :flexDirection "column"
+                  :width "100%"}}
+    [code-editor]
+    [repl]]
+   ])
 
 (defui dominant-component [{:keys [db]} _]
   (let [[loading? _] (rehook/use-atom-path db [:loading?])

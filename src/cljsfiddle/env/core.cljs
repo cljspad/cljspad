@@ -41,7 +41,10 @@
 
 (defn eval!
   [compiler-state form]
-  (go (<p! (js/Promise. #(cljs.js/eval compiler-state form {:eval cljs.js/js-eval} %)))))
+  (go (<p! (-> (js/Promise. (fn [respond _]
+                              (try (cljs.js/eval compiler-state form {:eval cljs.js/js-eval} respond)
+                                   (catch :default e
+                                     (respond {:error e})))))))))
 
 (defn init!
   [compiler-state]
