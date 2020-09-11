@@ -1,7 +1,8 @@
 (ns cljsfiddle.env.core
-  (:require [cljs.core.async :refer-macros [go]]
+  (:require [cljs.core.async :as async :refer-macros [go]]
             [cljs.core.async.interop :refer-macros [<p!]]
             [cljs.js :as cljs.js]
+            [cljs.tools.reader :as reader]
             [cognitect.transit :as transit]
             [clojure.string :as str]))
 
@@ -40,10 +41,15 @@
 
 (defn eval!
   [compiler-state form]
-  (js/Promise. #(cljs.js/eval compiler-state form {:eval cljs.js/js-eval} %)))
+  (go (<p! (js/Promise. #(cljs.js/eval compiler-state form {:eval cljs.js/js-eval} %)))))
 
 (defn init!
   [compiler-state]
   (go (<p! (load-ns! compiler-state 'cljs.core))
-      (<p! (load-ns! compiler-state 'cljsfiddle))
-      (<p! (eval! compiler-state '(cljsfiddle/reagent-render! [:div "Hello from a bootstrapped world!"])))))
+      (<p! (load-ns! compiler-state 'cljsfiddle))))
+
+(defn restart-env!
+  [{:keys [compiler-state]} {:keys [metadata source]}]
+  (go (reset! compiler-state (deref (state)))
+      (async/<! (init! compiler-state))
+      (async/<! (eval! compiler-state (reader/read-string source)))))

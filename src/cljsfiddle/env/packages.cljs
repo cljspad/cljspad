@@ -21,3 +21,7 @@
 (defmethod load-package :rum
   [{:keys [compiler-state]} _]
   (go (<p! (env/load-ns! compiler-state 'rum.core 'rum))))
+
+(defmethod load-package :transit
+  [{:keys [compiler-state]} _]
+  (go (<p! (env/load-ns! compiler-state 'cognitect.transit 'transit))))

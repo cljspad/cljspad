@@ -5,17 +5,21 @@
             [rehook.dom.browser :as dom.browser]
             [cljsfiddle]
             [cljs.reader :as reader]
+            [cljsfiddle.effects :as effects]
             [cljsfiddle.env.core :as env]
             [cljsfiddle.env.packages :as packages]
             ["codemirror" :as CodeMirror]
             ["react" :as react]
-            ["react-dom" :as react-dom]))
+            ["react-dom" :as react-dom])
+  (:import (goog History)))
 
 (defn system []
   {:compiler-state (env/state)
+   :history        (History.)
    :db             (atom {:loading? true
                           :error?   false
-                          :packages {:reagent true}})})
+                          :source   ""
+                          :packages {}})})
 
 (defn code-mirror-on-change [compiler-state x _]
   (let [s (.getValue x)]
@@ -24,8 +28,11 @@
         (env/eval! compiler-state form))
       (catch :default e (prn e)))))
 
-(defui code-editor [{:keys [compiler-state]} _]
-  (let [container (react/useRef)]
+(defui code-editor [{:keys [compiler-state db]} _]
+  (let [container (react/useRef)
+        [source _] (rehook/use-atom-path db [:source])]
+
+    (js/console.log "Source..." source)
 
     (rehook/use-effect
      (fn []
@@ -34,13 +41,14 @@
                               :value "Hello world"}
              code-mirror (CodeMirror/fromTextArea dom opts)]
          (.on code-mirror "change" (partial code-mirror-on-change compiler-state))
+         (.setValue code-mirror source)
          (fn []
            (.toTextArea code-mirror))))
-     [])
+     [source])
 
     [:div {:style {:width "100%" :height "100%"}}
      [:textarea {:ref      container
-                 :value    "(inc 1)"
+                 :value    ""
                  :onChange (constantly nil)}]]))
 
 (defui package [{:keys [db]} {:keys [id]}]
@@ -51,47 +59,38 @@
               :onChange #(set-checked true)}]
      [:label (name id)]]))
 
+(defui env-meta [{:keys [compiler-state]} _]
+  (let [[st _] (rehook/use-atom-path compiler-state [:cljs.analyzer/namespaces])]
+    [:code (pr-str (keys st))]))
+
 (defui app [_ _]
-  [:div {:style {:display     "flex"
-                 :borderRight "1px solid #ccc"}}
-   [:div {:style {:width "200px"}}
+  [:div {:style {:display     "flex"}}
+   [:div {:style {:width "200px"
+                  :padding "5px"
+                  :height "100vh"
+                  :borderRight "1px solid #ccc"}}
+    [:h3 "Env"]
+    [env-meta]
     [:h3 "Packages"]
     (for [[k _] (sort (methods packages/load-package))]
       [package {:id k}])]
 
    [code-editor]])
 
-(defui package-effect
-  [{:keys [compiler-state db]} _]
-  (let [[packages _] (rehook/use-atom-path db [:packages])]
-    (rehook/use-effect
-     (fn []
-       (doseq [[package enabled?] packages
-               :when enabled?]
-         (prn "Load " (pr-str package))
-         (packages/load-package {:compiler-state compiler-state} package))
-       (constantly nil))
-     [(pr-str packages)])))
-
-(defui root-component [{:keys [db compiler-state]} _]
-  (let [[loading? set-loading] (rehook/use-atom-path db [:loading?])
+(defui dominant-component [{:keys [db]} _]
+  (let [[loading? _] (rehook/use-atom-path db [:loading?])
         [error _] (rehook/use-atom-path db [:error])]
+    (cond
+      loading? [:div "loading"]
+      error    [:div (str error)]
+      :else    [app])))
 
-    (rehook/use-effect
-     (fn []
-       (go
-        (async/<! (env/init! compiler-state))
-        (set-loading false))
-       (constantly nil))
-     [])
-
-    [:<>
-     [package-effect]
-
-     (cond
-       loading? [:div "loading"]
-       error [:div (str error)]
-       :else [app])]))
+(defui root-component [_ _]
+  [:<>
+   [effects/compiler]
+   [effects/package]
+   [effects/history]
+   [dominant-component]])
 
 (defonce state
   (system))

@@ -4,8 +4,10 @@
  :builds     {:app {:target           :browser
                     :output-dir       "public"
                     :asset-path       "/"
-                    :compiler-options {:infer-externs  :auto
-                                       :optimizations  :none}
+                    :compiler-options {:infer-externs :auto
+                                       :optimizations :none}
                     :devtools         {:watch-dir  "public"
                                        :watch-path "/"}
-                    :modules          {:main {:init-fn cljsfiddle.core/main}}}}}
+                    :modules          {:main {:init-fn cljsfiddle.core/main}}
+                    :release          {:compiler-options {:optimizations :none
+                                                          :infer-externs :auto}}}}}
