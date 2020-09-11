@@ -2,7 +2,6 @@
   (:require [cljs.core.async :as async :refer-macros [go]]
             [cljs.core.async.interop :refer-macros [<p!]]
             [cljs.js :as cljs.js]
-            [cljs.tools.reader :as reader]
             [cognitect.transit :as transit]
             [clojure.string :as str]))
 
@@ -39,20 +38,22 @@
                          :alias          alias
                          :cache          cache}))))))))
 
+(def eval-opts
+  {:eval cljs.js/js-eval})
+
 (defn eval!
   [compiler-state form]
-  (go (<p! (-> (js/Promise. (fn [respond _]
-                              (try (cljs.js/eval compiler-state form {:eval cljs.js/js-eval} respond)
-                                   (catch :default e
-                                     (respond {:error e})))))))))
+  (go (<p! (js/Promise. #(cljs.js/eval-str compiler-state form nil eval-opts %)))))
+
+#_(defonce syms
+  (keys (ns-interns 'cljs.core)))
 
 (defn init!
   [compiler-state]
-  (go (<p! (load-ns! compiler-state 'cljs.core))
-      (<p! (load-ns! compiler-state 'cljsfiddle))))
+  (go (<p! (load-ns! compiler-state 'cljsfiddle))))
 
 (defn restart-env!
   [{:keys [compiler-state]} {:keys [metadata source]}]
   (go (reset! compiler-state (deref (state)))
       (async/<! (init! compiler-state))
-      (async/<! (eval! compiler-state (reader/read-string source)))))
+      (async/<! (eval! compiler-state source))))

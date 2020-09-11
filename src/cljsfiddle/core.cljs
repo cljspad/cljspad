@@ -26,11 +26,9 @@
                           :packages {}})})
 
 (defn code-mirror-on-change [compiler-state x _]
-  (let [s (.getValue x)]
-    (try
-      (let [form (reader/read-string s)]
-        (env/eval! compiler-state form))
-      (catch :default e (prn e)))))
+  (try
+    (env/eval! compiler-state (.getValue x))
+    (catch :default e (prn e))))
 
 (defui code-editor [{:keys [compiler-state db]} _]
   (let [container (react/useRef)
@@ -86,19 +84,19 @@
 
       "Enter"
       (try
-        (let [form (reader/read-string @form)]
-          (go (let [result (async/<! (env/eval! compiler-state form))]
-                (.writeln term "")
-                (.writeln term (if-some [value (:value result)]
-                                 (str value)
-                                 (str (:error result))))
-                (.write term "cljs.user => "))))
+        (go (let [result (async/<! (env/eval! compiler-state @form))]
+              (js/console.log "???" @form result)
+              (.writeln term "")
+              (.writeln term (if-some [value (:value result)]
+                               (str value)
+                               (str (:error result))))
+              (.write term "cljs.user => ")
+              (reset! form "")))
         (catch :default e
           (.writeln term "")
           (.writeln term (str e))
-          (.write term "cljs.user => "))
-        (finally
-         (reset! form "")))
+          (.write term "cljs.user => ")
+          (reset! form "")))
 
       (do (swap! form str key)
           (.write term key)))))
