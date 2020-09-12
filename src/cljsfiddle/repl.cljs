@@ -120,17 +120,17 @@
   (let [container (react/useRef)]
     (rehook/use-effect
      (fn []
-       (let [fit   (FitAddon.)
-             term  (terminal fit)
-             state (atom initial-state)
-             cb    (partial mutate-repl! state term)]
-         (let [current (aget container "current")]
-           (.open term current)
-           (.fit fit)
-           (.write term "cljs.user => ")
-           (.onKey term #(handle-repl-key compiler-state @state cb %))
-           (fn []
-             (.dispose term)))))
+       (let [fit     (FitAddon.)
+             term    (terminal fit)
+             state   (atom initial-state)
+             repl-cb (partial mutate-repl! state term)
+             current (aget container "current")]
+         (.open term current)
+         (.fit fit)
+         (.write term "cljs.user => ")
+         (.onKey term #(handle-repl-key compiler-state @state repl-cb %))
+         (fn []
+           (.dispose term))))
      [])
 
     [:div {:style {:width "100%" :height "200px"}
