@@ -1,4 +1,4 @@
-(ns cljsfiddle
+(ns cljsfiddle.helpers
   (:require ["react" :as react]
             ["react-dom" :as react-dom]
             [rehook.dom.browser :as dom.browser]

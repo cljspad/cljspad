@@ -2,13 +2,13 @@
   (:require [rehook.core :as rehook]
             [rehook.dom :refer-macros [defui ui]]
             [rehook.dom.browser :as dom.browser]
-            [cljsfiddle]
-            [cljs.reader :as reader]
             [cljsfiddle.effects :as effects]
             [cljsfiddle.env.core :as env]
             [cljsfiddle.env.packages :as packages]
             [goog.object :as obj]
+            [cljsfiddle]
             [cljs.core.async :as async :refer-macros [go]]
+            [cljs.js :as cljs]
             ["xterm" :refer [Terminal]]
             ["xterm-addon-fit" :refer [FitAddon]]
             ["codemirror" :as CodeMirror]
@@ -136,8 +136,7 @@
                   :flexDirection "column"
                   :width "100%"}}
     [code-editor]
-    [repl]]
-   ])
+    [repl]]])
 
 (defui dominant-component [{:keys [db]} _]
   (let [[loading? _] (rehook/use-atom-path db [:loading?])
@@ -164,3 +163,9 @@
 
 (defn main []
   (render))
+
+(render)
+
+(comment
+ (cljs/eval-str (:compiler-state state) "(+ 1 2)" nil {:eval cljs/js-eval} prn)
+ (prn "foobar"))

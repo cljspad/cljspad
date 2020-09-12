@@ -13,9 +13,10 @@ pom.xml.asc
 .nrepl-port
 .cpcache/
 node_modules/
-public/cache/
-public/cljs-runtime/
-public/main.js
-public/manifest.edn
+resources/public/cache/
+resources/public/cljs-runtime/
+resources/public/main.js
+resources/public/manifest.edn
 .idea/
 *.iml
+out/
