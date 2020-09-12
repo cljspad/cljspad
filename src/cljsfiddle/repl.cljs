@@ -25,7 +25,6 @@
   [compiler-state curr-repl-state cb ev]
   (let [key  (aget ev "key")
         code (obj/getValueByKeys ev "domEvent" "code")]
-
     (case code
       "ArrowRight"
       (when (<= (:pos curr-repl-state) (count (:form curr-repl-state)))
@@ -39,12 +38,29 @@
                 (update :pos dec)
                 (assoc :term-commands [["write" key]]))))
 
-      ;; TODO: implement history...
       "ArrowUp"
-      nil
+      (let [next-history-index (inc (:history-index curr-repl-state))]
+        (when-let [history-form (nth (:history curr-repl-state) next-history-index nil)]
+          (cb (-> curr-repl-state
+                  (assoc :history-index next-history-index)
+                  (assoc :form history-form)
+                  (assoc :term-commands (conj (vec (repeat (count (:form curr-repl-state)) ["write" "\b \b"]))
+                                              ["write" history-form]))))))
 
       "ArrowDown"
-      nil
+      (let [next-history-index (dec (:history-index curr-repl-state))]
+        (if-let [history-form (nth (:history curr-repl-state) next-history-index nil)]
+          (cb (-> curr-repl-state
+                  (assoc :history-index next-history-index)
+                  (assoc :form history-form)
+                  (assoc :term-commands (conj (vec (repeat (count (:form curr-repl-state)) ["write" "\b \b"]))
+                                              ["write" history-form]))))
+          (when (= -1 next-history-index)
+            (cb (-> curr-repl-state
+                    (assoc :form "")
+                    (assoc :term-commands (conj (vec (repeat (count (:form curr-repl-state)) ["write" "\b \b"]))
+                                                ["write" ""]))
+                    (assoc :history-index -1))))))
 
       "Backspace"
       (when (pos? (:pos curr-repl-state))
@@ -56,32 +72,49 @@
       "Enter"
       (when-not (str/blank? (:form curr-repl-state))
         (go (let [result (async/<! (env/eval! compiler-state (:form curr-repl-state)))]
-              (js/console.log "???" (:form curr-repl-state) result)
+              (js/console.log "REPL output => " (:form curr-repl-state) result)
               (cb (-> curr-repl-state
                       (assoc :pos 0)
                       (assoc :form "")
+                      (update :history
+                              (fn [curr-history]
+                                (take (:max-history-items curr-repl-state)
+                                      (if (= curr-history (first curr-history))
+                                        curr-history
+                                        (conj curr-history (:form curr-repl-state))))))
                       (assoc :term-commands [["writeln" ""]
                                              ["writeln" (if-some [value (or (:value result) (:error result))]
-                                                          ;; TODO: a nicer pretty printing fn
+                                                          ;; TODO: a nicer pretty printing fn perhaps...
                                                           (pr-str value)
                                                           "nil")]
-                                             ["write" (str (:ns result "cljs.user") " => ")]]))))))
+                                             ["write" (str (or (:ns result) "cljs.user") " => ")]]))))))
 
+      ("Home" "PageUp" "PageDown" "End")
+      nil
+
+      ;; Else, treat as regular keypress
       (cb (-> curr-repl-state
               (update :form str-insert key (:pos curr-repl-state))
               (update :pos inc)
               (assoc :term-commands [["write" key]]))))))
 
 (defn mutate-repl!
-  [state term {:keys [form pos history term-commands]}]
+  [state term next-state]
 
-  (reset! state {:form form :pos pos :history history})
+  (reset! state next-state)
 
-  (doseq [[cmd val] term-commands]
+  (doseq [[cmd val] (:term-commands next-state)]
     (case cmd
       "write" (.write term val)
       "writeln" (.writeln term val)
       (js/console.warn "Unknown term command " cmd))))
+
+(def initial-state
+  {:form              ""
+   :pos               0
+   :history-index     -1
+   :max-history-items 50
+   :history           '()})
 
 (defui repl [{:keys [compiler-state]} _]
   (let [container (react/useRef)]
@@ -89,10 +122,8 @@
      (fn []
        (let [fit   (FitAddon.)
              term  (terminal fit)
-             state (atom {:form    ""
-                          :pos     0
-                          :history []})
-             cb   (partial mutate-repl! state term)]
+             state (atom initial-state)
+             cb    (partial mutate-repl! state term)]
          (let [current (aget container "current")]
            (.open term current)
            (.fit fit)
