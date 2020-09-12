@@ -32,9 +32,7 @@
                                (when c
                                  (let [rdr (transit/reader :json)]
                                    (transit/read rdr c))))))
-          (if-not (:macros ctx)
-            (cb {:lang :clj :source (str `(js/require ~(str name)))})
-            (cb nil))))))
+          (cb nil)))))
 
 (def eval-opts
   {:eval cljs.js/js-eval
@@ -50,6 +48,6 @@
 
 (defn restart-env!
   [{:keys [compiler-state]} {:keys [metadata source]}]
-  (go (reset! compiler-state (deref (state)))
+  (go #_(reset! compiler-state (deref (state)))
       (async/<! (init! compiler-state))
       (async/<! (eval! compiler-state source))))

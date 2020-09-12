@@ -8,6 +8,7 @@
             [goog.object :as obj]
             [cljs.core.async :as async :refer-macros [go]]
             [cljs.js :as cljs]
+            [clojure.set :as set]
             ["xterm" :refer [Terminal]]
             ["xterm-addon-fit" :refer [FitAddon]]
             ["codemirror" :as CodeMirror]
@@ -24,14 +25,17 @@
                           :source   ""
                           :packages {}})})
 
-(defn code-mirror-on-change [compiler-state x _]
-  (try
-    (env/eval! compiler-state (.getValue x))
-    (catch :default e (prn e))))
+(defn run-code-mirror
+  [compiler-state code-mirror]
+  (fn [_]
+    (try
+      (env/eval! compiler-state (.getValue code-mirror))
+      (catch :default e (prn e)))))
 
 (defui code-editor [{:keys [compiler-state db]} _]
   (let [container (react/useRef)
-        [source _] (rehook/use-atom-path db [:source])]
+        [source _] (rehook/use-atom-path db [:source])
+        [run set-run] (rehook/use-state {:run (constantly nil)})]
 
     (js/console.log "Source..." source)
 
@@ -41,13 +45,20 @@
              opts        #js {:mode  "clojure"
                               :value "Hello world"}
              code-mirror (CodeMirror/fromTextArea dom opts)]
-         (.on code-mirror "change" (partial code-mirror-on-change compiler-state))
          (.setValue code-mirror source)
+         (set-run {:run (run-code-mirror compiler-state code-mirror)})
          (fn []
            (.toTextArea code-mirror))))
      [source])
 
+
     [:div {:style {:width "100%" :height "calc(100vH - 250px)"}}
+     [:div {:style {:height          "25px"
+                    :backgroundColor "rgb(51,51,51)"
+                    :padding         "3px"}}
+      [:button {:onClick (:run run)}
+       "Run"]]
+
      [:textarea {:ref      container
                  :value    ""
                  :onChange (constantly nil)}]]))
@@ -74,7 +85,7 @@
 
 (defn handle-repl-key
   [compiler-state term form ev]
-  (let [key (aget ev "key")
+  (let [key  (aget ev "key")
         code (obj/getValueByKeys ev "domEvent" "code")]
     (case code
       "Backspace"
@@ -125,8 +136,6 @@
                   :padding "5px"
                   :height "calc(100vh - 51px)"
                   :borderRight "1px solid #ccc"}}
-    [:h3 "Env"]
-    [env-meta]
     [:h3 "Packages"]
     (for [[k _] (sort (methods packages/load-package))]
       [package {:id k}])]
@@ -137,11 +146,32 @@
     [code-editor]
     [repl]]])
 
+(defui loading [{:keys [compiler-state]} _]
+  (let [[st _] (rehook/use-atom-fn
+                compiler-state
+                (fn [x]
+                  (into #{} (map first) (:cljs.analyzer/namespaces x)))
+                (constantly nil))
+        [n set-n] (rehook/use-state #{})]
+
+    (rehook/use-effect
+     (fn []
+       (set-n (set/union st n))
+       (constantly nil))
+     [(pr-str st)])
+    [:div {:style {:display        "flex"
+                   :height         "calc(100vh - 51px)"
+                   :width          "100%"
+                   :justifyContent "center"}}
+
+     [:strong {:style {:fontSize "20px"}}
+      (str "Loading... " (first (set/difference st n)))]]))
+
 (defui dominant-component [{:keys [db]} _]
   (let [[loading? _] (rehook/use-atom-path db [:loading?])
         [error _] (rehook/use-atom-path db [:error])]
     (cond
-      loading? [:div "loading"]
+      loading? [loading]
       error    [:div (str error)]
       :else    [app])))
 

@@ -1,3 +1,4 @@
+^{:auto-bundle :webpack}
 {:main         cljsfiddle.core
  :target       :bundle
  :pretty-print false
