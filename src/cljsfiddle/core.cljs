@@ -6,7 +6,6 @@
             [cljsfiddle.env.core :as env]
             [cljsfiddle.env.packages :as packages]
             [goog.object :as obj]
-            [cljsfiddle]
             [cljs.core.async :as async :refer-macros [go]]
             [cljs.js :as cljs]
             ["xterm" :refer [Terminal]]
