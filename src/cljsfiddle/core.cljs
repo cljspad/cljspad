@@ -5,12 +5,9 @@
             [cljsfiddle.effects :as effects]
             [cljsfiddle.env.core :as env]
             [cljsfiddle.env.packages :as packages]
-            [goog.object :as obj]
-            [cljs.core.async :as async :refer-macros [go]]
+            [cljsfiddle.repl :as repl]
             [cljs.js :as cljs]
             [clojure.set :as set]
-            ["xterm" :refer [Terminal]]
-            ["xterm-addon-fit" :refer [FitAddon]]
             ["codemirror" :as CodeMirror]
             ["react" :as react]
             ["react-dom" :as react-dom]
@@ -75,61 +72,6 @@
   (let [[st _] (rehook/use-atom-path compiler-state [:cljs.analyzer/namespaces])]
     [:code (pr-str (keys st))]))
 
-(defn terminal [fit-addon]
-  (doto (Terminal.)
-    (.loadAddon fit-addon)
-    (.setOption "theme" #js {:background "#fff" :foreground "#0c1323" :cursor "#0c1323"})
-    (.setOption "fontFamily" "Hack, monospace")
-    (.setOption "fontSize" 12)
-    (.setOption "cursorBlink" true)))
-
-(defn handle-repl-key
-  [compiler-state term form ev]
-  (let [key  (aget ev "key")
-        code (obj/getValueByKeys ev "domEvent" "code")]
-    (case code
-      "Backspace"
-      (do (.write term "\b \b")
-          (swap! form #(apply str (butlast %))))
-
-      "Enter"
-      (try
-        (go (let [result (async/<! (env/eval! compiler-state @form))]
-              (js/console.log "???" @form result)
-              (.writeln term "")
-              (.writeln term (if-some [value (:value result)]
-                               (str value)
-                               (str (:error result))))
-              (.write term "cljs.user => ")
-              (reset! form "")))
-        (catch :default e
-          (.writeln term "")
-          (.writeln term (str e))
-          (.write term "cljs.user => ")
-          (reset! form "")))
-
-      (do (swap! form str key)
-          (.write term key)))))
-
-(defui repl [{:keys [compiler-state]} _]
-  (let [container (react/useRef)]
-    (rehook/use-effect
-     (fn []
-       (let [fit  (FitAddon.)
-             term (terminal fit)
-             form (atom "")]
-         (let [current (aget container "current")]
-           (.open term current)
-           (.fit fit)
-           (.write term "cljs.user => ")
-           (.onKey term (partial handle-repl-key compiler-state term form))
-           (fn []
-             (.dispose term)))))
-     [])
-
-    [:div {:style {:width "100%" :height "200px"}
-           :ref container}]))
-
 (defui app [_ _]
   [:div {:style {:display     "flex"}}
    [:div {:style {:width "200px"
@@ -144,7 +86,7 @@
                   :flexDirection "column"
                   :width "100%"}}
     [code-editor]
-    [repl]]])
+    [repl/repl]]])
 
 (defui loading [{:keys [compiler-state]} _]
   (let [[st _] (rehook/use-atom-fn
