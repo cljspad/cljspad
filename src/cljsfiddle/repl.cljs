@@ -14,7 +14,7 @@
     (.loadAddon fit-addon)
     (.setOption "theme" #js {:background "#fff" :foreground "#0c1323" :cursor "#0c1323"})
     (.setOption "fontFamily" "Hack, monospace")
-    (.setOption "fontSize" 12)
+    (.setOption "fontSize" 14)
     (.setOption "cursorBlink" true)))
 
 (defn str-insert
@@ -134,5 +134,15 @@
            (.dispose term))))
      [version])
 
-    [:div {:style {:width "100%" :height "200px"}
-           :ref   container}]))
+    [:<>
+     [:div {:style {:borderTop       "1px solid #ccc"
+                    :backgroundColor "#fafafa"
+                    :borderBottom    "1px solid #ccc"
+                    :zIndex          "9999"
+                    :padding         "5px"}}
+      [:span.cljsfiddle-repl-icon {}]
+      [:strong " REPL"]]
+     [:div {:style {:width   "100%"
+                    :height  "200px"
+                    :padding "5px"}
+            :ref   container}]]))

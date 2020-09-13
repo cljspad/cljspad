@@ -1,7 +1,10 @@
 body {
   font-family: Hack, monospace;
-  font-size: 12px;
+  font-size: 14px;
+  line-height: 1.5;
   margin: 0;
+  color: #24292e;
+  background-color: #fff;
 }
 
 .cljsfiddle-container {
@@ -28,4 +31,32 @@ body {
   height: 100%;
   flex: 1 0 50%;
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+#sandbox {
+  padding: 10px;
+}
+
+.cljsfiddle-action {
+  color: #0366d6;
+  user-select: none;
+}
+
+.cljsfiddle-action:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cljsfiddle-code {
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: Hack, monospace;
+  padding: .2em .4em;
+  margin: 0;
+  background-color: rgba(27,31,35,.05);
+}
+
+.cljsfiddle-repl-icon {
+  content: url('https://api.iconify.design/mdi:console-line.svg?color=%2324292e&height=16');
+  vertical-align: -0.125em;
 }

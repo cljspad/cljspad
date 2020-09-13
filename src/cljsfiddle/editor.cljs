@@ -33,11 +33,12 @@
 
     [:div {:style {:width "100%" :height "calc(100vH - 250px)"}}
      [:div {:style {:height          "25px"
-                    :backgroundColor "rgb(51,51,51)"
+                    :backgroundColor "#fafafa"
+                    :borderBottom    "1px solid #ccc"
                     :padding         "3px"}}
       [:button {:onClick (:run run)}
        "Run"]]
 
      [MonacoEditor {:language "clojure"
-                    :theme    "vs-dark"
+                    :theme    "vs-light"
                     :ref      ref}]]))

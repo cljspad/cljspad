@@ -6,8 +6,8 @@
             [cljsfiddle.env.core :as env]
             [cljsfiddle.repl :as repl]
             [cljsfiddle.editor :as editor]
-            [cljs.js :as cljs]
             [clojure.set :as set]
+            ["marked"]
             ["react" :as react]
             ["react-dom" :as react-dom]
             [clojure.string :as str])
@@ -16,26 +16,77 @@
 (goog-define server-endpoint
   "http://localhost:3000")
 
+(def initial-state
+  {:loading?        true
+   :error?          false
+   :version         "1.0.0"
+   :server-endpoint server-endpoint
+   :manifest        {}
+   :source          ""})
+
 (defn system []
   {:compiler-state (env/state)
    :history        (History.)
-   :db             (atom {:loading?        true
-                          :error?          false
-                          :version         "1.0.0"
-                          :server-endpoint server-endpoint
-                          :source          ""})})
+   :db             (atom initial-state)})
 
 (defui env-meta [{:keys [compiler-state]} _]
   (let [[st _] (rehook/use-atom-path compiler-state [:cljs.analyzer/namespaces])]
     [:code (pr-str (keys st))]))
 
+(defui manifest [{:keys [db]} _]
+  (let [[version _] (rehook/use-atom-path db [:version])
+        [manifest _] (rehook/use-atom-path db [:manifest version])
+        [expanded set-expanded] (rehook/use-state #{})]
+    [:div
+     [:h3 "Sandbox"]
+     [:p [:span "Version: " [:strong version]]]
+     [:p [:span "Cljs version: " [:strong (:clojurescript/version manifest)]]]
+     [:h3 "Available Packages"]
+     [:div
+      (for [package (sort-by :name (:packages manifest))]
+        [:div {:key (str "package-" (:name package))}
+         [:div
+          [:div.cljsfiddle-action
+           {:onClick #(if (expanded (:name package))
+                        (set-expanded (disj expanded (:name package)))
+                        (set-expanded (conj expanded (:name package))))}
+           [:span (:name package) " (" (-> package :type name) ")"]]
+          (when (expanded (:name package))
+            [:div {:style {:marginTop    "5px"
+                           :marginBottom "5px"
+                           :paddingLeft   "5px"
+                           :paddingRight  "5px"
+                           :paddingTop    "10px"
+                           :paddingBottom "10px"
+                           :border        "1px solid #ccc"
+                           :borderRadius  "4px"}}
+             [:div (if-let [coord (:coord package)]
+                     [:code.cljsfiddle-code (pr-str coord)]
+                     [:code.cljsfiddle-code (:name package)])]
+
+             [:p (:doc package)]
+
+             (when-let [website (:url package)]
+               [:p [:a {:href website :target "_blank"}
+                    "Website"]])
+
+             (when-let [render-fn (:render-fn package)]
+               [:div [:span "Render fn: " [:code.cljsfiddle-code (str render-fn)]]])
+
+             [:div {:style {:marginBottom "10px"}}
+              [:p "Requires:"]
+              (for [r (:require package)]
+                [:p [:code.cljsfiddle-code (pr-str r)]])]
+
+             [:button {} "Load package"]])]])]]))
+
 (defui app [_ _]
   [:div {:style {:display     "flex"}}
-   [:div {:style {:width "200px"
+   [:div {:style {:width "300px"
                   :padding "5px"
                   :height "calc(100vh - 51px)"
                   :borderRight "1px solid #ccc"}}
-    [:h3 "Packages"]]
+    [manifest]]
 
    [:div {:style {:display "flex"
                   :flexDirection "column"
@@ -91,7 +142,3 @@
   (render))
 
 (render)
-
-(comment
- (cljs/eval-str (:compiler-state state) "(+ 1 2)" nil {:eval cljs/js-eval} prn)
- (prn "foobar"))
