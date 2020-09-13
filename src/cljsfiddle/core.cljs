@@ -7,6 +7,7 @@
             [cljsfiddle.repl :as repl]
             [cljsfiddle.editor :as editor]
             [clojure.set :as set]
+            [cljs.core.async :as async :refer-macros [go]]
             ["marked"]
             ["react" :as react]
             ["react-dom" :as react-dom]
@@ -33,12 +34,11 @@
   (let [[st _] (rehook/use-atom-path compiler-state [:cljs.analyzer/namespaces])]
     [:code (pr-str (keys st))]))
 
+(defn loaded-namespaces [x]
+  (into #{} (map first) (:cljs.analyzer/namespaces x)))
+
 (defui loading [{:keys [compiler-state]} _]
-  (let [[st _] (rehook/use-atom-fn
-                compiler-state
-                (fn [x]
-                  (into #{} (map first) (:cljs.analyzer/namespaces x)))
-                (constantly nil))
+  (let [[st _]    (rehook/use-atom-fn compiler-state loaded-namespaces (constantly nil))
         [n set-n] (rehook/use-state #{})]
 
     (rehook/use-effect
@@ -54,45 +54,71 @@
       [:span {} "Loading: "
        [:strong {} (str ns)]])))
 
-(defui available-packages [_ {:keys [manifest]}]
-  (let [[expanded set-expanded] (rehook/use-state #{})]
+(defn load-package [compiler-state version package]
+  (go (doseq [r (:require package)]
+        (let [s (str "(require '" (pr-str r) ")")]
+          (async/<! (env/eval! compiler-state version s))))))
+
+(defui package-meta
+  [{:keys [compiler-state db]} {:keys [package available?]}]
+  (let [[expanded set-expanded] (rehook/use-state false)
+        [version _]             (rehook/use-atom-path db [:version])]
     [:div
-     (for [package (sort-by :name (:packages manifest))]
-       [:div {:key (str "package-" (:name package))}
-        [:div
-         [:div.cljsfiddle-action
-          {:onClick #(if (expanded (:name package))
-                       (set-expanded (disj expanded (:name package)))
-                       (set-expanded (conj expanded (:name package))))}
-          [:span (:name package) " (" (-> package :type name) ")"]]
-         (when (expanded (:name package))
-           [:div {:style {:marginTop     "5px"
-                          :marginBottom  "5px"
-                          :paddingLeft   "5px"
-                          :paddingRight  "5px"
-                          :paddingTop    "10px"
-                          :paddingBottom "10px"
-                          :border        "1px solid #ccc"
-                          :borderRadius  "4px"}}
-            [:div (if-let [coord (:coord package)]
-                    [:code.cljsfiddle-code (pr-str coord)]
-                    [:code.cljsfiddle-code (:name package)])]
+     [:div.cljsfiddle-action
+      {:onClick #(set-expanded (not expanded))}
+      [:span (:name package) " (" (-> package :type name) ")"]]
+     (when expanded
+       [:div {:style {:marginTop     "5px"
+                      :marginBottom  "5px"
+                      :paddingLeft   "5px"
+                      :paddingRight  "5px"
+                      :paddingTop    "10px"
+                      :paddingBottom "10px"
+                      :border        "1px solid #ccc"
+                      :borderRadius  "4px"}}
+        [:div (if-let [coord (:coord package)]
+                [:code.cljsfiddle-code (pr-str coord)]
+                [:code.cljsfiddle-code (:name package)])]
 
-            [:p (:doc package)]
+        [:p (:doc package)]
 
-            (when-let [website (:url package)]
-              [:p [:a {:href website :target "_blank"}
-                   "Website"]])
+        (when-let [website (:url package)]
+          [:p [:a {:href website :target "_blank"}
+               "Website"]])
 
-            (when-let [render-fn (:render-fn package)]
-              [:div [:span "Render fn: " [:code.cljsfiddle-code (str render-fn)]]])
+        (when-let [render-fn (:render-fn package)]
+          [:div [:span "Render fn: " [:code.cljsfiddle-code (str render-fn)]]])
 
-            [:div {:style {:marginBottom "10px"}}
-             [:p "Requires:"]
-             (for [r (:require package)]
-               [:p [:code.cljsfiddle-code (pr-str r)]])]
+        [:div {:style {:marginBottom "10px"}}
+         [:p "Requires:"]
+         (for [r (:require package)]
+           [:p [:code.cljsfiddle-code (pr-str r)]])]
 
-            [:button {} "Load package"]])]])]))
+        (when available?
+          [:button {:onClick #(load-package compiler-state version package)}
+           "Load package"])])]))
+
+(defui available-packages
+  [{:keys [compiler-state]} {:keys [manifest]}]
+  (let [[nses _]           (rehook/use-atom-fn compiler-state loaded-namespaces (constantly nil))
+        available-packages (filter (fn [package]
+                                     (every? (comp (complement nses) first) (:require package)))
+                                   (:packages manifest))]
+    [:div
+     (for [package (sort-by :name available-packages)]
+       [:div {:key (str "available-package-" (:name package))}
+        [package-meta {:package package :available? true}]])]))
+
+(defui loaded-packages
+  [{:keys [compiler-state]} {:keys [manifest]}]
+  (let [[nses _]           (rehook/use-atom-fn compiler-state loaded-namespaces (constantly nil))
+        available-packages (filter (fn [package]
+                                     (every? (comp nses first) (:require package)))
+                                   (:packages manifest))]
+    [:div
+     (for [package (sort-by :name available-packages)]
+       [:div {:key (str "loaded-package-" (:name package))}
+        [package-meta {:package package :available? false}]])]))
 
 (defui manifest [{:keys [db]} _]
   (let [[version _]  (rehook/use-atom-path db [:version])
@@ -102,6 +128,8 @@
      [:div [:span "Version: " [:strong version]]]
      [:div [:span "Cljs version: " [:strong (:clojurescript/version manifest)]]]
      [:div [loading]]
+     [:h3 "Loaded Packages"]
+     [loaded-packages {:manifest manifest}]
      [:h3 "Available Packages"]
      [available-packages {:manifest manifest}]]))
 

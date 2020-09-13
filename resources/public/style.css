@@ -10,6 +10,7 @@ body {
 .cljsfiddle-container {
   height: calc(100vh - 55px);
   width: 100%;
+  display: flex;
 }
 
 .cljsfiddle-navbar {
@@ -28,7 +29,7 @@ body {
 }
 
 #app {
-  width: calc(60% - 1px);
+  flex: 2;
   border-right: 1px solid #ccc;
 }
 
@@ -42,6 +43,7 @@ body {
 }
 
 #sandbox {
+  flex: 1;
   padding: 10px;
 }
 
