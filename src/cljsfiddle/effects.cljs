@@ -23,9 +23,15 @@
   [ctx ev]
   (let [token (aget ev "token")
         [_ type id] (str/split token #"/")]
-    (case type
-      "gist" (load-gist ctx id)
-      (js/console.log "Unknown type " type))))
+    (cond
+      (= type "gist")
+      (load-gist ctx id)
+
+      (str/blank? token)
+      (js/console.log "Load README.md gist")
+
+      :else
+      (js/console.log "Unknown token " token))))
 
 (defui history [{:keys [history] :as ctx} _]
   (rehook/use-effect

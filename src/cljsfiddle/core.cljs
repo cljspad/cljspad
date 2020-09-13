@@ -54,53 +54,56 @@
       [:span {} "Loading: "
        [:strong {} (str ns)]])))
 
+(defui available-packages [_ {:keys [manifest]}]
+  (let [[expanded set-expanded] (rehook/use-state #{})]
+    [:div
+     (for [package (sort-by :name (:packages manifest))]
+       [:div {:key (str "package-" (:name package))}
+        [:div
+         [:div.cljsfiddle-action
+          {:onClick #(if (expanded (:name package))
+                       (set-expanded (disj expanded (:name package)))
+                       (set-expanded (conj expanded (:name package))))}
+          [:span (:name package) " (" (-> package :type name) ")"]]
+         (when (expanded (:name package))
+           [:div {:style {:marginTop     "5px"
+                          :marginBottom  "5px"
+                          :paddingLeft   "5px"
+                          :paddingRight  "5px"
+                          :paddingTop    "10px"
+                          :paddingBottom "10px"
+                          :border        "1px solid #ccc"
+                          :borderRadius  "4px"}}
+            [:div (if-let [coord (:coord package)]
+                    [:code.cljsfiddle-code (pr-str coord)]
+                    [:code.cljsfiddle-code (:name package)])]
+
+            [:p (:doc package)]
+
+            (when-let [website (:url package)]
+              [:p [:a {:href website :target "_blank"}
+                   "Website"]])
+
+            (when-let [render-fn (:render-fn package)]
+              [:div [:span "Render fn: " [:code.cljsfiddle-code (str render-fn)]]])
+
+            [:div {:style {:marginBottom "10px"}}
+             [:p "Requires:"]
+             (for [r (:require package)]
+               [:p [:code.cljsfiddle-code (pr-str r)]])]
+
+            [:button {} "Load package"]])]])]))
+
 (defui manifest [{:keys [db]} _]
-  (let [[version _] (rehook/use-atom-path db [:version])
-        [manifest _] (rehook/use-atom-path db [:manifest version])
-        [expanded set-expanded] (rehook/use-state #{})]
+  (let [[version _]  (rehook/use-atom-path db [:version])
+        [manifest _] (rehook/use-atom-path db [:manifest version])]
     [:div
      [:h3 "Sandbox"]
      [:div [:span "Version: " [:strong version]]]
      [:div [:span "Cljs version: " [:strong (:clojurescript/version manifest)]]]
      [:div [loading]]
      [:h3 "Available Packages"]
-     [:div
-      (for [package (sort-by :name (:packages manifest))]
-        [:div {:key (str "package-" (:name package))}
-         [:div
-          [:div.cljsfiddle-action
-           {:onClick #(if (expanded (:name package))
-                        (set-expanded (disj expanded (:name package)))
-                        (set-expanded (conj expanded (:name package))))}
-           [:span (:name package) " (" (-> package :type name) ")"]]
-          (when (expanded (:name package))
-            [:div {:style {:marginTop    "5px"
-                           :marginBottom "5px"
-                           :paddingLeft   "5px"
-                           :paddingRight  "5px"
-                           :paddingTop    "10px"
-                           :paddingBottom "10px"
-                           :border        "1px solid #ccc"
-                           :borderRadius  "4px"}}
-             [:div (if-let [coord (:coord package)]
-                     [:code.cljsfiddle-code (pr-str coord)]
-                     [:code.cljsfiddle-code (:name package)])]
-
-             [:p (:doc package)]
-
-             (when-let [website (:url package)]
-               [:p [:a {:href website :target "_blank"}
-                    "Website"]])
-
-             (when-let [render-fn (:render-fn package)]
-               [:div [:span "Render fn: " [:code.cljsfiddle-code (str render-fn)]]])
-
-             [:div {:style {:marginBottom "10px"}}
-              [:p "Requires:"]
-              (for [r (:require package)]
-                [:p [:code.cljsfiddle-code (pr-str r)]])]
-
-             [:button {} "Load package"]])]])]]))
+     [available-packages {:manifest manifest}]]))
 
 (defui app [_ _]
   [:div {:style {:display "flex"
