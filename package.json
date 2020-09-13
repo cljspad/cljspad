@@ -1,0 +1,35 @@
+{
+  "name": "cljsfiddle",
+  "version": "1.0.0",
+  "description": "[cljsfiddle](https://cljsfiddle.dev) is a code playground for [ClojureScript](https://clojurescript.org/)",
+  "main": "index.js",
+  "dependencies": {
+    "codemirror": "^5.57.0",
+    "monaco-editor-webpack-plugin": "^1.9.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-monaco-editor": "^0.40.0",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "xterm": "^4.9.0",
+    "xterm-addon-fit": "^0.4.0"
+  },
+  "devDependencies": {
+    "css-loader": "^4.3.0",
+    "file-loader": "^6.1.0",
+    "style-loader": "^1.2.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wavejumper/cljsfiddle.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wavejumper/cljsfiddle/issues"
+  },
+  "homepage": "https://github.com/wavejumper/cljsfiddle#readme"
+}

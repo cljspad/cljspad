@@ -7,7 +7,10 @@
             [clojure.string :as str]
             ["react" :as react]
             ["xterm" :refer [Terminal]]
-            ["xterm-addon-fit" :refer [FitAddon]]))
+            ["xterm-addon-fit" :refer [FitAddon]]
+            ["react-monaco-editor" :as m]))
+
+(prn "MONACO??? " m)
 
 (defn terminal [fit-addon]
   (doto (Terminal.)
