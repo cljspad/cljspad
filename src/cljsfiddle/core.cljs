@@ -6,9 +6,9 @@
             [cljsfiddle.env.core :as env]
             [cljsfiddle.env.packages :as packages]
             [cljsfiddle.repl :as repl]
+            [cljsfiddle.editor :as editor]
             [cljs.js :as cljs]
             [clojure.set :as set]
-            ["codemirror" :as CodeMirror]
             ["react" :as react]
             ["react-dom" :as react-dom]
             [clojure.string :as str])
@@ -21,44 +21,6 @@
                           :error?   false
                           :source   ""
                           :packages {}})})
-
-(defn run-code-mirror
-  [compiler-state code-mirror]
-  (fn [_]
-    (try
-      (env/eval! compiler-state (.getValue code-mirror))
-      (catch :default e (prn e)))))
-
-(defui code-editor [{:keys [compiler-state db]} _]
-  (let [container (react/useRef)
-        [source _] (rehook/use-atom-path db [:source])
-        [run set-run] (rehook/use-state {:run (constantly nil)})]
-
-    (js/console.log "Source..." source)
-
-    (rehook/use-effect
-     (fn []
-       (let [dom         (aget container "current")
-             opts        #js {:mode  "clojure"
-                              :value "Hello world"}
-             code-mirror (CodeMirror/fromTextArea dom opts)]
-         (.setValue code-mirror source)
-         (set-run {:run (run-code-mirror compiler-state code-mirror)})
-         (fn []
-           (.toTextArea code-mirror))))
-     [source])
-
-
-    [:div {:style {:width "100%" :height "calc(100vH - 250px)"}}
-     [:div {:style {:height          "25px"
-                    :backgroundColor "rgb(51,51,51)"
-                    :padding         "3px"}}
-      [:button {:onClick (:run run)}
-       "Run"]]
-
-     [:textarea {:ref      container
-                 :value    ""
-                 :onChange (constantly nil)}]]))
 
 (defui package [{:keys [db]} {:keys [id]}]
   (let [[checked? set-checked] (rehook/use-atom-path db [:packages id])]
@@ -85,7 +47,7 @@
    [:div {:style {:display "flex"
                   :flexDirection "column"
                   :width "100%"}}
-    [code-editor]
+    [editor/editor]
     [repl/repl]]])
 
 (defui loading [{:keys [compiler-state]} _]

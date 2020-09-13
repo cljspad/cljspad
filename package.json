@@ -4,7 +4,6 @@
   "description": "[cljsfiddle](https://cljsfiddle.dev) is a code playground for [ClojureScript](https://clojurescript.org/)",
   "main": "index.js",
   "dependencies": {
-    "codemirror": "^5.57.0",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
