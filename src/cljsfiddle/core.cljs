@@ -17,7 +17,7 @@
   "http://localhost:3000")
 
 (def initial-state
-  {:loading?        true
+  {:loading?        false
    :error?          false
    :version         "1.0.0"
    :server-endpoint server-endpoint
@@ -33,14 +33,36 @@
   (let [[st _] (rehook/use-atom-path compiler-state [:cljs.analyzer/namespaces])]
     [:code (pr-str (keys st))]))
 
+(defui loading [{:keys [compiler-state]} _]
+  (let [[st _] (rehook/use-atom-fn
+                compiler-state
+                (fn [x]
+                  (into #{} (map first) (:cljs.analyzer/namespaces x)))
+                (constantly nil))
+        [n set-n] (rehook/use-state #{})]
+
+    (rehook/use-effect
+     (fn []
+       (let [timeout (js/setTimeout
+                      #(set-n (set/union st n))
+                      200)]
+         (fn []
+           (js/clearTimeout timeout))))
+     [(pr-str st)])
+
+    (when-let [ns (first (set/difference st n))]
+      [:span {} "Loading: "
+       [:strong {} (str ns)]])))
+
 (defui manifest [{:keys [db]} _]
   (let [[version _] (rehook/use-atom-path db [:version])
         [manifest _] (rehook/use-atom-path db [:manifest version])
         [expanded set-expanded] (rehook/use-state #{})]
     [:div
      [:h3 "Sandbox"]
-     [:p [:span "Version: " [:strong version]]]
-     [:p [:span "Cljs version: " [:strong (:clojurescript/version manifest)]]]
+     [:div [:span "Version: " [:strong version]]]
+     [:div [:span "Cljs version: " [:strong (:clojurescript/version manifest)]]]
+     [:div [loading]]
      [:h3 "Available Packages"]
      [:div
       (for [package (sort-by :name (:packages manifest))]
@@ -81,39 +103,21 @@
              [:button {} "Load package"]])]])]]))
 
 (defui app [_ _]
-  [:div {:style {:display     "flex"}}
-   [:div {:style {:width "300px"
-                  :padding "5px"
-                  :height "calc(100vh - 51px)"
+  [:div {:style {:display "flex"
+                 :width   "100%"}}
+   [:div {:style {:width       "250px"
+                  :maxWidth    "250px"
+                  :minWidth    "250px"
+                  :padding     "5px"
+                  :height      "calc(100vh - 51px)"
                   :borderRight "1px solid #ccc"}}
     [manifest]]
 
-   [:div {:style {:display "flex"
-                  :flexDirection "column"
-                  :width "100%"}}
-    [editor/editor]
-    [repl/repl]]])
-
-(defui loading [{:keys [compiler-state]} _]
-  (let [[st _] (rehook/use-atom-fn
-                compiler-state
-                (fn [x]
-                  (into #{} (map first) (:cljs.analyzer/namespaces x)))
-                (constantly nil))
-        [n set-n] (rehook/use-state #{})]
-
-    (rehook/use-effect
-     (fn []
-       (set-n (set/union st n))
-       (constantly nil))
-     [(pr-str st)])
-    [:div {:style {:display        "flex"
-                   :height         "calc(100vh - 51px)"
-                   :width          "100%"
-                   :justifyContent "center"}}
-
-     [:strong {:style {:fontSize "20px"}}
-      (str "Loading... " (first (set/difference st n)))]]))
+   [:div {:style {:flex 1}}
+    [:div {:style {:display       "flex"
+                   :flexDirection "column"}}
+     [editor/editor]
+     [repl/repl]]]])
 
 (defui dominant-component [{:keys [db]} _]
   (let [[loading? _] (rehook/use-atom-path db [:loading?])
@@ -125,7 +129,6 @@
 
 (defui root-component [_ _]
   [:<>
-   [effects/compiler]
    [effects/history]
    [effects/manifest]
    [dominant-component]])

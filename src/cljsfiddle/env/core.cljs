@@ -39,13 +39,7 @@
   [compiler-state sandbox-version form]
   (go (<p! (js/Promise. #(cljs.js/eval-str compiler-state form nil (eval-opts sandbox-version) %)))))
 
-(defn init!
-  [compiler-state sandbox-version]
-  #_(go (async/<! (eval! compiler-state "(require '[cljsfiddle :as cljsfiddle])")))
-  (go nil))
-
 (defn restart-env!
   [{:keys [compiler-state]} sandbox-version {:keys [metadata source]}]
   (go #_(reset! compiler-state (deref (state)))
-      (async/<! (init! compiler-state sandbox-version))
-      (async/<! (eval! compiler-state sandbox-version source))))
+   (async/<! (eval! compiler-state sandbox-version source))))

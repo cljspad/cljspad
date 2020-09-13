@@ -37,16 +37,6 @@
          (ev/unlistenByKey ev))))
    []))
 
-(defui compiler [{:keys [compiler-state db]} _]
-  (let [[version _] (rehook/use-atom-path db [:verison])]
-    (rehook/use-effect
-     (fn []
-       (go
-        (async/<! (env/init! compiler-state version))
-        (swap! db assoc :loading? false))
-       (constantly nil))
-     [version])))
-
 (defui manifest [{:keys [db]} _]
   (let [[url _] (rehook/use-atom-path db [:server-endpoint])]
     (rehook/use-effect

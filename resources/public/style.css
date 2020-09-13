@@ -8,25 +8,33 @@ body {
 }
 
 .cljsfiddle-container {
-  display: flex;
   height: calc(100vh - 55px);
+  width: 100%;
 }
 
 .cljsfiddle-navbar {
+  padding-left: 5px;
+  padding-right: 5px;
   height: 49px;
   vertical-align: middle;
   background-color: #fafafa;
   border-bottom: 1px solid #ccc;
 }
 
+.cljsfiddle-logo {
+  height: 100%;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 #app {
-  width: calc(50% - 1px);
+  width: calc(60% - 1px);
   border-right: 1px solid #ccc;
 }
 
 #right {
   padding-top: 5px;
-  width: calc(50% - 5px);
+  width: calc(40% - 5px);
   margin-left: 5px;
   height: 100%;
   flex: 1 0 50%;
