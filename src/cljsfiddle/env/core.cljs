@@ -8,10 +8,10 @@
 (defn state []
   (cljs.js/empty-state))
 
-(defn load-cache [opts]
+(defn load-cache [sandbox-version opts]
   (js/Request. "http://localhost:3000"
                (clj->js {:method "POST"
-                         :body   (pr-str {:sandbox/version "1"
+                         :body   (pr-str {:sandbox/version sandbox-version
                                           :request         :env/load
                                           :opts            opts})})))
 
@@ -21,11 +21,8 @@
                         (when (.-ok response)
                           (.text response))))))))
 
-(def load-ns!
-  (constantly nil))
-
-(defn loader [ctx cb]
-  (go (let [resp (async/<! (http-req (load-cache ctx)))]
+(defn loader [sandbox-version ctx cb]
+  (go (let [resp (async/<! (http-req (load-cache sandbox-version ctx)))]
         (if-let [resp (some-> resp edn/read-string)]
           (cb (update resp
                       :cache (fn [c]
@@ -34,20 +31,21 @@
                                    (transit/read rdr c))))))
           (cb nil)))))
 
-(def eval-opts
+(defn eval-opts [sandbox-version]
   {:eval cljs.js/js-eval
-   :load loader})
+   :load (partial loader sandbox-version)})
 
 (defn eval!
-  [compiler-state form]
-  (go (<p! (js/Promise. #(cljs.js/eval-str compiler-state form nil eval-opts %)))))
+  [compiler-state sandbox-version form]
+  (go (<p! (js/Promise. #(cljs.js/eval-str compiler-state form nil (eval-opts sandbox-version) %)))))
 
 (defn init!
-  [compiler-state]
-  (go (async/<! (eval! compiler-state "(require '[cljsfiddle :as cljsfiddle])"))))
+  [compiler-state sandbox-version]
+  #_(go (async/<! (eval! compiler-state "(require '[cljsfiddle :as cljsfiddle])")))
+  (go nil))
 
 (defn restart-env!
-  [{:keys [compiler-state]} {:keys [metadata source]}]
+  [{:keys [compiler-state]} sandbox-version {:keys [metadata source]}]
   (go #_(reset! compiler-state (deref (state)))
-      (async/<! (init! compiler-state))
-      (async/<! (eval! compiler-state source))))
+      (async/<! (init! compiler-state sandbox-version))
+      (async/<! (eval! compiler-state sandbox-version source))))

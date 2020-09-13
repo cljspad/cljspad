@@ -3,30 +3,19 @@
   (:require [rehook.dom :refer-macros [defui]]
             [rehook.core :as rehook]
             [cljs.core.async :as async :refer-macros [go]]
-            [cljsfiddle.env.packages :as packages]
             [goog.events :as ev]
             [cljsfiddle.env.core :as env]
             [cljsfiddle.gist :as gist]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [cljs.tools.reader.edn :as edn]))
 
-(defui package
-  [{:keys [compiler-state db]} _]
-  (let [[packages _] (rehook/use-atom-path db [:packages])]
-    (rehook/use-effect
-     (fn []
-       (doseq [[package enabled?] packages
-               :when enabled?]
-         (prn "Load " (pr-str package))
-         (packages/load-package {:compiler-state compiler-state} package))
-       (constantly nil))
-     [(pr-str packages)])))
-
+;; TODO: less imperative impl
 (defn load-gist [{:keys [db] :as ctx} id]
   (go
    (swap! db assoc :loading? true)
    (let [result (async/<! (gist/load-gist id))]
      (if (:success? result)
-       (do (async/<! (env/restart-env! ctx result))
+       (do (async/<! (env/restart-env! ctx (-> db deref :version) result))
            (swap! db assoc :loading? false :source (:source result)))
        (swap! db assoc :error (:ex result) :loading? false)))))
 
@@ -49,10 +38,23 @@
    []))
 
 (defui compiler [{:keys [compiler-state db]} _]
-  (rehook/use-effect
-   (fn []
-     (go
-      (async/<! (env/init! compiler-state))
-      (swap! db assoc :loading? false))
-     (constantly nil))
-   []))
+  (let [[version _] (rehook/use-atom-path db [:verison])]
+    (rehook/use-effect
+     (fn []
+       (go
+        (async/<! (env/init! compiler-state version))
+        (swap! db assoc :loading? false))
+       (constantly nil))
+     [version])))
+
+(defui manifest [{:keys [db]} _]
+  (let [[url _] (rehook/use-atom-path db [:server-endpoint])]
+    (rehook/use-effect
+     (fn []
+       (-> (js/fetch url)
+           (.then #(.text %))
+           (.then #(edn/read-string %))
+           (.then #(swap! db assoc :manifest %))
+           (.catch #(js/console.log "Could not load manifest" %)))
+       (constantly nil))
+     [url])))

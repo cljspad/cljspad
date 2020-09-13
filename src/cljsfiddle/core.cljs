@@ -4,7 +4,6 @@
             [rehook.dom.browser :as dom.browser]
             [cljsfiddle.effects :as effects]
             [cljsfiddle.env.core :as env]
-            [cljsfiddle.env.packages :as packages]
             [cljsfiddle.repl :as repl]
             [cljsfiddle.editor :as editor]
             [cljs.js :as cljs]
@@ -14,21 +13,17 @@
             [clojure.string :as str])
   (:import (goog History)))
 
+(goog-define server-endpoint
+  "http://localhost:3000")
+
 (defn system []
   {:compiler-state (env/state)
    :history        (History.)
-   :db             (atom {:loading? true
-                          :error?   false
-                          :source   ""
-                          :packages {}})})
-
-(defui package [{:keys [db]} {:keys [id]}]
-  (let [[checked? set-checked] (rehook/use-atom-path db [:packages id])]
-    [:div {:key (str "package-" (name id))}
-     [:input {:type     "checkbox"
-              :checked  (boolean checked?)
-              :onChange #(set-checked true)}]
-     [:label (name id)]]))
+   :db             (atom {:loading?        true
+                          :error?          false
+                          :version         "1.0.0"
+                          :server-endpoint server-endpoint
+                          :source          ""})})
 
 (defui env-meta [{:keys [compiler-state]} _]
   (let [[st _] (rehook/use-atom-path compiler-state [:cljs.analyzer/namespaces])]
@@ -40,9 +35,7 @@
                   :padding "5px"
                   :height "calc(100vh - 51px)"
                   :borderRight "1px solid #ccc"}}
-    [:h3 "Packages"]
-    (for [[k _] (sort (methods packages/load-package))]
-      [package {:id k}])]
+    [:h3 "Packages"]]
 
    [:div {:style {:display "flex"
                   :flexDirection "column"
@@ -82,8 +75,8 @@
 (defui root-component [_ _]
   [:<>
    [effects/compiler]
-   [effects/package]
    [effects/history]
+   [effects/manifest]
    [dominant-component]])
 
 (defonce state

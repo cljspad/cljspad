@@ -22,7 +22,7 @@
   (str (subs s 0 i) c (subs s i)))
 
 (defn handle-repl-key
-  [compiler-state curr-repl-state cb ev]
+  [compiler-state version curr-repl-state cb ev]
   (let [key  (aget ev "key")
         code (obj/getValueByKeys ev "domEvent" "code")]
     (case code
@@ -71,7 +71,7 @@
 
       "Enter"
       (when-not (str/blank? (:form curr-repl-state))
-        (go (let [result (async/<! (env/eval! compiler-state (:form curr-repl-state)))]
+        (go (let [result (async/<! (env/eval! compiler-state version (:form curr-repl-state)))]
               (js/console.log "REPL output => " (:form curr-repl-state) result)
               (cb (-> curr-repl-state
                       (assoc :pos 0)
@@ -116,8 +116,9 @@
    :max-history-items 50
    :history           '()})
 
-(defui repl [{:keys [compiler-state]} _]
-  (let [container (react/useRef)]
+(defui repl [{:keys [compiler-state db]} _]
+  (let [container (react/useRef)
+        [version _] (rehook/use-atom-path db [:version])]
     (rehook/use-effect
      (fn []
        (let [fit     (FitAddon.)
@@ -128,10 +129,10 @@
          (.open term current)
          (.fit fit)
          (.write term "cljs.user => ")
-         (.onKey term #(handle-repl-key compiler-state @state repl-cb %))
+         (.onKey term #(handle-repl-key compiler-state version @state repl-cb %))
          (fn []
            (.dispose term))))
-     [])
+     [version])
 
     [:div {:style {:width "100%" :height "200px"}
            :ref   container}]))

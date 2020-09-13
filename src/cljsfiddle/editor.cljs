@@ -6,28 +6,30 @@
             ["react-monaco-editor" :as monaco]
             ["react" :as react]))
 
+;; TODO: does :target :bundle support :default in require?
 (def MonacoEditor
   (aget monaco "default"))
 
 (defn run-code
-  [compiler-state monaco]
+  [compiler-state version monaco]
   (fn [_]
     (let [model (.getModel monaco)
           value (.getValue model)]
       (try
-        (env/eval! compiler-state value)
+        (env/eval! compiler-state version value)
         (catch :default e (prn e))))))
 
-(defui editor [{:keys [compiler-state]} _]
+(defui editor [{:keys [compiler-state db]} _]
   (let [ref (react/useRef)
-        [run set-run] (rehook/use-state nil)]
+        [run set-run] (rehook/use-state nil)
+        [version _] (rehook/use-atom-path db [:version])]
 
     (rehook/use-effect
      (fn []
        (let [monaco (obj/getValueByKeys ref "current" "editor")]
-         (set-run {:run (run-code compiler-state monaco)}))
+         (set-run {:run (run-code compiler-state version monaco)}))
        (constantly nil))
-     [])
+     [version])
 
     [:div {:style {:width "100%" :height "calc(100vH - 250px)"}}
      [:div {:style {:height          "25px"
