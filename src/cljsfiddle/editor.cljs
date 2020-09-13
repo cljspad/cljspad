@@ -22,7 +22,8 @@
 (defui editor [{:keys [compiler-state db]} _]
   (let [ref (react/useRef)
         [run set-run] (rehook/use-state nil)
-        [version _] (rehook/use-atom-path db [:version])]
+        [version _] (rehook/use-atom-path db [:version])
+        [source _] (rehook/use-atom-path db [:source])]
 
     (rehook/use-effect
      (fn []
@@ -41,4 +42,5 @@
 
      [MonacoEditor {:language "clojure"
                     :theme    "vs-light"
+                    :value    source
                     :ref      ref}]]))

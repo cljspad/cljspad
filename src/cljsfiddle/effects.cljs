@@ -3,6 +3,7 @@
   (:require [rehook.dom :refer-macros [defui]]
             [rehook.core :as rehook]
             [cljs.core.async :as async :refer-macros [go]]
+            [cljs.core.async.interop :refer-macros [<p!]]
             [goog.events :as ev]
             [cljsfiddle.env.core :as env]
             [cljsfiddle.gist :as gist]
@@ -19,6 +20,13 @@
            (swap! db assoc :loading? false :source (:source result)))
        (swap! db assoc :error (:ex result) :loading? false)))))
 
+(defn load-readme
+  [{:keys [db compiler-state]}]
+  ;; TODO: url pass in as variable
+  (go (let [source (<p! (-> (js/fetch "http://localhost:3000/readme") (.then #(.text %))))
+            _      (async/<! (env/eval! compiler-state (-> db deref :version) source))]
+        (swap! db assoc :source source))))
+
 (defn nav-callback
   [ctx ev]
   (let [token (aget ev "token")
@@ -28,7 +36,7 @@
       (load-gist ctx id)
 
       (str/blank? token)
-      (js/console.log "Load README.md gist")
+      (load-readme ctx)
 
       :else
       (js/console.log "Unknown token " token))))
@@ -47,7 +55,7 @@
   (let [[url _] (rehook/use-atom-path db [:server-endpoint])]
     (rehook/use-effect
      (fn []
-       (-> (js/fetch url)
+       (-> (js/fetch (str url "/manifest"))
            (.then #(.text %))
            (.then #(edn/read-string %))
            (.then #(swap! db assoc :manifest %))

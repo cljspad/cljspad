@@ -45,6 +45,7 @@ body {
 #sandbox {
   flex: 1;
   padding: 10px;
+  overflow: scroll;
 }
 
 .cljsfiddle-action {

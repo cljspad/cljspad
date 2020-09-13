@@ -9,7 +9,8 @@
   (cljs.js/empty-state))
 
 (defn load-cache [sandbox-version opts]
-  (js/Request. "http://localhost:3000"
+  ;; TODO: this can't be hard-coded =[
+  (js/Request. "http://localhost:3000/rpc"
                (clj->js {:method "POST"
                          :body   (pr-str {:sandbox/version sandbox-version
                                           :request         :env/load

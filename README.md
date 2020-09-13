@@ -4,9 +4,7 @@
 
 # Usage
 
-## Environments 
-
-On the left hand pane you can select common ClojureScript environments for libraries such as:
+## Sandbox Environments
 
 * Reagent + re-frame: demo
 * Rum: demo
