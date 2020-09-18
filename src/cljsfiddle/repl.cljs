@@ -44,6 +44,7 @@
           (cb (-> curr-repl-state
                   (assoc :history-index next-history-index)
                   (assoc :form history-form)
+                  (assoc :pos (count history-form))
                   (assoc :term-commands (conj (vec (repeat (count (:form curr-repl-state)) ["write" "\b \b"]))
                                               ["write" history-form]))))))
 
@@ -53,6 +54,7 @@
           (cb (-> curr-repl-state
                   (assoc :history-index next-history-index)
                   (assoc :form history-form)
+                  (assoc :pos (count history-form))
                   (assoc :term-commands (conj (vec (repeat (count (:form curr-repl-state)) ["write" "\b \b"]))
                                               ["write" history-form]))))
           (when (= -1 next-history-index)
