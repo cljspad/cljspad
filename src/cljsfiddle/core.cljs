@@ -11,19 +11,22 @@
             ["marked"]
             ["react" :as react]
             ["react-dom" :as react-dom]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [cljsjs.react]
+            [cljsjs.react.dom]
+            [cljsfiddle.hacks]
+            [cljsfiddle.helpers.markdown]
+            [cljsfiddle.helpers.rum])
   (:import (goog History)))
 
-(goog-define server-endpoint
-  "http://localhost:3000")
+(goog-define version "dev")
 
 (def initial-state
-  {:loading?        false
-   :error?          false
-   :version         "1.0.0"
-   :server-endpoint server-endpoint
-   :manifest        {}
-   :source          ""})
+  {:loading? false
+   :error?   false
+   :version  version
+   :manifest {}
+   :source   ""})
 
 (defn system []
   {:compiler-state (env/state)

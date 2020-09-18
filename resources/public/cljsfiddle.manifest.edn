@@ -1,0 +1,29 @@
+{:sandbox/version       "1.0.0"
+ :clojurescript/version "1.10.741"
+ :packages              [{:name      "reagent"
+                          :type      :cljs
+                          :doc       "A minimalistic ClojureScript interface to React.js"
+                          :url       "https://github.com/reagent-project/reagent"
+                          :coord     [reagent "1.0.0-alpha2"]
+                          :render-fn reagent-render!
+                          :require   [[reagent.core :as rg]
+                                      [cljsfiddle.reagent :refer [reagent-render!]]]
+                          :examples  []}
+                         {:name      "marked"
+                          :type      :js
+                          :doc       "A markdown parser and compiler. Built for speed."
+                          :url       "https://github.com/markedjs/marked"
+                          :render-fn markdown-render!
+                          :require   [[cljsfiddle.markdown :refer [markdown-render!]]]
+                          :examples  []}
+                         {:name    "core.async"
+                          :type    :cljs
+                          :doc     ""
+                          :rul     ""
+                          :require [[cljs.core.async]]}
+                         {:name      "rum"
+                          :type      :cljs
+                          :doc       ""
+                          :url       ""
+                          :render-fn rum-render!
+                          :require   [[cljsfiddle.rum]]}]}

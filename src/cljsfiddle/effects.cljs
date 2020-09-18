@@ -23,7 +23,7 @@
 (defn load-readme
   [{:keys [db compiler-state]}]
   ;; TODO: url pass in as variable
-  (go (let [source (<p! (-> (js/fetch "http://localhost:3000/readme") (.then #(.text %))))
+  (go (let [source (<p! (-> (js/fetch (str "/sandbox/" (:version @db) "/readme.cljs")) (.then #(.text %))))
             _      (async/<! (env/eval! compiler-state (-> db deref :version) source))]
         (swap! db assoc :source source))))
 
@@ -52,13 +52,13 @@
    []))
 
 (defui manifest [{:keys [db]} _]
-  (let [[url _] (rehook/use-atom-path db [:server-endpoint])]
+  (let [[version _] (rehook/use-atom-path db [:version])]
     (rehook/use-effect
      (fn []
-       (-> (js/fetch (str url "/manifest"))
+       (-> (js/fetch (str "/sandbox/" version "/cljsfiddle.manifest.edn"))
            (.then #(.text %))
            (.then #(edn/read-string %))
            (.then #(swap! db assoc :manifest %))
            (.catch #(js/console.log "Could not load manifest" %)))
        (constantly nil))
-     [url])))
+     [version])))

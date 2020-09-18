@@ -1,5 +1,0 @@
-^{:auto-bundle :webpack}
-{:main         cljsfiddle.core
- :target       :bundle
- :pretty-print false
- :bundle-cmd   {:none ["npx" "webpack" "--mode=development" :output-to "-o" :final-output-to]}}

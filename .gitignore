@@ -17,6 +17,7 @@ resources/public/cache/
 resources/public/cljs-runtime/
 resources/public/main.js
 resources/public/manifest.edn
+resources/public/cljsfiddle/
 .idea/
 *.iml
 out/

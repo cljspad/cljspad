@@ -1,1 +1,1 @@
-clojure -m figwheel.main -b dev -r
+clj -m cljs.main -co build.edn -c -r

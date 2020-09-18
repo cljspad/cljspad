@@ -10,27 +10,28 @@
 
 (defn load-cache [sandbox-version opts]
   ;; TODO: this can't be hard-coded =[
-  (js/Request. "http://localhost:3000/rpc"
+  (js/Request. (str "/api/" sandbox-version "/rpc")
                (clj->js {:method "POST"
                          :body   (pr-str {:sandbox/version sandbox-version
                                           :request         :env/load
                                           :opts            opts})})))
 
-(defn http-req [req]
-  (go (<p! (-> (js/fetch req)
-               (.then (fn [response]
-                        (when (.-ok response)
-                          (.text response))))))))
-
 (defn loader [sandbox-version ctx cb]
-  (go (let [resp (async/<! (http-req (load-cache sandbox-version ctx)))]
-        (if-let [resp (some-> resp edn/read-string)]
-          (cb (update resp
-                      :cache (fn [c]
-                               (when c
-                                 (let [rdr (transit/reader :json)]
-                                   (transit/read rdr c))))))
-          (cb nil)))))
+  (-> (js/fetch (load-cache sandbox-version ctx))
+      (.then (fn [response]
+               (when (.-ok response)
+                 (.text response))))
+      (.then (fn [response]
+               (if-let [resp (some-> response edn/read-string)]
+                 (cb (update resp
+                             :cache (fn [c]
+                                      (when c
+                                        (let [rdr (transit/reader :json)]
+                                          (transit/read rdr c))))))
+                 (cb nil))))
+      (.catch (fn [e]
+                (js/console.log e "Unable to load " (pr-str ctx))
+                (cb nil)))))
 
 (defn eval-opts [sandbox-version]
   {:eval cljs.js/js-eval
