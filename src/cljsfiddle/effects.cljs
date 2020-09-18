@@ -58,7 +58,7 @@
        (-> (js/fetch (str "/sandbox/" version "/cljsfiddle.manifest.edn"))
            (.then #(.text %))
            (.then #(edn/read-string %))
-           (.then #(swap! db assoc :manifest %))
+           (.then #(swap! db assoc-in [:manifest version] %))
            (.catch #(js/console.log "Could not load manifest" %)))
        (constantly nil))
      [version])))
