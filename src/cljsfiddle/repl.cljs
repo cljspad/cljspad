@@ -143,6 +143,5 @@
       [:span.cljsfiddle-repl-icon {}]
       [:strong " REPL"]]
      [:div {:style {:width   "100%"
-                    :height  "200px"
-                    :padding "5px"}
+                    :height  "200px"}
             :ref   container}]]))

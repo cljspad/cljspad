@@ -8,15 +8,10 @@
             [cljsfiddle.editor :as editor]
             [clojure.set :as set]
             [cljs.core.async :as async :refer-macros [go]]
-            ["marked"]
             ["react" :as react]
             ["react-dom" :as react-dom]
             [clojure.string :as str]
-            [cljsjs.react]
-            [cljsjs.react.dom]
-            [cljsfiddle.hacks]
-            [cljsfiddle.helpers.markdown]
-            [cljsfiddle.helpers.rum])
+            [cljsfiddle.sandbox])
   (:import (goog History)))
 
 (goog-define version "dev")
