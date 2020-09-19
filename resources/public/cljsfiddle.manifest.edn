@@ -7,23 +7,32 @@
                           :coord     [reagent "1.0.0-alpha2"]
                           :render-fn reagent-render!
                           :require   [[reagent.core :as rg]
-                                      [cljsfiddle.reagent :refer [reagent-render!]]]
+                                      [cljsfiddle.helpers.reagent :refer [reagent-render!]]]
                           :examples  []}
                          {:name      "marked"
                           :type      :js
                           :doc       "A markdown parser and compiler. Built for speed."
                           :url       "https://github.com/markedjs/marked"
                           :render-fn markdown-render!
-                          :require   [[cljsfiddle.markdown :refer [markdown-render!]]]
+                          :require   [[cljsfiddle.helpers.markdown :refer [markdown-render!]]]
                           :examples  []}
                          {:name    "core.async"
                           :type    :cljs
-                          :doc     ""
-                          :rul     ""
-                          :require [[cljs.core.async]]}
+                          :doc     "Facilities for async programming and communication in Clojure"
+                          :url     "https://github.com/clojure/core.async"
+                          :coord   [org.clojure/core.async "1.3.610"]
+                          :require [[cljs.core.async :as async :refer-macros [go go-loop]]
+                                    [cljs.core.async.interop :refer-macros [<p!]]]}
                          {:name      "rum"
                           :type      :cljs
-                          :doc       ""
-                          :url       ""
+                          :doc       "Simple, decomplected, isomorphic HTML UI library for Clojure and ClojureScript"
+                          :url       "https://github.com/tonsky/rum"
+                          :coord     [rum "0.12.3"]
                           :render-fn rum-render!
-                          :require   [[cljsfiddle.rum]]}]}
+                          :require   [[cljsfiddle.helpers.rum :refer [rum-render!]]]}
+                         {:name    "re-frame"
+                          :type    :cljs
+                          :doc     "A ClojureScript framework for building user interfaces, leveraging React"
+                          :url     "https://github.com/day8/re-frame"
+                          :coord   [re-frame "1.1.1"]
+                          :require [[re-frame.core :as rf]]}]}
