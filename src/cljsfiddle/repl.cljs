@@ -4,6 +4,7 @@
             [cljsfiddle.env.core :as env]
             [goog.object :as obj]
             [cljs.core.async :as async :refer-macros [go]]
+            [cljs.tools.reader.edn :as edn]
             [clojure.string :as str]
             ["react" :as react]
             ["xterm" :refer [Terminal]]
@@ -89,7 +90,7 @@
                                                           ;; TODO: a nicer pretty printing fn perhaps...
                                                           (pr-str value)
                                                           "nil")]
-                                             ["write" (str (or (:ns result) "cljs.user") " => ")]]))))))
+                                             ["write" (str (or (:ns result) "cljs.user") "=> ")]]))))))
 
       ("Home" "PageUp" "PageDown" "End")
       nil
@@ -100,10 +101,23 @@
               (update :pos inc)
               (assoc :term-commands [["write" key]]))))))
 
+(defn read-repl-history
+  []
+  (try (or (some-> (js/localStorage.getItem "repl-history")
+                   (edn/read-string))
+           '())
+       (catch :default _ '())))
+
+(defn write-repl-history
+  [history]
+  (try (js/localStorage.setItem "repl-history" (pr-str history))
+       (catch :default _ nil)))
+
 (defn mutate-repl!
   [state term next-state]
 
   (reset! state next-state)
+  (write-repl-history (:history next-state))
 
   (doseq [[cmd val] (:term-commands next-state)]
     (case cmd
@@ -111,12 +125,12 @@
       "writeln" (.writeln term val)
       (js/console.warn "Unknown term command " cmd))))
 
-(def initial-state
+(defn initial-state []
   {:form              ""
    :pos               0
    :history-index     -1
    :max-history-items 50
-   :history           '()})
+   :history           (read-repl-history)})
 
 (defui repl [{:keys [compiler-state db]} _]
   (let [container (react/useRef)
@@ -125,12 +139,12 @@
      (fn []
        (let [fit     (FitAddon.)
              term    (terminal fit)
-             state   (atom initial-state)
+             state   (atom (initial-state))
              repl-cb (partial mutate-repl! state term)
              current (aget container "current")]
          (.open term current)
          (.fit fit)
-         (.write term "cljs.user => ")
+         (.write term "cljs.user=> ")
          (.onKey term #(handle-repl-key compiler-state version @state repl-cb %))
          (fn []
            (.dispose term))))

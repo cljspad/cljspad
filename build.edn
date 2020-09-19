@@ -8,5 +8,5 @@
                           "--mode=development"]}
  :output-dir      "resources/public/cljsfiddle"
  :output-to       "resources/public/cljsfiddle/index.js"
- :asset-path      "sandbox/dev/cljsfiddle"
+ :asset-path      "/sandbox/dev/cljsfiddle"
  :closure-defines {cljsfiddle.core/version "dev"}}
