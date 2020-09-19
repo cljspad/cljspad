@@ -59,6 +59,11 @@ Becomes: https://cljsfiddle.net/gist/5d395f78257aab1da2536e5875b12d3d
 
 # Contributing 
 
+If you would like to contribute by adding a library to the cljsfiddle sandbox:
+
 1) Add desired library to `package.json` or `deps.edn`
-2) Add stubbed impl to [cljsfiddle.env.packages](https://github.com/wavejumper/cljsfiddle/blob/master/src/cljsfiddle/env/packages.cljs) 
-3) If you are rendering to the right-hand pane, add a render fn to [cljsfiddle](https://github.com/wavejumper/cljsfiddle/blob/master/src/cljsfiddle.cljs)
+2) Add an entry to [cljsfiddle.manifest.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/resources/public/cljsfiddle.manifest.edn)
+3) (Optional) add a helper namespace if your library renders anything to the right hand pane. Eg: `cljsfiddle.helpers.reagent`. Example [here](https://github.com/cljsfiddle/cljsfiddle/blob/master/src/cljsfiddle/helpers/rum.cljs)
+4) Require library or helper namespace in [cljsfiddle.sandbox](https://github.com/cljsfiddle/cljsfiddle/blob/master/src/cljsfiddle/sandbox.cljs)
+
+Instructions on how to run cljsfiddle locally can be found in the server repo's [README](https://github.com/cljsfiddle/server)
