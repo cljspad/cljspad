@@ -3,9 +3,6 @@
  :cache-analysis  true
  :target          :bundle
  :main            cljsfiddle.core
- :bundle-cmd      {:none ["npx" "webpack" "resources/public/cljsfiddle/index.js"
-                          "-o" "resources/public/cljsfiddle/main.js"
-                          "--mode=development"]}
  :output-dir      "resources/public/cljsfiddle"
  :output-to       "resources/public/cljsfiddle/index.js"
  :asset-path      "/sandbox/dev/cljsfiddle"

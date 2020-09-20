@@ -4,19 +4,24 @@
   "description": "[cljsfiddle](https://cljsfiddle.dev) is a code playground for [ClojureScript](https://clojurescript.org/)",
   "main": "index.js",
   "dependencies": {
+    "elkjs": "^0.7.0",
     "marked": "^1.1.1",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-monaco-editor": "^0.40.0",
+    "web-worker": "^1.0.0",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12",
+    "webpack-merge-and-include-globally": "^2.1.25",
     "xterm": "^4.9.0",
     "xterm-addon-fit": "^0.4.0"
   },
   "devDependencies": {
+    "closure-webpack-plugin": "^2.3.0",
     "css-loader": "^4.3.0",
     "file-loader": "^6.1.0",
+    "google-closure-compiler": "^20200830.0.0",
     "style-loader": "^1.2.1"
   },
   "scripts": {

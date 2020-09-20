@@ -173,4 +173,4 @@
 (defn main []
   (render))
 
-(render)
+(main)

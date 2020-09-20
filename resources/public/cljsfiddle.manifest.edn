@@ -14,7 +14,7 @@
                           :doc       "A markdown parser and compiler. Built for speed."
                           :url       "https://github.com/markedjs/marked"
                           :render-fn markdown-render!
-                          :require   [[cljsfiddle.helpers.markdown :refer [markdown-render!]]]
+                          :require   [[cljsfiddle.helpers.markdown :refer [marked markdown-render!]]]
                           :examples  []}
                          {:name    "core.async"
                           :type    :cljs
@@ -35,4 +35,10 @@
                           :doc     "A ClojureScript framework for building user interfaces, leveraging React"
                           :url     "https://github.com/day8/re-frame"
                           :coord   [re-frame "1.1.1"]
-                          :require [[re-frame.core :as rf]]}]}
+                          :require [[re-frame.core :as rf]]}
+                         {:name      "elkjs"
+                          :type      :js
+                          :doc       "ELK's layout algorithms for JavaScript"
+                          :url       "https://github.com/kieler/elkjs"
+                          :render-fn elk-render!
+                          :require   [[cljsfiddle.helpers.elk :refer [elk elk-render!]]]}]}

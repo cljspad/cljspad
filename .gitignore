@@ -21,3 +21,4 @@ resources/public/cljsfiddle/
 .idea/
 *.iml
 out/
+**.DS_Store
