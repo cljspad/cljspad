@@ -80,3 +80,13 @@ body, html {
   content: url('https://api.iconify.design/mdi:console-line.svg?color=%2324292e&height=16');
   vertical-align: -0.125em;
 }
+
+.cljsfiddle-collapse-icon {
+  content: url('https://api.iconify.design/ant-design:left-circle-filled.svg?color=%230366d6&height=16');
+  vertical-align: -0.125em;
+}
+
+.cljsfiddle-expand-icon {
+  content: url('https://api.iconify.design/ant-design:right-circle-filled.svg?color=%230366d6&height=16');
+  vertical-align: -0.125em;
+}

@@ -134,17 +134,32 @@
      [:h3 "Available Packages"]
      [available-packages {:manifest manifest}]]))
 
+(defui left-pane [_ _]
+  (let [[collapsed? set-collapsed] (rehook/use-state false)]
+    [:div {:style (cond-> {:paddingLeft "5px"
+                           :paddingRight "5px"
+                           :height      "100vh"
+                           :borderRight "1px solid #ccc"
+                           :display     "flex"
+                           :flexDirection "column"}
+                    (not collapsed?)
+                    (assoc :width       "250px"
+                           :maxWidth    "250px"
+                           :minWidth    "250px")
+                    collapsed?
+                    (assoc :width "26px" :maxWidth "26px" :minWidth "26px"))}
+     [:div {:style {:flexGrow 1}}
+      (when-not collapsed?
+        [manifest])]
+     [:div.cljsfiddle-action {:onClick #(set-collapsed (not collapsed?))}
+      (if collapsed?
+        [:span..cljsfiddle-expand-icon]
+        [:<> [:span..cljsfiddle-collapse-icon] " Collapse"])]]))
+
 (defui app [_ _]
   [:div {:style {:display "flex"
                  :width   "100%"}}
-   [:div {:style {:width       "250px"
-                  :maxWidth    "250px"
-                  :minWidth    "250px"
-                  :padding     "5px"
-                  :height      "100vh"
-                  :borderRight "1px solid #ccc"}}
-    [manifest]]
-
+   [left-pane]
    [:div {:style {:flex 1}}
     [:div {:style {:display       "flex"
                    :flexDirection "column"}}
