@@ -129,13 +129,20 @@
      [:div [:span "Version: " [:strong version]]]
      [:div [:span "Cljs version: " [:strong (:clojurescript/version manifest)]]]
      [:div [loading]]
-     [:h3 "Loaded Packages"]
+     [:h3 "Required Packages"]
      [loaded-packages {:manifest manifest}]
      [:h3 "Available Packages"]
      [available-packages {:manifest manifest}]]))
 
-(defui left-pane [_ _]
+#_(defui left-pane [_ _]
   (let [[collapsed? set-collapsed] (rehook/use-state false)]
+
+    (rehook/use-effect
+     (fn []
+       (js/window.dispatchEvent (js/Event. "resize"))
+       (constantly nil))
+     [collapsed?])
+
     [:div {:style (cond-> {:paddingLeft "5px"
                            :paddingRight "5px"
                            :height      "100vh"
@@ -157,14 +164,11 @@
         [:<> [:span..cljsfiddle-collapse-icon] " Collapse"])]]))
 
 (defui app [_ _]
-  [:div {:style {:display "flex"
-                 :width   "100%"}}
-   [left-pane]
-   [:div {:style {:flex 1}}
-    [:div {:style {:display       "flex"
-                   :flexDirection "column"}}
-     [editor/editor]
-     [repl/repl]]]])
+  [:div {:style {:width "100%"}}
+   [:div {:style {:display       "flex"
+                  :flexDirection "column"}}
+    [editor/editor]
+    [repl/repl]]])
 
 (defui dominant-component [{:keys [db]} _]
   (let [[loading? _] (rehook/use-atom-path db [:loading?])

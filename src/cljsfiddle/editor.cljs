@@ -36,16 +36,21 @@
      [version])
 
     [:div {:style {:width "100%" :height "calc(100vH - 250px)"}}
-     [:div {:style {:height          "25px"
+     [:div {:style {:height          "30px"
                     :backgroundColor "#fafafa"
                     :borderBottom    "1px solid #ccc"
-                    :padding         "3px"}}
-      [:button {:onClick (:run run)}
-       "Run"]]
+                    :padding         "5px"}}
+      [:div {:style {:display "flex"}}
+       [:div {:style {:flex 2}}
+        [:button {:onClick (:run run)}
+         "Run"]
+        [:button {}
+         "Export"]]]]
 
      [MonacoEditor {:language "clojure"
                     :theme    "vs-light"
                     :height   "100%"
                     :width    "100%"
                     :value    source
+                    :options  {:minimap {:enabled false}}
                     :ref      ref}]]))

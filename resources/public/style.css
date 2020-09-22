@@ -18,7 +18,19 @@ body, html {
 .cljsfiddle-container {
   height: 100vh
   width: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+#app {
+  border-right: 1px solid #ccc;
+}
+
+#sandbox {
+  height: 100vh;
+  overflow: scroll;
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  padding: 10px;
 }
 
 .cljsfiddle-navbar {
@@ -34,27 +46,6 @@ body, html {
   height: 100%;
   display: inline-block;
   vertical-align: middle;
-}
-
-#app {
-  flex: 2;
-  border-right: 1px solid #ccc;
-}
-
-#right {
-  padding-top: 5px;
-  width: calc(40% - 5px);
-  margin-left: 5px;
-  height: 100%;
-  flex: 1 0 50%;
-  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-}
-
-#sandbox {
-  flex: 1;
-  padding: 10px;
-  height: 100vh;
-  overflow: scroll;
 }
 
 .cljsfiddle-action {
@@ -78,15 +69,5 @@ body, html {
 
 .cljsfiddle-repl-icon {
   content: url('https://api.iconify.design/mdi:console-line.svg?color=%2324292e&height=16');
-  vertical-align: -0.125em;
-}
-
-.cljsfiddle-collapse-icon {
-  content: url('https://api.iconify.design/ant-design:left-circle-filled.svg?color=%230366d6&height=16');
-  vertical-align: -0.125em;
-}
-
-.cljsfiddle-expand-icon {
-  content: url('https://api.iconify.design/ant-design:right-circle-filled.svg?color=%230366d6&height=16');
   vertical-align: -0.125em;
 }

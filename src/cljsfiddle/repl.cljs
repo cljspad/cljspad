@@ -163,6 +163,25 @@
                 (.write term (str (:ns curr-state) "=> ")))
               (recur)))))))
 
+(defui repl-header [{:keys [db]} _]
+  (let [[version _] (rehook/use-atom-path db [:version])]
+    [:div {:style {:borderTop       "1px solid #ccc"
+                   :backgroundColor "#fafafa"
+                   :borderBottom    "1px solid #ccc"
+                   :zIndex          "9999"
+                   :padding         "5px"
+                   :width           "100%"}}
+     [:div {:style {:display "flex"}}
+      [:div {:style {:flex 2}}
+       [:span.cljsfiddle-repl-icon {}]
+       [:strong " REPL"]]
+      [:div {:style {:flex       1
+                     :textAlign  "right"
+                     :fontSize   "10px"
+                     :lineHeight "20px"}}
+       [:span {:style {}}
+        "Sandbox version: " [:strong (str version)]]]]]))
+
 (defui repl [{:keys [compiler-state db console]} _]
   (let [container (react/useRef)
         [version _] (rehook/use-atom-path db [:version])]
@@ -185,13 +204,8 @@
      [version])
 
     [:<>
-     [:div {:style {:borderTop       "1px solid #ccc"
-                    :backgroundColor "#fafafa"
-                    :borderBottom    "1px solid #ccc"
-                    :zIndex          "9999"
-                    :padding         "5px"}}
-      [:span.cljsfiddle-repl-icon {}]
-      [:strong " REPL"]]
+     [repl-header]
      [:div {:style {:width   "100%"
-                    :height  "200px"}
+                    :height  "200px"
+                    :padding "5px"}
             :ref   container}]]))
