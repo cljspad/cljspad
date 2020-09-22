@@ -2,13 +2,21 @@ body {
   font-family: Hack, monospace;
   font-size: 14px;
   line-height: 1.5;
-  margin: 0;
   color: #24292e;
   background-color: #fff;
 }
 
+body, html {
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 .cljsfiddle-container {
-  height: calc(100vh - 55px);
+  height: 100vh
   width: 100%;
   display: flex;
 }
@@ -45,6 +53,7 @@ body {
 #sandbox {
   flex: 1;
   padding: 10px;
+  height: 100vh;
   overflow: scroll;
 }
 

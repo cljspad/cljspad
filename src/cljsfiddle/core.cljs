@@ -141,7 +141,7 @@
                   :maxWidth    "250px"
                   :minWidth    "250px"
                   :padding     "5px"
-                  :height      "calc(100vh - 51px)"
+                  :height      "100vh"
                   :borderRight "1px solid #ccc"}}
     [manifest]]
 
