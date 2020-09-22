@@ -138,6 +138,17 @@
    :ns                "cljs.user"
    :history           (read-repl-history)})
 
+(defn write-lines
+  [term curr-state lines]
+  (try (.writeln term "")
+       (doseq [line lines]
+         (.write term (str (zp/czprint-str line {:parse-string? true}) " ")))
+       (.writeln term "")
+       (when (str/blank? (:form curr-state))
+         (.write term (str (:ns curr-state) "=> ")))
+       (catch :default e
+         (js/console.log e))))
+
 (defn console-loop
   [term close-ch state {:keys [stderr stdout]}]
   (go-loop []
@@ -146,21 +157,11 @@
         (cond
           (= p stderr)
           ;; TODO: update zprint colors to be an err red
-          (do (.writeln term "")
-              (doseq [line val]
-                (.write term (str (zp/czprint-str line {:parse-string? true}) " ")))
-              (.writeln term "")
-              (when (str/blank? (:form curr-state))
-                (.write term (str (:ns curr-state) "=> ")))
+          (do (write-lines term curr-state val)
               (recur))
 
           (= p stdout)
-          (do (.writeln term "")
-              (doseq [line val]
-                (.write term (str (zp/czprint-str line {:parse-string? true}) " ")))
-              (.writeln term "")
-              (when (str/blank? (:form curr-state))
-                (.write term (str (:ns curr-state) "=> ")))
+          (do (write-lines term curr-state val)
               (recur)))))))
 
 (defui repl-header [{:keys [db]} _]
