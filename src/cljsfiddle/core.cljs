@@ -11,6 +11,7 @@
             ["react" :as react]
             ["react-dom" :as react-dom]
             [clojure.string :as str]
+            [cljsfiddle.logging :as log]
             [cljsfiddle.sandbox])
   (:import (goog History)))
 
@@ -26,6 +27,8 @@
 (defn system []
   {:compiler-state (env/state)
    :history        (History.)
+   :console        {:stdout log/stdout
+                    :stderr log/stderr}
    :db             (atom initial-state)})
 
 (defui env-meta [{:keys [compiler-state]} _]
@@ -171,6 +174,7 @@
    (js/document.getElementById "app")))
 
 (defn main []
+  (log/init!)
   (render))
 
 (main)

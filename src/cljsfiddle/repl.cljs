@@ -3,9 +3,10 @@
             [rehook.dom :refer-macros [defui ui]]
             [cljsfiddle.env.core :as env]
             [goog.object :as obj]
-            [cljs.core.async :as async :refer-macros [go]]
+            [cljs.core.async :as async :refer-macros [go go-loop]]
             [cljs.tools.reader.edn :as edn]
             [clojure.string :as str]
+            [zprint.core :as zp]
             ["react" :as react]
             ["xterm" :refer [Terminal]]
             ["xterm-addon-fit" :refer [FitAddon]]))
@@ -73,12 +74,17 @@
                 (assoc :term-commands [["write" "\b \b"]]))))
 
       "Enter"
-      (when-not (str/blank? (:form curr-repl-state))
-        (go (let [result (async/<! (env/eval! compiler-state version (:form curr-repl-state)))]
+      (if (str/blank? (:form curr-repl-state))
+        (cb (assoc curr-repl-state :term-commands [["writeln" ""]
+                                                   ["writeln" ""]
+                                                   ["write" (str (:ns curr-repl-state) "=> ")]]))
+        (go (let [result (async/<! (env/eval! compiler-state version (:form curr-repl-state)))
+                  ns     (or (:ns result) (:ns curr-repl-state))]
               (js/console.log "REPL output => " (:form curr-repl-state) result)
               (cb (-> curr-repl-state
                       (assoc :pos 0)
                       (assoc :form "")
+                      (assoc :ns ns)
                       (update :history
                               (fn [curr-history]
                                 (take (:max-history-items curr-repl-state)
@@ -87,10 +93,9 @@
                                         (conj curr-history (:form curr-repl-state))))))
                       (assoc :term-commands [["writeln" ""]
                                              ["writeln" (if-some [value (or (:value result) (:error result))]
-                                                          ;; TODO: a nicer pretty printing fn perhaps...
-                                                          (pr-str value)
+                                                          (zp/czprint-str value)
                                                           "nil")]
-                                             ["write" (str (or (:ns result) "cljs.user") "=> ")]]))))))
+                                             ["write" (str ns "=> ")]]))))))
 
       ("Home" "PageUp" "PageDown" "End")
       nil
@@ -130,23 +135,47 @@
    :pos               0
    :history-index     -1
    :max-history-items 50
+   :ns                "cljs.user"
    :history           (read-repl-history)})
 
-(defui repl [{:keys [compiler-state db]} _]
+(defn console-loop
+  [term close-ch {:keys [stderr stdout]}]
+  (go-loop []
+    (when-let [[val p] (async/alts! [close-ch stderr stdout])]
+      (cond
+        (= p stderr)
+        ;; TODO: update zprint colors to be an err red
+        (do (.writeln term "")
+            (doseq [line val]
+              (.write term (str (zp/czprint-str line {:parse-string? true}) " ")))
+            (.writeln term "")
+            (recur))
+
+        (= p stdout)
+        (do (.writeln term "")
+            (doseq [line val]
+              (.write term (str (zp/czprint-str line {:parse-string? true}) " ")))
+            (.writeln term "")
+            (recur))))))
+
+(defui repl [{:keys [compiler-state db console]} _]
   (let [container (react/useRef)
         [version _] (rehook/use-atom-path db [:version])]
     (rehook/use-effect
      (fn []
-       (let [fit     (FitAddon.)
-             term    (terminal fit)
-             state   (atom (initial-state))
-             repl-cb (partial mutate-repl! state term)
-             current (aget container "current")]
+       (let [fit      (FitAddon.)
+             term     (terminal fit)
+             state    (atom (initial-state))
+             repl-cb  (partial mutate-repl! state term)
+             current  (aget container "current")
+             close-ch (async/chan)]
          (.open term current)
          (.fit fit)
          (.write term "cljs.user=> ")
          (.onKey term #(handle-repl-key compiler-state version @state repl-cb %))
+         (console-loop term close-ch console)
          (fn []
+           (async/close! close-ch)
            (.dispose term))))
      [version])
 
