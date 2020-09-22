@@ -139,24 +139,29 @@
    :history           (read-repl-history)})
 
 (defn console-loop
-  [term close-ch {:keys [stderr stdout]}]
+  [term close-ch state {:keys [stderr stdout]}]
   (go-loop []
     (when-let [[val p] (async/alts! [close-ch stderr stdout])]
-      (cond
-        (= p stderr)
-        ;; TODO: update zprint colors to be an err red
-        (do (.writeln term "")
-            (doseq [line val]
-              (.write term (str (zp/czprint-str line {:parse-string? true}) " ")))
-            (.writeln term "")
-            (recur))
+      (let [curr-state @state]
+        (cond
+          (= p stderr)
+          ;; TODO: update zprint colors to be an err red
+          (do (.writeln term "")
+              (doseq [line val]
+                (.write term (str (zp/czprint-str line {:parse-string? true}) " ")))
+              (.writeln term "")
+              (when (str/blank? (:form curr-state))
+                (.write term (str (:ns curr-state) "=> ")))
+              (recur))
 
-        (= p stdout)
-        (do (.writeln term "")
-            (doseq [line val]
-              (.write term (str (zp/czprint-str line {:parse-string? true}) " ")))
-            (.writeln term "")
-            (recur))))))
+          (= p stdout)
+          (do (.writeln term "")
+              (doseq [line val]
+                (.write term (str (zp/czprint-str line {:parse-string? true}) " ")))
+              (.writeln term "")
+              (when (str/blank? (:form curr-state))
+                (.write term (str (:ns curr-state) "=> ")))
+              (recur)))))))
 
 (defui repl [{:keys [compiler-state db console]} _]
   (let [container (react/useRef)
@@ -173,7 +178,7 @@
          (.fit fit)
          (.write term "cljs.user=> ")
          (.onKey term #(handle-repl-key compiler-state version @state repl-cb %))
-         (console-loop term close-ch console)
+         (console-loop term close-ch state console)
          (fn []
            (async/close! close-ch)
            (.dispose term))))
