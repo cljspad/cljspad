@@ -25,8 +25,12 @@
 
 (defn handle-repl-key
   [compiler-state version curr-repl-state cb ev]
-  (let [key  (aget ev "key")
-        code (obj/getValueByKeys ev "domEvent" "code")]
+  (let [key   (aget ev "key")
+        code  (obj/getValueByKeys ev "domEvent" "code")
+        ctrl? (obj/getValueByKeys ev "domEvent" "ctrlKey")
+        code  (if ctrl?
+                (str "Ctrl+" code)
+                code)]
     (case code
       "ArrowRight"
       (when (<= (:pos curr-repl-state) (count (:form curr-repl-state)))
@@ -97,6 +101,13 @@
                                                           "nil")]
                                              ["write" (str ns "=> ")]]))))))
 
+      "Ctrl+KeyL"
+      (cb (-> curr-repl-state
+              (assoc :pos 0)
+              (assoc :form "")
+              (assoc :term-commands [["clear"]
+                                     ["write" (str ns "=> ")]])))
+
       ("Home" "PageUp" "PageDown" "End")
       nil
 
@@ -126,6 +137,7 @@
 
   (doseq [[cmd val] (:term-commands next-state)]
     (case cmd
+      "clear" (.clear term)
       "write" (.write term val)
       "writeln" (.writeln term val)
       (js/console.warn "Unknown term command " cmd))))
