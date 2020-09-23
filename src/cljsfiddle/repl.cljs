@@ -105,8 +105,7 @@
       (cb (-> curr-repl-state
               (assoc :pos 0)
               (assoc :form "")
-              (assoc :term-commands [["clear"]
-                                     ["write" (str ns "=> ")]])))
+              (assoc :term-commands [["clear"]])))
 
       ("Home" "PageUp" "PageDown" "End")
       nil

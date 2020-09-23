@@ -3,4 +3,4 @@
             [reagent.dom :as dom]))
 
 (defn reagent-render! [comp]
-  (dom/render comp (js/document.getElementById "sandbox")))
+  (dom/render comp (js/__cljsfiddle_sandbox)))

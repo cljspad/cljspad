@@ -3,4 +3,4 @@
   (:require [rum.core :as rum]))
 
 (defn rum-render! [element]
-  (rum/mount element (js/document.getElementById "sandbox")))
+  (rum/mount element (js/__cljsfiddle_sandbox)))

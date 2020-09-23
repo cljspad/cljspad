@@ -10,6 +10,7 @@
             [cljs.core.async :as async :refer-macros [go]]
             ["react" :as react]
             ["react-dom" :as react-dom]
+            ["marked" :as marked]
             [clojure.string :as str]
             [cljsfiddle.logging :as log]
             [cljsfiddle.sandbox])
@@ -18,11 +19,12 @@
 (goog-define version "dev")
 
 (def initial-state
-  {:loading? false
-   :error?   false
-   :version  version
-   :manifest {}
-   :source   ""})
+  {:loading?     false
+   :error?       false
+   :version      version
+   :manifest     {}
+   :source       ""
+   :selected-tab :readme})
 
 (defn system []
   {:compiler-state (env/state)
@@ -163,12 +165,74 @@
         [:span..cljsfiddle-expand-icon]
         [:<> [:span..cljsfiddle-collapse-icon] " Collapse"])]]))
 
-(defui app [_ _]
-  [:div {:style {:width "100%"}}
+(defui left-pane [_ _]
+  [:div.cljsfiddle-left-pane
    [:div {:style {:display       "flex"
                   :flexDirection "column"}}
     [editor/editor]
     [repl/repl]]])
+
+(defui readme [{:keys [db]} _]
+  (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])
+        ref (react/useRef)]
+
+    (rehook/use-effect
+     (fn []
+       (when (= selected-tab :readme)
+         (-> (js/fetch "https://gist.githubusercontent.com/wavejumper/70f86410a293069a194be8ce85d9a018/raw/a31bf7a31ce0e1f9b3d899429f3b0069f264200f/README.md")
+             (.then #(.text %))
+             (.then #(aset (aget ref "current") "innerHTML" (marked %)))))
+       (constantly nil))
+
+     [(pr-str selected-tab)])
+
+    [:div.cljsfiddle-readme
+     {:ref ref
+      :style (when-not (= selected-tab :readme)
+               {:display "none"})}]))
+
+(defui sandbox [{:keys [db]} _]
+  (let [[selected-tab set-selected-tab] (rehook/use-atom-path db [:selected-tab])
+        ref (react/useRef)]
+
+    (rehook/use-effect
+     (fn []
+       (set! js/__cljsfiddle_sandbox
+             (fn []
+               (set-selected-tab :sandbox)
+               (aget ref "current")))
+       (fn []
+         (set! js/__cljsfiddle_sandbox
+               (fn []
+                 (throw (ex-info "Cannot render, sandbox has been unmounted from DOM." {})))))))
+
+    [:div.cljsfiddle-sandbox
+     {:ref   ref
+      :style (when-not (= selected-tab :sandbox)
+               {:display "none"})}]))
+
+(defui right-pane-tabs [{:keys [db]} _]
+  (let [[selected-tab set-selected-tab] (rehook/use-atom-path db [:selected-tab])]
+    [:div {:style {:height          "30px"
+                   :backgroundColor "#fafafa"
+                   :borderBottom    "1px solid #ccc"}}
+     [:div {:style {:display "flex"}}
+      [:div.button {:onClick #(set-selected-tab :readme)} "README.md"]
+      " "
+      [:div.button "Packages"]
+      " "
+      [:div.button {:onClick #(set-selected-tab :sandbox)} "Sandbox"]]]))
+
+(defui right-pane [_ _]
+  [:div.cljsfiddle-right-pane
+   [right-pane-tabs]
+   [readme]
+   [sandbox]])
+
+(defui app [_ _]
+  [:div.cljsfiddle-container
+   [left-pane]
+   [right-pane]])
 
 (defui dominant-component [{:keys [db]} _]
   (let [[loading? _] (rehook/use-atom-path db [:loading?])
@@ -180,7 +244,7 @@
 
 (defui root-component [_ _]
   [:<>
-   [effects/history]
+   ;;[effects/history]
    [effects/manifest]
    [dominant-component]])
 

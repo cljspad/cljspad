@@ -15,6 +15,11 @@ body, html {
   box-sizing: border-box;
 }
 
+#app {
+  height: 100%;
+  width: 100%;
+}
+
 .cljsfiddle-container {
   height: 100vh
   width: 100%;
@@ -22,12 +27,18 @@ body, html {
   grid-template-columns: 1fr 1fr;
 }
 
-#app {
+.cljsfiddle-left-pane {
   border-right: 1px solid #ccc;
 }
 
-#sandbox {
-  height: 100vh;
+.cljsfiddle-right-pane {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+.cljsfiddle-readme, .cljsfiddle-sandbox {
+  height: calc(100vh - 30px);
   overflow: scroll;
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
   padding: 10px;
@@ -70,4 +81,17 @@ body, html {
 .cljsfiddle-repl-icon {
   content: url('https://api.iconify.design/mdi:console-line.svg?color=%2324292e&height=16');
   vertical-align: -0.125em;
+}
+
+.button {
+  background-color: rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.54);
+  padding-left: 3px;
+  padding-right: 3px;
+  user-select: none;
+}
+
+.button:hover {
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.04);
 }
