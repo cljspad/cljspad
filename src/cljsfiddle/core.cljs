@@ -127,43 +127,11 @@
   (let [[version _]  (rehook/use-atom-path db [:version])
         [manifest _] (rehook/use-atom-path db [:manifest version])]
     [:div
-     [:h3 "Sandbox"]
-     [:div [:span "Version: " [:strong version]]]
-     [:div [:span "Cljs version: " [:strong (:clojurescript/version manifest)]]]
-     [:div [loading]]
+     [:h1 "Packages"]
      [:h3 "Required Packages"]
      [loaded-packages {:manifest manifest}]
      [:h3 "Available Packages"]
      [available-packages {:manifest manifest}]]))
-
-#_(defui left-pane [_ _]
-  (let [[collapsed? set-collapsed] (rehook/use-state false)]
-
-    (rehook/use-effect
-     (fn []
-       (js/window.dispatchEvent (js/Event. "resize"))
-       (constantly nil))
-     [collapsed?])
-
-    [:div {:style (cond-> {:paddingLeft "5px"
-                           :paddingRight "5px"
-                           :height      "100vh"
-                           :borderRight "1px solid #ccc"
-                           :display     "flex"
-                           :flexDirection "column"}
-                    (not collapsed?)
-                    (assoc :width       "250px"
-                           :maxWidth    "250px"
-                           :minWidth    "250px")
-                    collapsed?
-                    (assoc :width "26px" :maxWidth "26px" :minWidth "26px"))}
-     [:div {:style {:flexGrow 1}}
-      (when-not collapsed?
-        [manifest])]
-     [:div.cljsfiddle-action {:onClick #(set-collapsed (not collapsed?))}
-      (if collapsed?
-        [:span..cljsfiddle-expand-icon]
-        [:<> [:span..cljsfiddle-collapse-icon] " Collapse"])]]))
 
 (defui left-pane [_ _]
   [:div.cljsfiddle-left-pane
@@ -213,20 +181,61 @@
 
 (defui right-pane-tabs [{:keys [db]} _]
   (let [[selected-tab set-selected-tab] (rehook/use-atom-path db [:selected-tab])]
-    [:div {:style {:height          "30px"
-                   :backgroundColor "#fafafa"
-                   :borderBottom    "1px solid #ccc"}}
-     [:div {:style {:display "flex"}}
-      [:div.button {:onClick #(set-selected-tab :readme)} "README.md"]
-      " "
-      [:div.button "Packages"]
-      " "
-      [:div.button {:onClick #(set-selected-tab :sandbox)} "Sandbox"]]]))
+    [:div.toolbar
+     [:div.button
+      {:className (when (= selected-tab :readme) "active")
+       :onClick   #(set-selected-tab :readme)}
+      "README.md"]
+     [:div.button
+      {:className (when (= selected-tab :packages) "active")
+       :onClick   #(set-selected-tab :packages)}
+      "Packages"]
+     [:div.button
+      {:className (when (= selected-tab :export) "active")
+       :onClick   #(set-selected-tab :export)}
+      "Export"]
+     [:div.button
+      {:className (when (= selected-tab :sandbox) "active")
+       :onClick   #(set-selected-tab :sandbox)} "Sandbox"]
+     [:a.button {:style {:marginLeft "auto"}
+                 :href  "https://github.com/cljsfiddle/cljsfiddle"}
+      [:span.cljsfiddle-github-icon]]]))
+
+(defui packages [{:keys [db]} _]
+  (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])]
+    [:div.cljsfiddle-packages
+     {:style (when-not (= selected-tab :packages)
+               {:display "none"})}
+     [manifest]]))
+
+(defui export [{:keys [db]} _]
+  (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])
+        [version _] (rehook/use-atom-path db [:version])]
+    [:div.cljsfiddle-export
+     {:style (when-not (= selected-tab :export)
+               {:display "none"})}
+     [:h1 "Export instructions"]
+
+     [:p "Your cljsfiddle creation can be exported by creating a new public GitHub "
+      [:a {:href "https://gist.github.com"} "gist"]]
+
+     [:div.button "Copy code to clipboard"]
+
+     [:h3 "Sharing"]
+     [:p "Once you have created a gist, you can use this link to share your creation:"]
+     [:code "https://cljsfiddle.dev/gist/" version "/GIST_ID"]
+     [:p "Where " [:samp "GIST_ID"] " is the id of your freshly created gist (found in the navbar)"]
+
+     [:h3 "Embedding"]
+     [:p "If you would like to embed your creation, you can add this IFrame to your website:"]
+     [:code "<iframe src=\"" "https://cljsfiddlle.dev/gist/" version "/GIST_ID/embed\"></iframe>"]]))
 
 (defui right-pane [_ _]
   [:div.cljsfiddle-right-pane
    [right-pane-tabs]
    [readme]
+   [packages]
+   [export]
    [sandbox]])
 
 (defui app [_ _]

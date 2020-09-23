@@ -37,7 +37,7 @@ body, html {
   width: 100%;
 }
 
-.cljsfiddle-readme, .cljsfiddle-sandbox {
+.cljsfiddle-readme, .cljsfiddle-sandbox, .cljsfiddle-packages, .cljsfiddle-export {
   height: calc(100vh - 30px);
   overflow: scroll;
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
@@ -88,7 +88,14 @@ body, html {
   vertical-align: -0.125em;
 }
 
+.cljsfiddle-github-icon {
+  content: url('https://api.iconify.design/ant-design:github-filled.svg?color=%2324292e&height=16');
+  vertical-align: -0.125em;
+}
+
 .button {
+  display: inline-block;
+  margin-right: 10px;
   background-color: rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(0, 0, 0, 0.54);
   padding-left: 3px;
@@ -96,7 +103,20 @@ body, html {
   user-select: none;
 }
 
+.button.active {
+  border-bottom: 2px solid #f9826c;
+}
+
 .button:hover {
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.04);
+}
+
+.toolbar {
+  height: 30px;
+  background-color: #fafafa;
+  border-bottom: 1px solid #ccc;
+  padding: 5px;
+  display: flex;
+  align-items: center;
 }

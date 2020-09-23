@@ -36,16 +36,9 @@
      [version])
 
     [:div {:style {:width "100%" :height "calc(100vH - 250px)"}}
-     [:div {:style {:height          "30px"
-                    :backgroundColor "#fafafa"
-                    :borderBottom    "1px solid #ccc"
-                    :padding         "5px"}}
-      [:div {:style {:display "flex"}}
-       [:div.button {:onClick (:run run)}
-        [:span.cljsfiddle-run-icon]
-        "Run"]
-       " "
-       [:div.button "Export"]]]
+     [:div.toolbar
+      [:div.button {:onClick (:run run)}
+       [:span.cljsfiddle-run-icon] "Run"]]
 
      [MonacoEditor {:language "clojure"
                     :theme    "vs-light"
