@@ -63,9 +63,8 @@
           (async/<! (env/eval! compiler-state version s))))))
 
 (defui package-meta
-  [{:keys [compiler-state db]} {:keys [package available?]}]
-  (let [[expanded set-expanded] (rehook/use-state false)
-        [version _]             (rehook/use-atom-path db [:version])]
+  [_ {:keys [package]}]
+  (let [[expanded set-expanded] (rehook/use-state false)]
     [:div {:style {:marginBottom "5px"}}
 
      [:div.button
@@ -123,27 +122,20 @@
     [:div
      (for [package (sort-by :name available-packages)]
        [:div {:key (str "available-package-" (:name package))}
-        [package-meta {:package package :available? true}]])]))
+        [package-meta {:package package}]])]))
 
 (defui loaded-packages
-  [{:keys [compiler-state]} {:keys [manifest]}]
-  (let [[nses _]           (rehook/use-atom-fn compiler-state loaded-namespaces (constantly nil))
-        available-packages (filter (fn [package]
-                                     (every? (comp nses first) (:require package)))
-                                   (:packages manifest))]
-    [:div
-     (for [package (sort-by :name available-packages)]
-       [:div {:key (str "loaded-package-" (:name package))}
-        [package-meta {:package package :available? false}]])]))
+  [_ {:keys [manifest]}]
+  [:div
+   (for [package (sort-by :name (:packages manifest))]
+     [:div {:key (str "loaded-package-" (:name package))}
+      [package-meta {:package package :available? false}]])])
 
 (defui manifest [{:keys [db]} _]
   (let [[version _]  (rehook/use-atom-path db [:version])
         [manifest _] (rehook/use-atom-path db [:manifest version])]
     [:div
      [:h1 "Packages"]
-     [:h3 "Required Packages"]
-     [loaded-packages {:manifest manifest}]
-     [:h3 "Available Packages"]
      [available-packages {:manifest manifest}]]))
 
 (defui left-pane [_ _]
