@@ -83,6 +83,11 @@ body, html {
   vertical-align: -0.125em;
 }
 
+.cljsfiddle-run-icon {
+  content: url('https://api.iconify.design/entypo:controller-play.svg?color=%238bc34a&height=16');
+  vertical-align: -0.125em;
+}
+
 .button {
   background-color: rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(0, 0, 0, 0.54);

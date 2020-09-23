@@ -257,6 +257,7 @@
    (js/document.getElementById "app")))
 
 (defn main []
+  (aset js/window "onbeforeunload" (constantly true))
   (log/init!)
   (render))
 

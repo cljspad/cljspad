@@ -41,11 +41,11 @@
                     :borderBottom    "1px solid #ccc"
                     :padding         "5px"}}
       [:div {:style {:display "flex"}}
-       [:div {:style {:flex 2}}
-        [:button {:onClick (:run run)}
-         "Run"]
-        [:button {}
-         "Export"]]]]
+       [:div.button {:onClick (:run run)}
+        [:span.cljsfiddle-run-icon]
+        "Run"]
+       " "
+       [:div.button "Export"]]]
 
      [MonacoEditor {:language "clojure"
                     :theme    "vs-light"
