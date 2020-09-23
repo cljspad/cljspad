@@ -1,5 +1,5 @@
 (ns cljsfiddle.effects
-  "Root effects"
+  "Global effects"
   (:require [rehook.dom :refer-macros [defui]]
             [rehook.core :as rehook]
             [cljs.core.async :as async :refer-macros [go]]
@@ -8,7 +8,10 @@
             [cljsfiddle.env.core :as env]
             [cljsfiddle.gist :as gist]
             [clojure.string :as str]
-            [cljs.tools.reader.edn :as edn]))
+            [cljs.tools.reader.edn :as edn]
+            ["highlight.js" :as hljs]
+            ["marked" :as marked]
+            [cljsfiddle.logging :as log]))
 
 ;; TODO: less imperative impl
 (defn load-gist [{:keys [db] :as ctx} id]
@@ -62,3 +65,21 @@
            (.catch #(js/console.log "Could not load manifest" %)))
        (constantly nil))
      [version])))
+
+(defui highlight [_ _]
+  (rehook/use-effect
+   (fn []
+     (js/console.log "Init highlighting...")
+     (hljs/initHighlightingOnLoad)
+     (.setOptions marked #js {:highlight (fn [code lang]
+                                           (aget (hljs/highlight lang code) "value"))})
+     (constantly nil))
+   []))
+
+(defui logging [_ _]
+  (rehook/use-effect
+   (fn []
+     (log/init!)
+     (fn []
+       (enable-console-print!)))
+   []))

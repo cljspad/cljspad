@@ -6,6 +6,10 @@ body {
   background-color: #fff;
 }
 
+code {
+  font-family: Hack, monospace;
+}
+
 body, html {
   margin: 0;
   padding: 0;
@@ -90,6 +94,16 @@ body, html {
 
 .cljsfiddle-github-icon {
   content: url('https://api.iconify.design/ant-design:github-filled.svg?color=%2324292e&height=16');
+  vertical-align: -0.125em;
+}
+
+.cljsfiddle-caret-right-icon {
+  content: url('https://api.iconify.design/ant-design:caret-right-filled.svg?color=%2324292e&height=16');
+  vertical-align: -0.125em;
+}
+
+.cljsfiddle-caret-down-icon {
+  content: url('https://api.iconify.design/ant-design:caret-down-filled.svg?color=%2324292e&height=16');
   vertical-align: -0.125em;
 }
 

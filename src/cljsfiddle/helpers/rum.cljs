@@ -2,5 +2,5 @@
   (:require-macros rum.core)
   (:require [rum.core :as rum]))
 
-(defn rum-render! [element]
+(defn render! [element]
   (rum/mount element (js/__cljsfiddle_sandbox)))

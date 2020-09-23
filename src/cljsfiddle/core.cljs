@@ -66,10 +66,17 @@
   [{:keys [compiler-state db]} {:keys [package available?]}]
   (let [[expanded set-expanded] (rehook/use-state false)
         [version _]             (rehook/use-atom-path db [:version])]
-    [:div
-     [:div.cljsfiddle-action
-      {:onClick #(set-expanded (not expanded))}
-      [:span (:name package) " (" (-> package :type name) ")"]]
+    [:div {:style {:marginBottom "5px"}}
+
+     [:div.button
+      {:onClick #(set-expanded (not expanded))
+       :style {:width "300px"}}
+      [:span (:name package) " (" (-> package :type name) ")"]
+      [:span {:style {:float "right"}
+              :className (if expanded
+                           "cljsfiddle-caret-down-icon"
+                           "cljsfiddle-caret-right-icon")}]]
+
      (when expanded
        [:div {:style {:marginTop     "5px"
                       :marginBottom  "5px"
@@ -83,23 +90,29 @@
                 [:code.cljsfiddle-code (pr-str coord)]
                 [:code.cljsfiddle-code (:name package)])]
 
-        [:p (:doc package)]
+        [:table {:style {:marginTop "10px"
+                         :marginBottom "10px"}}
+         [:tbody
+          [:tr
+           [:td [:strong "About"]]
+           [:td (:doc package)]]
+          (when-let [website (:url package)]
+            [:tr
+             [:td [:strong "Website"]]
+             [:td [:a {:href website} website]]])
+          (when-let [render-fn (:render-fn package)]
+            [:tr
+             [:td [:strong "Render fn"]]
+             [:td [:code.cljsfiddle-code (str render-fn)]]])
+          (when-let [requires (seq (:require package))]
+            [:tr
+             [:td [:strong "Namespaces"]]
+             [:td (for [r requires]
+                    [:div [:code.cljsfiddle-code (pr-str r)]])]])]]
 
-        (when-let [website (:url package)]
-          [:p [:a {:href website :target "_blank"}
-               "Website"]])
+        [:h3 "Examples"]
 
-        (when-let [render-fn (:render-fn package)]
-          [:div [:span "Render fn: " [:code.cljsfiddle-code (str render-fn)]]])
-
-        [:div {:style {:marginBottom "10px"}}
-         [:p "Requires:"]
-         (for [r (:require package)]
-           [:p [:code.cljsfiddle-code (pr-str r)]])]
-
-        (when available?
-          [:button {:onClick #(load-package compiler-state version package)}
-           "Load package"])])]))
+        ])]))
 
 (defui available-packages
   [{:keys [compiler-state]} {:keys [manifest]}]
@@ -254,6 +267,8 @@
 (defui root-component [_ _]
   [:<>
    ;;[effects/history]
+   [effects/highlight]
+   [effects/logging]
    [effects/manifest]
    [dominant-component]])
 
@@ -267,7 +282,6 @@
 
 (defn main []
   (aset js/window "onbeforeunload" (constantly true))
-  (log/init!)
   (render))
 
 (main)

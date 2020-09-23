@@ -2,5 +2,5 @@
   (:require [reagent.core]
             [reagent.dom :as dom]))
 
-(defn reagent-render! [comp]
+(defn render! [comp]
   (dom/render comp (js/__cljsfiddle_sandbox)))
