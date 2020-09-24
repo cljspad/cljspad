@@ -24,7 +24,7 @@
   (str (subs s 0 i) c (subs s i)))
 
 (defn handle-repl-key
-  [compiler-state version curr-repl-state cb ev]
+  [compiler-state curr-repl-state cb ev]
   (let [key   (aget ev "key")
         code  (obj/getValueByKeys ev "domEvent" "code")
         ctrl? (obj/getValueByKeys ev "domEvent" "ctrlKey")
@@ -194,9 +194,8 @@
        [:span {:style {}}
         "Sandbox version: " [:strong (str version)]]]]]))
 
-(defui repl [{:keys [compiler-state db console]} _]
-  (let [container (react/useRef)
-        [version _] (rehook/use-atom-path db [:version])]
+(defui repl [{:keys [compiler-state console]} _]
+  (let [container (react/useRef)]
     (rehook/use-effect
      (fn []
        (let [fit      (FitAddon.)
@@ -208,12 +207,12 @@
          (.open term current)
          (.fit fit)
          (.write term "sandbox.user=> ")
-         (.onKey term #(handle-repl-key compiler-state version @state repl-cb %))
+         (.onKey term #(handle-repl-key compiler-state @state repl-cb %))
          (console-loop term close-ch state console)
          (fn []
            (async/close! close-ch)
            (.dispose term))))
-     [version])
+     [])
 
     [:<>
      [repl-header]
