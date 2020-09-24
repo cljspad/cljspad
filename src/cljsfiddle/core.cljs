@@ -26,11 +26,14 @@
    :selected-tab :readme})
 
 (defn system []
-  {:compiler-state (env/state)
-   :history        (History.)
-   :console        {:stdout log/stdout
-                    :stderr log/stderr}
-   :db             (atom initial-state)})
+  (let [compiler-state (env/state)]
+    ;; TODO: move this effect into cljsfiddle.effects
+    (env/init compiler-state version)
+    {:compiler-state compiler-state
+     :history        (History.)
+     :console        {:stdout log/stdout
+                      :stderr log/stderr}
+     :db             (atom initial-state)}))
 
 (defui env-meta [{:keys [compiler-state]} _]
   (let [[st _] (rehook/use-atom-path compiler-state [:cljs.analyzer/namespaces])]
@@ -151,12 +154,11 @@
     (rehook/use-effect
      (fn []
        (when (= selected-tab :readme)
-         (-> (js/fetch "https://gist.githubusercontent.com/wavejumper/70f86410a293069a194be8ce85d9a018/raw/a31bf7a31ce0e1f9b3d899429f3b0069f264200f/README.md")
+         (-> (js/fetch "https://gist.githubusercontent.com/wavejumper/70f86410a293069a194be8ce85d9a018/raw/77014ca2ded7bc89d8bfb1bdd034769b61e3f08b/README.md")
              (.then #(.text %))
              (.then #(aset (aget ref "current") "innerHTML" (marked %)))))
        (constantly nil))
-
-     [(pr-str selected-tab)])
+     [])
 
     [:div.cljsfiddle-readme
      {:ref ref
@@ -258,7 +260,6 @@
 (defui root-component [_ _]
   [:<>
    ;;[effects/history]
-   [effects/bootstrap]
    [effects/highlight]
    [effects/logging]
    [effects/manifest]

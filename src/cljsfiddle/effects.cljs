@@ -82,11 +82,3 @@
      (fn []
        (enable-console-print!)))
    []))
-
-(defui bootstrap [{:keys [db compiler-state]} _]
-  (let [[version _] (rehook/use-atom-path db [:version])]
-    (rehook/use-effect
-     (fn []
-       (env/init compiler-state version)
-       (constantly nil))
-     [version])))

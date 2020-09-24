@@ -107,6 +107,16 @@ body, html {
   vertical-align: -0.125em;
 }
 
+.cljsfiddle-loading-icon {
+  content: url('https://api.iconify.design/codicon:loading.svg?color=%2324292e&height=16');
+  vertical-align: -0.125em;
+  animation:spin 4s linear infinite;
+}
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+
 .button {
   display: inline-block;
   margin-right: 10px;

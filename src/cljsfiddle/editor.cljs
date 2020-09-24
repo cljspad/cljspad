@@ -9,12 +9,24 @@
 
 (defn run-code
   [compiler-state ^js monaco]
-  (fn []
+  (fn [set-loading]
+    (set-loading true)
     (let [model (.getModel monaco)
           value (.getValue model)]
-      (go (let [resp (async/<! (env/eval! compiler-state value))]
-            (when-let [err (env/error-message resp)]
-              (prn err)))))))
+      (go (let [result (async/<! (env/eval! compiler-state value))]
+            (prn (or (:value result) (env/error-message result)))
+            (set-loading false))))))
+
+(defui toolbar
+  [_ {:keys [run]}]
+  (let [[loading set-loading] (rehook/use-state false)
+        run (:run run)]
+    [:div.toolbar
+     [:div.button {:onClick #(run set-loading)}
+      (if loading
+        [:span.cljsfiddle-loading-icon]
+        [:span.cljsfiddle-run-icon])
+      "Run"]]))
 
 (defui editor [{:keys [compiler-state db]} _]
   (let [ref (react/useRef)
@@ -32,10 +44,7 @@
      [])
 
     [:div {:style {:width "100%" :height "calc(100vH - 250px)"}}
-     [:div.toolbar
-      [:div.button {:onClick (:run run)}
-       [:span.cljsfiddle-run-icon] "Run"]]
-
+     [toolbar {:run run}]
      [MonacoEditor {:language "clojure"
                     :theme    "vs-light"
                     :height   "100%"
