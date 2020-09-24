@@ -5,42 +5,34 @@
                           :doc       "A minimalistic ClojureScript interface to React.js"
                           :url       "https://github.com/reagent-project/reagent"
                           :coord     [reagent "1.0.0-alpha2"]
-                          :render-fn cljsfiddle.helpers.reagent/render!
+                          :render-fn sandbox.reagent/render
                           :require   [[reagent.core]
-                                      [cljsfiddle.helpers.reagent]]
+                                      [sandbox.reagent]]
                           :examples  []}
                          {:name      "marked"
                           :type      :js
                           :doc       "A markdown parser and compiler. Built for speed."
                           :url       "https://github.com/markedjs/marked"
-                          :render-fn cljsfiddle.helpers.markdown/render!
-                          :require   [[cljsfiddle.helpers.markdown]
+                          :render-fn sandbox.markdown/render
+                          :require   [[sandbox.markdown]
                                       [marked]]
                           :examples  []}
-                         {:name    "core.async"
-                          :type    :cljs
-                          :doc     "Facilities for async programming and communication in Clojure"
-                          :url     "https://github.com/clojure/core.async"
-                          :coord   [org.clojure/core.async "1.3.610"]
-                          :require [[cljs.core.async]]}
-                         {:name      "rum"
-                          :type      :cljs
-                          :doc       "Simple, decomplected, isomorphic HTML UI library for Clojure and ClojureScript"
-                          :url       "https://github.com/tonsky/rum"
-                          :coord     [rum "0.12.3"]
-                          :render-fn cljsfiddle.helpers.rum/render!
-                          :require   [[cljsfiddle.helpers.rum]
-                                      [rum.core]]}
                          {:name    "re-frame"
                           :type    :cljs
                           :doc     "A ClojureScript framework for building user interfaces, leveraging React"
                           :url     "https://github.com/day8/re-frame"
                           :coord   [re-frame "1.1.1"]
-                          :require [[re-frame.core :as rf]]}
+                          :require [[re-frame.core]]}
+                         {:name    "datascript"
+                          :type    :cljs
+                          :doc     "Immutable database and Datalog query engine for Clojure, ClojureScript and JS\n\n"
+                          :url     "https://github.com/tonsky/datascript"
+                          :coord   [datascript "1.0.1"]
+                          :require [[datascript.core]]}
                          {:name      "elkjs"
                           :type      :js
                           :doc       "ELK's layout algorithms for JavaScript"
                           :url       "https://github.com/kieler/elkjs"
-                          :render-fn cljsfiddle.helpers.elk/render!
-                          :require   [[cljsfiddle.helpers.elk]
+                          :render-fn sandbox.elk/render
+                          :require   [[sandbox.elk]
                                       [elkjs]]}]}
