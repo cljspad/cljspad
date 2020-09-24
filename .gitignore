@@ -22,3 +22,5 @@ resources/public/cljsfiddle/
 *.iml
 out/
 **.DS_Store
+.shadow-cljs/
+/resources/public/bootstrap/

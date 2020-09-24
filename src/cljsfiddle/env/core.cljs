@@ -1,47 +1,28 @@
 (ns cljsfiddle.env.core
-  (:require [cljs.core.async :as async :refer-macros [go]]
+  (:require [cljs.core.async :refer-macros [go]]
             [cljs.core.async.interop :refer-macros [<p!]]
             [cljs.js :as cljs.js]
-            [cljs.tools.reader.edn :as edn]
-            [cognitect.transit :as transit]))
+            [cljs.env :as env]
+            [shadow.cljs.bootstrap.browser :as boot]))
 
 (defn state []
-  (cljs.js/empty-state))
+  (env/default-compiler-env))
 
-(defn load-cache [sandbox-version opts]
-  ;; TODO: this can't be hard-coded =[
-  (js/Request. (str "/api/" sandbox-version "/rpc")
-               (clj->js {:method "POST"
-                         :body   (pr-str {:sandbox/version sandbox-version
-                                          :request         :env/load
-                                          :opts            opts})})))
+(defn init
+  [compiler-state sandbox-version]
+  (let [path (str "/sandbox/" sandbox-version "/bootstrap")]
+    (go (<p! (js/Promise. #(boot/init compiler-state {:path path} %))))))
 
-(defn loader [sandbox-version ctx cb]
-  (-> (js/fetch (load-cache sandbox-version ctx))
-      (.then (fn [response]
-               (when (.-ok response)
-                 (.text response))))
-      (.then (fn [response]
-               (if-let [resp (some-> response edn/read-string)]
-                 (cb (update resp
-                             :cache (fn [c]
-                                      (when c
-                                        (let [rdr (transit/reader :json)]
-                                          (transit/read rdr c))))))
-                 (cb nil))))
-      (.catch (fn [e]
-                (js/console.log e "Unable to load " (pr-str ctx))
-                (cb nil)))))
-
-(defn eval-opts [sandbox-version]
+(defn eval-opts
+  [compiler-state]
   {:eval cljs.js/js-eval
-   :load (partial loader sandbox-version)})
+   :load (partial boot/load compiler-state)})
 
 (defn eval!
-  [compiler-state sandbox-version form]
-  (go (<p! (js/Promise. #(cljs.js/eval-str compiler-state form nil (eval-opts sandbox-version) %)))))
+  [compiler-state form]
+  (go (<p! (js/Promise. #(cljs.js/eval-str compiler-state form nil (eval-opts compiler-state) %)))))
 
-(defn restart-env!
+#_(defn restart-env!
   [{:keys [compiler-state]} sandbox-version {:keys [metadata source]}]
   (go #_(reset! compiler-state (deref (state)))
    (async/<! (eval! compiler-state sandbox-version source))))

@@ -1,0 +1,22 @@
+{:deps   true
+ :builds {:app       {:target           :browser
+                      :output-dir       "resources/public/cljsfiddle"
+                      :asset-path       "/cljsfiddle"
+                      :compiler-options {:optimizations :simple}
+                      :modules          {:base {:entries [cljsfiddle.core]}}}
+
+          :bootstrap {:target     :bootstrap
+                      :output-dir "resources/public/bootstrap"
+                      :exclude    #{cljs.js}
+                      :entries    [cljs.js
+                                   reagent.core
+                                   reagent.dom
+                                   re-frame.core
+                                   datascript.core
+                                   re-frame.core
+                                   marked
+                                   react
+                                   react-dom
+                                   sandbox.reagent
+                                   sandbox.markdown]
+                      :macros     []}}}

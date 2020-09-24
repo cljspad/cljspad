@@ -14,7 +14,7 @@
             [cljsfiddle.logging :as log]))
 
 ;; TODO: less imperative impl
-(defn load-gist [{:keys [db] :as ctx} id]
+#_(defn load-gist [{:keys [db] :as ctx} id]
   (go
    (swap! db assoc :loading? true)
    (let [result (async/<! (gist/load-gist id))]
@@ -23,14 +23,14 @@
            (swap! db assoc :loading? false :source (:source result)))
        (swap! db assoc :error (:ex result) :loading? false)))))
 
-(defn load-readme
+#_(defn load-readme
   [{:keys [db compiler-state]}]
   ;; TODO: url pass in as variable
   (go (let [source (<p! (-> (js/fetch (str "/sandbox/" (:version @db) "/readme.cljs")) (.then #(.text %))))
             _      (async/<! (env/eval! compiler-state (-> db deref :version) source))]
         (swap! db assoc :source source))))
 
-(defn nav-callback
+#_(defn nav-callback
   [ctx ev]
   (let [token (aget ev "token")
         [_ type id] (str/split token #"/")]
@@ -44,7 +44,7 @@
       :else
       (js/console.log "Unknown token " token))))
 
-(defui history [{:keys [history] :as ctx} _]
+#_(defui history [{:keys [history] :as ctx} _]
   (rehook/use-effect
    (fn []
      (let [ev (ev/listen history "navigate" (partial nav-callback ctx))]
@@ -69,7 +69,6 @@
 (defui highlight [_ _]
   (rehook/use-effect
    (fn []
-     (js/console.log "Init highlighting...")
      (hljs/initHighlightingOnLoad)
      (.setOptions marked #js {:highlight (fn [code lang]
                                            (aget (hljs/highlight lang code) "value"))})
@@ -83,3 +82,11 @@
      (fn []
        (enable-console-print!)))
    []))
+
+(defui bootstrap [{:keys [db compiler-state]} _]
+  (let [[version _] (rehook/use-atom-path db [:version])]
+    (rehook/use-effect
+     (fn []
+       (env/init compiler-state version)
+       (constantly nil))
+     [version])))

@@ -12,8 +12,7 @@
             ["react-dom" :as react-dom]
             ["marked" :as marked]
             [clojure.string :as str]
-            [cljsfiddle.logging :as log]
-            [cljsfiddle.sandbox])
+            [cljsfiddle.logging :as log])
   (:import (goog History)))
 
 (goog-define version "dev")
@@ -60,7 +59,7 @@
 (defn load-package [compiler-state version package]
   (go (doseq [r (:require package)]
         (let [s (str "(require '" (pr-str r) ")")]
-          (async/<! (env/eval! compiler-state version s))))))
+          (async/<! (env/eval! compiler-state s))))))
 
 (defui package-meta
   [_ {:keys [package]}]
@@ -259,6 +258,7 @@
 (defui root-component [_ _]
   [:<>
    ;;[effects/history]
+   [effects/bootstrap]
    [effects/highlight]
    [effects/logging]
    [effects/manifest]

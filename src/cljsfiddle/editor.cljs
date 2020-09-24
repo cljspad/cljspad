@@ -4,25 +4,22 @@
             [cljsfiddle.env.core :as env]
             [goog.object :as obj]
             [cljs.core.async :as async :refer-macros [go]]
-            ["react-monaco-editor" :as monaco]
             ["react" :as react]))
 
 ;; TODO: does :target :bundle support :default in require?
-(def MonacoEditor
+#_(def MonacoEditor
   (aget monaco "default"))
 
 (defn run-code
-  [compiler-state version monaco]
-  (fn [_]
-    (let [model (.getModel monaco)
+  [compiler-state monaco]
+  #_(let [model (.getModel monaco)
           value (.getValue model)]
-      (go (let [resp (async/<! (env/eval! compiler-state version value))]
-            (some-> resp :error ex-cause ex-message prn))))))
+      (go (let [resp (async/<! (env/eval! compiler-state value))]
+            (some-> resp :error ex-cause ex-message prn)))))
 
 (defui editor [{:keys [compiler-state db]} _]
-  (let [ref (react/useRef)
+  #_(let [ref (react/useRef)
         [run set-run] (rehook/use-state nil)
-        [version _] (rehook/use-atom-path db [:version])
         [source _] (rehook/use-atom-path db [:source])]
 
     (rehook/use-effect
@@ -30,10 +27,10 @@
        (let [monaco (obj/getValueByKeys ref "current" "editor")
              resize (fn [] (.layout monaco))]
          (js/window.addEventListener "resize" resize)
-         (set-run {:run (run-code compiler-state version monaco)})
+         (set-run {:run (run-code compiler-state monaco)})
          (fn []
            (js/window.removeEventListener "resize" resize))))
-     [version])
+     [])
 
     [:div {:style {:width "100%" :height "calc(100vH - 250px)"}}
      [:div.toolbar
