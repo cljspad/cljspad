@@ -2,10 +2,11 @@
 
 [cljsfiddle](https://cljsfiddle.dev) is a code playground for [ClojureScript](https://clojurescript.org/)
 
-## Demo
+cljsfiddle allows you to share code snippets online and embed them into your blog.
+
+## Examples
 
 * Reagent + re-frame
-* Rum
 * ElkJS
 
 ## Sandbox
@@ -18,44 +19,30 @@ Sandboxed environments are versioned. Changes to the sandbox (library version bu
 
 This means that every version of the cljsfiddle sandbox contains stable, known versions of packaged ClojureScript libraries. GitHub gists are saved against a sandbox version, meaning your gist should never break as cljsfiddle progresses.
 
-### Sandbox Limitations
+## Rendering to the sandbox
 
-* JavaScript libraries are leaky + global. It is a WIP for cljsfiddle to include NPM dependencies (such as React) as a dependency within a sandboxed environment. 
+Code gets evaluated by pressing the 'Run' button
 
-## Packages
-
-Packages are 
-
-## Running
-
-Code is evaluated by pressing the 'Run' button
-
-To render something (eg a React component) to the right-hand pane, a render fn is provided for each environment:
+To render something (eg a React component) to the right-hand pane, a render function is provided for each library:
 
 ```clojure
+(require '[sandbox.reagent :refer [render]])
+
 (defn my-component []
- [:div "Hello world"])
- 
-(cljsfiddle/reagent-render! my-component)
+  [:div {} "Hello world"])
+
+(render my-component)
 ```
 
-Refer to the [Environments](#environments) section for examples of each hook fn
+## Loading code
 
-## REPL
-
-The bottom right hand pane contains a REPL connected to your current environment
-
-## Saving
-
-cljsfiddle integrates with GitHub gists to save your sketches. 
-
-## Loading
-
-To load a gist into cljsfiddle:
+To load a GitHub gist into cljsfiddle:
 
 Eg: https://gist.github.com/wavejumper/5d395f78257aab1da2536e5875b12d3d
 
 Becomes: https://cljsfiddle.net/gist/5d395f78257aab1da2536e5875b12d3d
+
+## Embedding
 
 # Contributing 
 
@@ -63,7 +50,7 @@ If you would like to contribute by adding a library to the cljsfiddle sandbox:
 
 1) Add desired library to `package.json` or `deps.edn`
 2) Add an entry to [cljsfiddle.manifest.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/resources/public/cljsfiddle.manifest.edn)
-3) (Optional) add a helper namespace if your library renders anything to the right hand pane. Eg: `cljsfiddle.helpers.reagent`. Example [here](https://github.com/cljsfiddle/cljsfiddle/blob/master/src/cljsfiddle/helpers/rum.cljs)
-4) Require library or helper namespace in [cljsfiddle.sandbox](https://github.com/cljsfiddle/cljsfiddle/blob/master/src/cljsfiddle/sandbox.cljs)
+3) (Optional) add a helper namespace if your library renders anything to the right-hand pane. Eg: `sandbox.reagent`. Example [here](https://github.com/cljsfiddle/cljsfiddle/blob/master/src/sandbox/reagent.cljs)
+4) Add an entry for the desired namespaces in [shadow-cljs.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/shadow-cljs.edn)
 
 Instructions on how to run cljsfiddle locally can be found in the server repo's [README](https://github.com/cljsfiddle/server)
