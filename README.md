@@ -31,7 +31,7 @@ To render something (eg a React component) to the right-hand pane, a render func
 (defn my-component []
   [:div {} "Hello world"])
 
-(render my-component)
+(render [my-component])
 ```
 
 ## Loading code

@@ -3,19 +3,36 @@
             [rehook.dom :refer-macros [defui ui]]
             [cljsfiddle.env.core :as env]
             [goog.object :as obj]
-            [cljs.core.async :as async :refer-macros [go]]
+            [cljs.core.async :as async :refer-macros [go go-loop]]
+            [cljs.tools.reader :as reader]
+            [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
             ["react" :as react]
             ["monaco" :as MonacoEditor]))
+
+(defn read* [reader]
+  (try (reader/read {:eof nil} reader)
+       (catch :default e
+         (prn (-> e ex-message))
+         nil)))
 
 (defn run-code
   [compiler-state ^js monaco]
   (fn [set-loading]
     (set-loading true)
-    (let [model (.getModel monaco)
-          value (.getValue model)]
-      (go (let [result (async/<! (env/eval! compiler-state value))]
-            (prn (or (:value result) (env/error-message result)))
-            (set-loading false))))))
+    (let [model  (.getModel monaco)
+          value  (.getValue model)
+          reader (string-push-back-reader value)]
+
+      ;; TODO: smarter reading. Tracking of line numbers where exceptions occur would be ideal -
+      (go-loop []
+        (if-let [form (read* reader)]
+          (let [result (async/<! (env/eval compiler-state form))]
+            (if-let [err (env/error-message result)]
+              (do (prn err)
+                  (set-loading false))
+              (recur)))
+
+          (set-loading false))))))
 
 (defui toolbar
   [_ {:keys [run]}]

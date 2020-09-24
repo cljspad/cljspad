@@ -7,7 +7,7 @@
             [cljsfiddle.repl :as repl]
             [cljsfiddle.editor :as editor]
             [clojure.set :as set]
-            [cljs.core.async :as async :refer-macros [go]]
+            [cljs.core.async :refer-macros [go]]
             ["react" :as react]
             ["react-dom" :as react-dom]
             ["marked" :as marked]
@@ -35,10 +35,6 @@
                       :stderr log/stderr}
      :db             (atom initial-state)}))
 
-(defui env-meta [{:keys [compiler-state]} _]
-  (let [[st _] (rehook/use-atom-path compiler-state [:cljs.analyzer/namespaces])]
-    [:code (pr-str (keys st))]))
-
 (defn loaded-namespaces [x]
   (into #{} (map first) (:cljs.analyzer/namespaces x)))
 
@@ -58,11 +54,6 @@
     (when-let [ns (first (set/difference st n))]
       [:span {} "Loading: "
        [:strong {} (str ns)]])))
-
-(defn load-package [compiler-state version package]
-  (go (doseq [r (:require package)]
-        (let [s (str "(require '" (pr-str r) ")")]
-          (async/<! (env/eval! compiler-state s))))))
 
 (defui package-meta
   [_ {:keys [package]}]
@@ -115,17 +106,6 @@
 
         ])]))
 
-(defui available-packages
-  [{:keys [compiler-state]} {:keys [manifest]}]
-  (let [[nses _]           (rehook/use-atom-fn compiler-state loaded-namespaces (constantly nil))
-        available-packages (filter (fn [package]
-                                     (every? (comp (complement nses) first) (:require package)))
-                                   (:packages manifest))]
-    [:div
-     (for [package (sort-by :name available-packages)]
-       [:div {:key (str "available-package-" (:name package))}
-        [package-meta {:package package}]])]))
-
 (defui loaded-packages
   [_ {:keys [manifest]}]
   [:div
@@ -138,7 +118,7 @@
         [manifest _] (rehook/use-atom-path db [:manifest version])]
     [:div
      [:h1 "Packages"]
-     [available-packages {:manifest manifest}]]))
+     [loaded-packages {:manifest manifest}]]))
 
 (defui left-pane [_ _]
   [:div.cljsfiddle-left-pane

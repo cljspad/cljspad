@@ -82,7 +82,7 @@
         (cb (assoc curr-repl-state :term-commands [["writeln" ""]
                                                    ["writeln" ""]
                                                    ["write" (str (:ns curr-repl-state) "=> ")]]))
-        (go (let [result (async/<! (env/eval! compiler-state (:form curr-repl-state)))
+        (go (let [result (async/<! (env/eval-str compiler-state (:form curr-repl-state)))
                   ns     (or (:ns result) (:ns curr-repl-state))]
               (js/console.log "REPL output => " (:form curr-repl-state) result)
               (cb (-> curr-repl-state
