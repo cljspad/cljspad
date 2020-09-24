@@ -1,9 +1,0 @@
-{:optimizations   :none
- :pretty-print    false
- :cache-analysis  true
- :target          :bundle
- :main            cljsfiddle.core
- :output-dir      "resources/public/cljsfiddle"
- :output-to       "resources/public/cljsfiddle/index.js"
- :asset-path      "/sandbox/dev/cljsfiddle"
- :closure-defines {cljsfiddle.core/version "dev"}}

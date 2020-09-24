@@ -1,16 +1,15 @@
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = {
-  entry: "./resources/public/cljsfiddle/index.js",
+  entry: "./src/monaco.js",
   output: {
-    path: __dirname + "/resources/public/cljsfiddle",
+    path: __dirname + "/resources/public/monaco",
     filename: "main.js",
-    publicPath: '/cljsfiddle/'
+    publicPath: '/monaco/'
   },
 
   plugins: [
     new MonacoWebpackPlugin({
-      // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
       languages: ['clojure']
     })
   ],

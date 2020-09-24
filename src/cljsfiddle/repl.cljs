@@ -96,7 +96,7 @@
                                         curr-history
                                         (conj curr-history (:form curr-repl-state))))))
                       (assoc :term-commands [["writeln" ""]
-                                             ["writeln" (if-some [value (or (:value result) (:error result))]
+                                             ["writeln" (if-some [value (or (:value result) (env/error-message result))]
                                                           (zp/czprint-str value)
                                                           "nil")]
                                              ["write" (str ns "=> ")]]))))))
@@ -146,7 +146,7 @@
    :pos               0
    :history-index     -1
    :max-history-items 50
-   :ns                "cljs.user"
+   :ns                "sandbox.user"
    :history           (read-repl-history)})
 
 (defn write-lines
@@ -207,7 +207,7 @@
              close-ch (async/chan)]
          (.open term current)
          (.fit fit)
-         (.write term "cljs.user=> ")
+         (.write term "sandbox.user=> ")
          (.onKey term #(handle-repl-key compiler-state version @state repl-cb %))
          (console-loop term close-ch state console)
          (fn []

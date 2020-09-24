@@ -10,6 +10,5 @@
          rehook                      {:mvn/version "2.1.11"}
          com.cognitect/transit-cljs  {:mvn/version "0.8.264"}
          com.stuartsierra/dependency {:mvn/version "1.0.0"}
-         wavejumper/clj-polyglot     {:mvn/version "1.0.4"}
          datascript                  {:mvn/version "1.0.1"}}
  :paths ["src" "resources"]}

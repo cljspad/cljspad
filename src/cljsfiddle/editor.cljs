@@ -4,21 +4,20 @@
             [cljsfiddle.env.core :as env]
             [goog.object :as obj]
             [cljs.core.async :as async :refer-macros [go]]
-            ["react" :as react]))
-
-;; TODO: does :target :bundle support :default in require?
-#_(def MonacoEditor
-  (aget monaco "default"))
+            ["react" :as react]
+            ["monaco" :as MonacoEditor]))
 
 (defn run-code
-  [compiler-state monaco]
-  #_(let [model (.getModel monaco)
+  [compiler-state ^js monaco]
+  (fn []
+    (let [model (.getModel monaco)
           value (.getValue model)]
       (go (let [resp (async/<! (env/eval! compiler-state value))]
-            (some-> resp :error ex-cause ex-message prn)))))
+            (when-let [err (env/error-message resp)]
+              (prn err)))))))
 
 (defui editor [{:keys [compiler-state db]} _]
-  #_(let [ref (react/useRef)
+  (let [ref (react/useRef)
         [run set-run] (rehook/use-state nil)
         [source _] (rehook/use-atom-path db [:source])]
 

@@ -2,11 +2,13 @@
   (:require [cljs.core.async :refer-macros [go]]
             [cljs.core.async.interop :refer-macros [<p!]]
             [cljs.js :as cljs.js]
-            [cljs.env :as env]
             [shadow.cljs.bootstrap.browser :as boot]))
 
+(defn error-message [result]
+  (-> result :error ex-cause ex-message))
+
 (defn state []
-  (env/default-compiler-env))
+  (cljs.js/empty-state))
 
 (defn init
   [compiler-state sandbox-version]
@@ -16,13 +18,9 @@
 (defn eval-opts
   [compiler-state]
   {:eval cljs.js/js-eval
-   :load (partial boot/load compiler-state)})
+   :load (partial boot/load compiler-state)
+   :ns   (symbol "sandbox.user")})
 
 (defn eval!
   [compiler-state form]
   (go (<p! (js/Promise. #(cljs.js/eval-str compiler-state form nil (eval-opts compiler-state) %)))))
-
-#_(defn restart-env!
-  [{:keys [compiler-state]} sandbox-version {:keys [metadata source]}]
-  (go #_(reset! compiler-state (deref (state)))
-   (async/<! (eval! compiler-state sandbox-version source))))
