@@ -1,7 +1,7 @@
 (ns cljsfiddle.repl
   (:require [rehook.core :as rehook]
             [rehook.dom :refer-macros [defui ui]]
-            [cljsfiddle.env.core :as env]
+            [cljsfiddle.env :as env]
             [goog.object :as obj]
             [cljs.core.async :as async :refer-macros [go go-loop]]
             [cljs.tools.reader.edn :as edn]
@@ -94,24 +94,25 @@
         (cb (assoc curr-repl-state :term-commands [["writeln" ""]
                                                    ["writeln" ""]
                                                    ["write" (str (:ns curr-repl-state) "=> ")]]))
-        (go (let [result (async/<! (env/eval-str-chan compiler-state (:form curr-repl-state)))
-                  ns     (or (:ns result) (:ns curr-repl-state))]
-              (js/console.log "REPL output => " (:form curr-repl-state) result)
-              (cb (-> curr-repl-state
-                      (assoc :pos 0)
-                      (assoc :form "")
-                      (assoc :ns ns)
-                      (update :history
-                              (fn [curr-history]
-                                (take (:max-history-items curr-repl-state)
-                                      (if (= curr-history (first curr-history))
-                                        curr-history
-                                        (conj curr-history (:form curr-repl-state))))))
-                      (assoc :term-commands [["writeln" ""]
-                                             ["writeln" (if-some [value (or (:value result) (env/error-message result))]
-                                                          (zp/czprint-str value)
-                                                          "nil")]
-                                             ["write" (str ns "=> ")]]))))))
+        (-> (env/eval-str-promise compiler-state (:form curr-repl-state))
+            (.then (fn [result]
+                     (let [ns  (or (:ns result) (:ns curr-repl-state))]
+                       (cb (-> curr-repl-state
+                               (assoc :pos 0)
+                               (assoc :form "")
+                               (assoc :ns ns)
+                               (update :history
+                                       (fn [curr-history]
+                                         (take (:max-history-items curr-repl-state)
+                                               (if (= curr-history (first curr-history))
+                                                 curr-history
+                                                 (conj curr-history (:form curr-repl-state))))))
+                               (assoc :term-commands [["writeln" ""]
+                                                      ["writeln" (if-some [value (or (:value result) (env/error-message result))]
+                                                                   (zp/czprint-str value)
+                                                                   "nil")]
+                                                      ["write" (str ns "=> ")]]))))))
+            (.catch #(prn %))))
 
       "Ctrl+KeyL"
       (cb (-> curr-repl-state

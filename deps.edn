@@ -1,5 +1,4 @@
 {:deps  {thheller/shadow-cljs        {:mvn/version "2.11.4"}
-         org.clojure/clojurescript   {:mvn/version "1.10.741"}
          org.clojure/clojure         {:mvn/version "1.10.1"}
          reagent                     {:mvn/version "1.0.0-alpha2"
                                       :exclusions  [cljsjs/react
@@ -11,4 +10,4 @@
          com.cognitect/transit-cljs  {:mvn/version "0.8.264"}
          com.stuartsierra/dependency {:mvn/version "1.0.0"}
          datascript                  {:mvn/version "1.0.1"}}
- :paths ["src" "resources"]}
+ :paths ["src"]}

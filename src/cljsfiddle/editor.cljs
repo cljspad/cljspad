@@ -1,9 +1,8 @@
 (ns cljsfiddle.editor
   (:require [rehook.core :as rehook]
             [rehook.dom :refer-macros [defui ui]]
-            [cljsfiddle.env.core :as env]
+            [cljsfiddle.env :as env]
             [goog.object :as obj]
-            [cljs.core.async :as async :refer-macros [go go-loop]]
             [cljs.tools.reader :as reader]
             [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
             ["react" :as react]
@@ -15,6 +14,38 @@
          (prn (-> e ex-message))
          nil)))
 
+;; TODO: smarter reading. Tracking of line numbers where exceptions occur would be ideal...
+;; having errors reflected inside of monaco would be even cooler
+(defn eval-form [compiler-state set-loading reader]
+  (if-let [form (read* reader)]
+    ;; TODO: another (possible) shadow or cljs.js bug
+    ;; cljs.js/eval returns exception: 'no *eval-fn* defined' on initial evaluation
+    ;; cljs.js/eval-str does not exhibit this behaviour.
+    ;;
+    ;; So unfortunately we have to read string then serialise the form back to a string...
+    ;;
+    ;; So why even read the editors contents at all?
+    ;; It appears that a form such as:
+    ;; (defn foo [] 1)
+    ;; (inc (foo))
+    ;;
+    ;; Will not evaluate, as it complains `foo` has not been defined when incrementing.
+    ;; This may be the intended behaviour of `:context :expr` in cljs.js, I am not sure.
+    ;;
+    ;; Breaking down the evaliation into a sequence of forms has the advantage of being able
+    ;; to eventually have better error handling/feedback (see comment at top of go-loop)
+    (-> (env/eval-str-promise compiler-state (str form))
+        (.then (fn [result]
+                 (if-let [err (env/error-message result)]
+                   (do (prn err)
+                       (set-loading false))
+                   (eval-form compiler-state set-loading reader))))
+        (.catch (fn [err]
+                  (prn err)
+                  (set-loading false))))
+
+    (set-loading false)))
+
 (defn run-code
   [compiler-state ^js monaco]
   (fn [set-loading]
@@ -23,33 +54,7 @@
           value  (.getValue model)
           reader (string-push-back-reader value)]
 
-      ;; TODO: smarter reading. Tracking of line numbers where exceptions occur would be ideal...
-      ;; having errors reflected inside of monaco would be even cooler
-      (go-loop []
-        (if-let [form (read* reader)]
-          ;; TODO: another (possible) shadow or cljs.js bug
-          ;; cljs.js/eval returns exception: 'no *eval-fn* defined' on initial evaluation
-          ;; cljs.js/eval-str does not exhibit this behaviour.
-          ;;
-          ;; So unfortunately we have to read string then serialise the form back to a string...
-          ;;
-          ;; So why even read the editors contents at all?
-          ;; It appears that a form such as:
-          ;; (defn foo [] 1)
-          ;; (inc (foo))
-          ;;
-          ;; Will not evaluate, as it complains `foo` has not been defined when incrementing.
-          ;; This may be the intended behaviour of `:context :expr` in cljs.js, I am not sure.
-          ;;
-          ;; Breaking down the evaliation into a sequence of forms has the advantage of being able
-          ;; to eventually have better error handling/feedback (see comment at top of go-loop)
-          (let [result (async/<! (env/eval-str-chan compiler-state (str form)))]
-            (if-let [err (env/error-message result)]
-              (do (prn err)
-                  (set-loading false))
-              (recur)))
-
-          (set-loading false))))))
+      (eval-form compiler-state set-loading reader))))
 
 (defui toolbar
   [_ {:keys [run]}]

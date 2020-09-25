@@ -1,8 +1,6 @@
-(ns cljsfiddle.env.core
+(ns cljsfiddle.env
   (:refer-clojure :exclude [eval])
-  (:require [cljs.core.async :refer-macros [go]]
-            [cljs.core.async.interop :refer-macros [<p!]]
-            [cljs.js :as cljs.js]
+  (:require [cljs.js :as cljs.js]
             [shadow.cljs.bootstrap.browser :as boot]))
 
 (defn error-message [result]
@@ -22,9 +20,6 @@
    :load (partial boot/load compiler-state)
    :ns   (symbol "sandbox.user")})
 
-(defn ^js js-promise [fn]
-  (js/Promise. fn))
-
 (defn eval-str
   [compiler-state form cb]
   (try (cljs.js/eval-str compiler-state form "[repl]" (eval-opts compiler-state) cb)
@@ -42,21 +37,8 @@
     (when-not (ignored-error-messages err-msg)
       result)))
 
-(defn eval-str-chan
+(defn ^js eval-str-promise
   [compiler-state form]
-  (go (<p!  (-> (partial eval-str compiler-state form)
-                (js-promise)
-                (.then eval-result-xf)
-                (.catch prn)))))
-
-(defn eval
-  [compiler-state form cb]
-  (try (cljs.js/eval compiler-state form (eval-opts compiler-state) cb)
-       (catch :default e
-         (cb {:error e}))))
-
-(defn eval-chan [compiler-state form]
-  (go (<p! (-> (partial eval compiler-state form)
-               (js-promise)
-               (.then eval-result-xf)
-               (.catch prn)))))
+  (-> (partial eval-str compiler-state form)
+      (js/Promise.)
+      (.then eval-result-xf)))

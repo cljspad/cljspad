@@ -3,7 +3,7 @@
             [rehook.dom :refer-macros [defui ui]]
             [rehook.dom.browser :as dom.browser]
             [cljsfiddle.effects :as effects]
-            [cljsfiddle.env.core :as env]
+            [cljsfiddle.env :as env]
             [cljsfiddle.repl :as repl]
             [cljsfiddle.editor :as editor]
             [clojure.set :as set]
@@ -103,9 +103,7 @@
              [:td (for [r requires]
                     [:div [:code.cljsfiddle-code (pr-str r)]])]])]]
 
-        [:h3 "Examples"]
-
-        ])]))
+        [:h3 "Examples"]])]))
 
 (defui loaded-packages
   [_ {:keys [manifest]}]

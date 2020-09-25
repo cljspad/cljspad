@@ -5,7 +5,7 @@
             [cljs.core.async :as async :refer-macros [go]]
             [cljs.core.async.interop :refer-macros [<p!]]
             [goog.events :as ev]
-            [cljsfiddle.env.core :as env]
+            [cljsfiddle.env :as env]
             [cljsfiddle.gist :as gist]
             [clojure.string :as str]
             [cljs.tools.reader.edn :as edn]
