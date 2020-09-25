@@ -20,6 +20,7 @@
                                            marked
                                            react
                                            react-dom
+                                           sandbox.user
                                            sandbox.reagent
                                            sandbox.markdown]
                               :macros     []}}}

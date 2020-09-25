@@ -18,7 +18,7 @@
 (goog-define version "dev")
 
 (def initial-state
-  {:loading?     false
+  {:loading?     true
    :error?       false
    :version      version
    :manifest     {}
@@ -26,14 +26,15 @@
    :selected-tab :readme})
 
 (defn system []
-  (let [compiler-state (env/state)]
+  (let [compiler-state (env/state)
+        db             (atom initial-state)]
     ;; TODO: move this effect into cljsfiddle.effects
-    (env/init compiler-state version)
+    (env/init compiler-state version #(swap! db assoc :loading? false))
     {:compiler-state compiler-state
      :history        (History.)
      :console        {:stdout log/stdout
                       :stderr log/stderr}
-     :db             (atom initial-state)}))
+     :db             db}))
 
 (defn loaded-namespaces [x]
   (into #{} (map first) (:cljs.analyzer/namespaces x)))

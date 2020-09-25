@@ -23,6 +23,18 @@
   [s c i]
   (str (subs s 0 i) c (subs s i)))
 
+(defn backspace
+  [s pos]
+  (:str (reduce
+         (fn [ctx x]
+           (if (= pos (:idx ctx))
+             (update ctx :idx inc)
+             (-> ctx
+                 (update :str str x)
+                 (update :idx inc))))
+         {:idx 0 :str ""}
+         s)))
+
 (defn handle-repl-key
   [compiler-state curr-repl-state cb ev]
   (let [key   (aget ev "key")
@@ -72,17 +84,17 @@
 
       "Backspace"
       (when (pos? (:pos curr-repl-state))
-        (cb (-> curr-repl-state
-                (update :form #(apply str (butlast %)))
-                (update :pos dec)
-                (assoc :term-commands [["write" "\b \b"]]))))
+        (let [next-form (backspace (:form curr-repl-state) (:pos curr-repl-state))]
+          (cb (-> curr-repl-state
+                  (update :form next-form)
+                  (update :pos dec)))))
 
       "Enter"
       (if (str/blank? (:form curr-repl-state))
         (cb (assoc curr-repl-state :term-commands [["writeln" ""]
                                                    ["writeln" ""]
                                                    ["write" (str (:ns curr-repl-state) "=> ")]]))
-        (go (let [result (async/<! (env/eval-str compiler-state (:form curr-repl-state)))
+        (go (let [result (async/<! (env/eval-str-chan compiler-state (:form curr-repl-state)))
                   ns     (or (:ns result) (:ns curr-repl-state))]
               (js/console.log "REPL output => " (:form curr-repl-state) result)
               (cb (-> curr-repl-state
@@ -146,7 +158,7 @@
    :pos               0
    :history-index     -1
    :max-history-items 50
-   :ns                "sandbox.user"
+   :ns                "cljs.user"
    :history           (read-repl-history)})
 
 (defn write-lines
@@ -206,7 +218,7 @@
              close-ch (async/chan)]
          (.open term current)
          (.fit fit)
-         (.write term "sandbox.user=> ")
+         (.write term "cljs.user=> ")
          (.onKey term #(handle-repl-key compiler-state @state repl-cb %))
          (console-loop term close-ch state console)
          (fn []
