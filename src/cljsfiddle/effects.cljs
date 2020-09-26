@@ -6,6 +6,7 @@
             [cljs.tools.reader.edn :as edn]
             ["highlight.js" :as hljs]
             ["marked" :as marked]
+            ["react" :as react]
             [cljsfiddle.logging :as log]))
 
 (defui manifest [{:keys [db]} _]
@@ -57,3 +58,13 @@
          (load-gist db gist-id))
        (constantly nil))
      [(str gist-id)])))
+
+;; monaco has to be global to support auxiliary functionality (copy to clipboard, eval gist on load)
+(defui monaco-ref
+  [{:keys [monaco]} _]
+  (let [ref (react/useRef)]
+    (rehook/use-effect
+     (fn []
+       (reset! monaco ref)
+       (fn []
+         (reset! monaco nil))))))

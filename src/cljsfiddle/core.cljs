@@ -32,6 +32,7 @@
     {:compiler-state compiler-state
      :console        {:stdout log/stdout
                       :stderr log/stderr}
+     :monaco         (atom nil)
      :db             db}))
 
 (defn loaded-namespaces [x]
@@ -191,18 +192,34 @@
                {:display "none"})}
      [manifest]]))
 
-(defui export [{:keys [db]} _]
-  (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])
-        [version _] (rehook/use-atom-path db [:version])]
+(defui export [{:keys [db monaco]} _]
+  (let [[monaco _] (rehook/use-atom monaco)
+        [selected-tab _] (rehook/use-atom-path db [:selected-tab])
+        [version _] (rehook/use-atom-path db [:version])
+        initial-copy-text "Copy code to clipboard"
+        [copy-text set-copy-text] (rehook/use-state initial-copy-text)]
+
+    (rehook/use-effect
+     (fn []
+       (if-not (= copy-text initial-copy-text)
+         (let [f (js/setTimeout #(set-copy-text initial-copy-text) 1000)]
+           #(js/clearTimeout f))
+         (constantly nil)))
+     [copy-text])
+
     [:div.cljsfiddle-export
      {:style (when-not (= selected-tab :export)
                {:display "none"})}
      [:h1 "Export instructions"]
 
      [:p "Your cljsfiddle creation can be exported by creating a new public GitHub "
-      [:a {:href "https://gist.github.com"} "gist"]]
+      [:a {:href "https://gist.github.com" :target "_blank"} "gist"]]
 
-     [:div.button "Copy code to clipboard"]
+     (when monaco
+       [:div.button {:onClick #(if (editor/copy-to-clipboard monaco)
+                                 (set-copy-text "Copied to clipboard!")
+                                 (set-copy-text "Failed to copy to clipboard :("))}
+        copy-text])
 
      [:h3 "Sharing"]
      [:p "Once you have created a gist, you can use this link to share your creation:"]
@@ -236,6 +253,7 @@
 
 (defui root-component [_ _]
   [:<>
+   [effects/monaco-ref]
    [effects/gist]
    [effects/highlight]
    [effects/logging]
@@ -255,5 +273,3 @@
         sys  (system opts)]
     (reset! app-state sys)
     (render)))
-
-#_(aset js/window "onbeforeunload" (constantly true))

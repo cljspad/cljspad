@@ -44,6 +44,8 @@ body, html {
 .cljsfiddle-readme, .cljsfiddle-sandbox, .cljsfiddle-packages, .cljsfiddle-export {
   height: calc(100vh - 30px);
   overflow: scroll;
+  overflow-y: auto;
+  overflow-x: auto;
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
   padding: 10px;
 }

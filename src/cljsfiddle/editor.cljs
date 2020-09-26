@@ -3,10 +3,29 @@
             [rehook.dom :refer-macros [defui ui]]
             [cljsfiddle.env :as env]
             [goog.object :as obj]
+            [clojure.string :as str]
             [cljs.tools.reader :as reader]
             [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
             ["react" :as react]
             ["monaco" :as MonacoEditor]))
+
+(defn ^js ref->editor [ref]
+  (obj/getValueByKeys ref "current" "editor"))
+
+(defn copy-to-clipboard [monaco-ref]
+  (try (let [editor (ref->editor monaco-ref)
+             model  (.getModel editor)
+             value  (.getValue model)
+             elem   (js/document.createElement "textarea")]
+         (js/document.body.appendChild elem)
+         (aset elem "value" value)
+         (.select elem)
+         (js/document.execCommand "copy")
+         (js/document.body.removeChild elem)
+         true)
+       (catch :default e
+         (prn e)
+         false)))
 
 (defn read* [reader]
   (try (reader/read {:eof nil} reader)
@@ -47,10 +66,10 @@
     (set-loading false)))
 
 (defn run-code
-  [compiler-state ^js monaco]
+  [compiler-state ^js editor]
   (fn [set-loading]
     (set-loading true)
-    (let [model  (.getModel monaco)
+    (let [model  (.getModel editor)
           value  (.getValue model)
           reader (string-push-back-reader value)]
 
@@ -67,27 +86,33 @@
         [:span.cljsfiddle-run-icon])
       "Run"]]))
 
-(defui editor [{:keys [compiler-state db]} _]
-  (let [ref (react/useRef)
+(defui editor [{:keys [compiler-state db monaco]} _]
+  (let [[monaco _] (rehook/use-atom monaco)
         [run set-run] (rehook/use-state nil)
         [source _] (rehook/use-atom-path db [:source])]
+    (when monaco
+      (rehook/use-effect
+       (fn []
+         (let [editor (ref->editor monaco)
+               resize (fn [] (.layout editor))
+               unload (fn []
+                        (let [model (.getModel editor)
+                              value (.getValue model)]
+                          (when-not (str/blank? value)
+                            true)))]
+           (js/window.addEventListener "resize" resize)
+           (set-run {:run (run-code compiler-state editor)})
+           (aset js/window "onbeforeunload" unload)
+           (fn []
+             (js/window.removeEventListener "resize" resize))))
+       [])
 
-    (rehook/use-effect
-     (fn []
-       (let [monaco (obj/getValueByKeys ref "current" "editor")
-             resize (fn [] (.layout monaco))]
-         (js/window.addEventListener "resize" resize)
-         (set-run {:run (run-code compiler-state monaco)})
-         (fn []
-           (js/window.removeEventListener "resize" resize))))
-     [])
-
-    [:div {:style {:width "100%" :height "calc(100vH - 250px)"}}
-     [toolbar {:run run}]
-     [MonacoEditor {:language "clojure"
-                    :theme    "vs-light"
-                    :height   "100%"
-                    :width    "100%"
-                    :value    source
-                    :options  {:minimap {:enabled false}}
-                    :ref      ref}]]))
+      [:div {:style {:width "100%" :height "calc(100vH - 250px)"}}
+       [toolbar {:run run}]
+       [MonacoEditor {:language "clojure"
+                      :theme    "vs-light"
+                      :height   "100%"
+                      :width    "100%"
+                      :value    source
+                      :options  {:minimap {:enabled false}}
+                      :ref      monaco}]])))
