@@ -1,11 +1,13 @@
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const sandboxVersion = process.env.SANDBOX_VERSION;
+const publicPath = "/sandbox/" + sandboxVersion + "/monaco/";
 
 module.exports = {
   entry: "./src/monaco.js",
   output: {
     path: __dirname + "/resources/public/monaco",
     filename: "main.js",
-    publicPath: '/sandbox/dev/monaco/'
+    publicPath: publicPath
   },
 
   plugins: [

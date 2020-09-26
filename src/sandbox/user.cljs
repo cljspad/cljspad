@@ -6,7 +6,7 @@
     (contains? links href)))
 
 (defn inject-stylesheet
-  "Idempotently inject stylesheet into <head> of DOM"
+  "Idempotently inject a stylesheet into <head> of DOM"
   [href]
   (if-not (contains-stylesheet? href)
     (let [head (aget js/document "head")

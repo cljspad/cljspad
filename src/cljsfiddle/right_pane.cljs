@@ -146,7 +146,7 @@
        (constantly nil)))
 
     [:pre
-     [:code {:ref ref :class "language-clojure"}
+     [:code {:ref ref :className "language-clojure"}
       (util/children props)]]))
 
 (defui copy-to-clipboard [{:keys [monaco]} _]
@@ -200,10 +200,12 @@
      [:p "Your cljsfiddle creation can be exported by creating a new public GitHub "
       [:a {:href "https://gist.github.com" :target "_blank"} "gist"]]
      [copy-to-clipboard]
+
      [:h3 "Sharing"]
      [:p "Once you have created a gist, you can use this link to share your creation:"]
      [highlight (str "https://cljsfiddle.dev/gist/" version "/GIST_ID")]
      [:p "Where " [:samp "GIST_ID"] " is the id of your freshly created gist (found in the navbar)"]
+
      [:h3 "Embedding"]
      [:p "If you would like to embed your creation, you can add this iframe to your website:"]
      [highlight (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/" version "/GIST_ID\" width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>")]
@@ -211,6 +213,7 @@
      [:ul
       [:li [:samp "selected_tab"] " - (enum) the initial tab on load. Options: sandbox, repl, editor (default: editor)"]
       [:li [:samp "defer_load"] " - (bool) whether to defer the loading of cljsfiddle (default: true)"]]
+
      [:h3 "Clojure project"]
      [:p "If you would like to build a Clojure project out of your creation:"]
      [:h4 "deps.edn"]
