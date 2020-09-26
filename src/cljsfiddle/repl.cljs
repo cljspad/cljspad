@@ -220,7 +220,9 @@
         [cljs-version _] (rehook/use-atom-path db [:manifest version :clojurescript/version])
         [nses _] (rehook/use-atom-fn compiler-state (fn [x]
                                                    (keys (:cljs.analyzer/namespaces x)))
-                                  nil)]
+                                  nil)
+        [gist-id _] (rehook/use-atom-path db [:opts :gist_id])
+        [latest _] (rehook/use-atom-path db [:opts :latest])]
 
     [:div {:style {:borderTop       "1px solid #ccc"
                    :backgroundColor "#fafafa"
@@ -232,7 +234,7 @@
       [:div {:style {:flex 1}}
        [:span.cljsfiddle-repl-icon {}]
        [:strong " REPL"]]
-      [:div {:style {:flex       1
+      [:div {:style {:flex       2
                      :textAlign  "right"
                      :fontSize   "10px"
                      :lineHeight "20px"
@@ -243,7 +245,10 @@
        " | "
        [:span "Cljs version: " [:strong (str cljs-version)]]
        " | "
-       [:span "Sandbox version: " [:strong (str version)]]]]]))
+       [:span "Sandbox version: " [:strong (str version)]]
+       (when (and gist-id (not= version latest))
+         (let [href (str "/gist/" gist-id)]
+           [:<> " | " [:a {:href href} "Switch to latest sandbox"]]))]]]))
 
 (defui repl [{:keys [compiler-state console]} _]
   (let [container (react/useRef)]

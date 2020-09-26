@@ -52,7 +52,7 @@
     ;; This may be the intended behaviour of `:context :expr` in cljs.js, I am not sure.
     ;;
     ;; Breaking down the evaliation into a sequence of forms has the advantage of being able
-    ;; to eventually have better error handling/feedback (see comment at top of go-loop)
+    ;; to eventually have better error handling/feedback (see comment at top of defn)
     (-> (env/eval-str-promise compiler-state (str form))
         (.then (fn [result]
                  (if-let [err (env/error-message result)]
