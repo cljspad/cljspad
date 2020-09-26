@@ -25,7 +25,7 @@
     ;; So unfortunately we have to read string then serialise the form back to a string...
     ;;
     ;; So why even read the editors contents at all?
-    ;; It appears that a form such as:
+    ;; It appears that evaluating:
     ;; (defn foo [] 1)
     ;; (inc (foo))
     ;;

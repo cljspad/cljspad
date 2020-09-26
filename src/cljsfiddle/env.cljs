@@ -22,9 +22,7 @@
 
 (defn eval-str
   [compiler-state form cb]
-  (try (cljs.js/eval-str compiler-state form "[repl]" (eval-opts compiler-state) cb)
-       (catch :default e
-         (cb {:error e}))))
+  (cljs.js/eval-str compiler-state form nil (eval-opts compiler-state) cb))
 
 (def ignored-error-messages
   ;; This is a bit of a hack... (require '[...]) throws this exception

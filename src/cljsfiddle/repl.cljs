@@ -9,7 +9,8 @@
             [zprint.core :as zp]
             ["react" :as react]
             ["xterm" :refer [Terminal]]
-            ["xterm-addon-fit" :refer [FitAddon]]))
+            ["xterm-addon-fit" :refer [FitAddon]]
+            ["ansi-escapes" :refer [eraseLine cursorLeft cursorForward cursorBackward]]))
 
 (defn terminal [fit-addon]
   (doto (Terminal.)
@@ -35,6 +36,18 @@
          {:idx 0 :str ""}
          s)))
 
+(defn handle-input
+  [curr-repl-state next-pos next-form ns-str]
+  (-> curr-repl-state
+      (assoc :form next-form)
+      (assoc :term-commands [["clearLine"]
+                             ["cursorBackward" (+ (count ns-str) (count (:form curr-repl-state)))]
+                             ["write" ns-str]
+                             ["write" next-form]
+                             (when (pos? (- (count next-form) next-pos))
+                               ["cursorBackward" (- (count next-form) next-pos)])])
+      (assoc :pos next-pos)))
+
 (defn handle-repl-key
   [compiler-state curr-repl-state cb ev]
   (let [key   (aget ev "key")
@@ -43,9 +56,10 @@
         code  (if ctrl?
                 (str "Ctrl+" code)
                 code)]
+
     (case code
       "ArrowRight"
-      (when (<= (:pos curr-repl-state) (count (:form curr-repl-state)))
+      (when (< (:pos curr-repl-state) (count (:form curr-repl-state)))
         (cb (-> curr-repl-state
                 (update :pos inc)
                 (assoc :term-commands [["write" key]]))))
@@ -84,10 +98,17 @@
 
       "Backspace"
       (when (pos? (:pos curr-repl-state))
-        (let [next-form (backspace (:form curr-repl-state) (:pos curr-repl-state))]
-          (cb (-> curr-repl-state
-                  (update :form next-form)
-                  (update :pos dec)))))
+        (let [next-pos  (dec (:pos curr-repl-state))
+              next-form (backspace (:form curr-repl-state) next-pos)
+              ns-str    (str (:ns curr-repl-state) "=> ")]
+          (cb (handle-input curr-repl-state next-pos next-form ns-str))))
+
+      "Delete"
+      (when (pos? (:pos curr-repl-state))
+        (let [next-pos  (:pos curr-repl-state)
+              next-form (backspace (:form curr-repl-state) next-pos)
+              ns-str    (str (:ns curr-repl-state) "=> ")]
+          (cb (handle-input curr-repl-state next-pos next-form ns-str))))
 
       "Enter"
       (if (str/blank? (:form curr-repl-state))
@@ -124,10 +145,11 @@
       nil
 
       ;; Else, treat as regular keypress
-      (cb (-> curr-repl-state
-              (update :form str-insert key (:pos curr-repl-state))
-              (update :pos inc)
-              (assoc :term-commands [["write" key]]))))))
+      (when-not ctrl?
+        (let [next-form (str-insert (:form curr-repl-state) key (:pos curr-repl-state))
+              next-pos  (inc (:pos curr-repl-state))
+              ns-str    (str (:ns curr-repl-state) "=> ")]
+          (cb (handle-input curr-repl-state next-pos next-form ns-str)))))))
 
 (defn read-repl-history
   []
@@ -149,9 +171,14 @@
 
   (doseq [[cmd val] (:term-commands next-state)]
     (case cmd
+      "clearLine" (.write term eraseLine)
+      "cursorLeft" (.write term cursorLeft)
+      "cursorForward" (.write term (cursorForward val))
+      "cursorBackward" (.write term (cursorBackward val))
       "clear" (.clear term)
       "write" (.write term val)
       "writeln" (.writeln term val)
+      nil nil
       (js/console.warn "Unknown term command " cmd))))
 
 (defn initial-state []
