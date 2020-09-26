@@ -68,3 +68,15 @@
        (reset! monaco ref)
        (fn []
          (reset! monaco nil))))))
+
+(defui default-embed-tab
+  [{:keys [db]} _]
+  (let [[selected-tab _] (rehook/use-atom-path db [:opts :selected_tab])
+        [embed? _] (rehook/use-atom-path db [:opts :embed])]
+    (rehook/use-effect
+     (fn []
+       (when embed?
+         (swap! db assoc :selected-tab (keyword (or selected-tab "editor"))))
+
+       (constantly nil))
+     [embed? (str selected-tab)])))

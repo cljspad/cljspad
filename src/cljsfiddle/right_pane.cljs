@@ -2,6 +2,10 @@
   (:require [cljsfiddle.editor :as editor]
             [rehook.core :as rehook]
             [rehook.dom :refer-macros [defui]]
+            [rehook.util :as util]
+            [clojure.string :as str]
+            [zprint.core :as zp]
+            ["highlight.js" :as hljs]
             ["marked" :as marked]
             ["react" :as react]))
 
@@ -101,7 +105,7 @@
                (fn []
                  (throw (ex-info "Cannot render, sandbox has been unmounted from DOM." {})))))))
 
-    [:div.cljsfiddle-sandbox
+    [:div.cljsfiddle-sandbox#cljsfiddle--sandbox
      {:ref   ref
       :style (when-not (= selected-tab :sandbox)
                {:display "none"})}]))
@@ -123,7 +127,7 @@
       "Export"]
      [:div.button
       {:className (when (= selected-tab :sandbox) "active")
-       :onClick   #(set-selected-tab :sandbox)} "Sandbox"]
+       :onClick   #(set-selected-tab :sandbox)} "Output"]
      [:a.button {:style {:marginLeft "auto"}
                  :href  "https://github.com/cljsfiddle/cljsfiddle"}
       [:span.cljsfiddle-github-icon]]]))
@@ -135,12 +139,35 @@
                {:display "none"})}
      [manifest]]))
 
-(defui export [{:keys [db monaco]} _]
+(defui highlight [_ props]
+  (let [ref (react/useRef)]
+    (rehook/use-effect
+     (fn []
+       (hljs/highlightBlock (aget ref "current"))
+       (constantly nil)))
+
+    [:pre
+     [:code {:ref ref :class "language-clojure"}
+      (util/children props)]]))
+
+(defui export [{:keys [db monaco compiler-state]} _]
   (let [[monaco _] (rehook/use-atom monaco)
         [selected-tab _] (rehook/use-atom-path db [:selected-tab])
         [version _] (rehook/use-atom-path db [:version])
         initial-copy-text "Copy code to clipboard"
-        [copy-text set-copy-text] (rehook/use-state initial-copy-text)]
+        [copy-text set-copy-text] (rehook/use-state initial-copy-text)
+        [packages _] (rehook/use-atom-path db [:manifest version :packages])
+        [cljs-version _] (rehook/use-atom-path db [:manifest version :clojurescript/version])
+        [clj-deps _] (rehook/use-atom-fn compiler-state (fn [cs]
+                                                          (let [nses (set (keys (:cljs.analyzer/namespaces cs)))]
+                                                            (->> packages
+                                                                 (filter (fn [{:keys [require]}]
+                                                                           (some (fn [[r & _]]
+                                                                                   (contains? nses r))
+                                                                                 require)))
+                                                                 (filter #(= :cljs (:type %)))
+                                                                 (keep :coord))))
+                                         (constantly nil))]
 
     (rehook/use-effect
      (fn []
@@ -155,6 +182,7 @@
                {:display "none"})}
      [:h1 "Export instructions"]
 
+     [:h3 "GitHub Gist"]
      [:p "Your cljsfiddle creation can be exported by creating a new public GitHub "
       [:a {:href "https://gist.github.com" :target "_blank"} "gist"]]
 
@@ -166,9 +194,34 @@
 
      [:h3 "Sharing"]
      [:p "Once you have created a gist, you can use this link to share your creation:"]
-     [:code "https://cljsfiddle.dev/gist/" version "/GIST_ID"]
+     [highlight (str "https://cljsfiddle.dev/gist/" version "/GIST_ID")]
      [:p "Where " [:samp "GIST_ID"] " is the id of your freshly created gist (found in the navbar)"]
 
      [:h3 "Embedding"]
-     [:p "If you would like to embed your creation, you can add this IFrame to your website:"]
-     [:code "<iframe src=\"" "https://cljsfiddlle.dev/gist/" version "/GIST_ID/embed\"></iframe>"]]))
+     [:p "If you would like to embed your creation, you can add this iframe to your website:"]
+     [highlight (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/" version "/GIST_ID\" width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>")]
+     [:p "You can configure cljsfiddle by passing through the following query params:"]
+     [:ul
+      [:li [:samp "selected_tab"] " - (enum) the initial tab on load. Options: sandbox, repl, editor (default: editor)"]
+      [:li [:samp "defer_load"] " - (bool) whether to defer the loading of cljsfiddle (default: true)"]]
+     [:h3 "Clojure project"]
+     [:p "If you would like to make a Clojure project out of your creation:"]
+     [:h4 "deps.edn"]
+     [highlight (zp/zprint-str
+                 {:deps (into {'org.clojure/clojurescript {:mvn/version cljs-version}}
+                              (map (fn [[dep coord]]
+                                     [(symbol dep) {:mvn/version coord}])
+                                   clj-deps))}
+                 {:style :community})]
+     [:h4 "shadow-cljs.edn"]
+     [highlight (zp/zprint-str
+                 '{:deps   true
+                   :builds {:app {:target  :browser
+                                  :modules {:base {:entries [app.main]}}}}}
+                 {:style :community})]
+     [:h4 "src/main/app.cljs"]
+     (when monaco
+       [:div.button {:onClick #(if (editor/copy-to-clipboard monaco)
+                                 (set-copy-text "Copied to clipboard!")
+                                 (set-copy-text "Failed to copy to clipboard :("))}
+        copy-text])]))

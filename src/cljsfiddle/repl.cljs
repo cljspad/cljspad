@@ -241,7 +241,7 @@
                      :userSelect "none"}}
        [:span.hint--top.hint--large
         {:aria-label (pr-str (sort nses))}
-        (count nses) " loaded namespaces"]
+        (count nses) " namespaces loaded"]
        " | "
        [:span "Cljs version: " [:strong (str cljs-version)]]
        " | "

@@ -7,7 +7,8 @@
                               :output-dir       "resources/public/cljsfiddle"
                               :asset-path       "/sandbox/dev/cljsfiddle"
                               :compiler-options {:optimizations :simple}
-                              :modules          {:base {:entries [cljsfiddle.core]}}}
+                              :modules          {:base {:entries [cljsfiddle.core]}}
+                              :closure-defines  {cljsfiddle.core/version "dev"}}
 
                   :bootstrap {:target     :bootstrap
                               :output-dir "resources/public/bootstrap"

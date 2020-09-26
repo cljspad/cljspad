@@ -17,11 +17,13 @@ Sandboxed environments are versioned. Changes to the sandbox (library version bu
 
 This means that every version of the cljsfiddle sandbox contains stable, known versions of packaged ClojureScript libraries. GitHub gists are saved against a sandbox version, meaning your gist should never break as cljsfiddle progresses.
 
+You can view the sandbox changelog by visiting the [releases](https://github.com/cljsfiddle/cljsfiddle/releases) page.
+
 ## Rendering to the sandbox
 
 Code gets evaluated by pressing the 'Run' button
 
-To render something (eg a React component) to the right-hand pane, a render function is provided for each library:
+To render something (eg a React component) to the right-hand pane, a render function has been provided for each library:
 
 ```clojure
 (require '[sandbox.reagent :refer [render]])
@@ -32,15 +34,41 @@ To render something (eg a React component) to the right-hand pane, a render func
 (render [my-component])
 ```
 
-## Loading code
+## Utility functions
+
+`sandbox.user` contains a few hepler functions:
+
+### Injecting CSS
+
+If you would like to style the right-hand pane, you can use the `inject-stylesheet` fn
+
+```clojure 
+(inject-stylesheet "https://path/to/stylesheet.css")
+```
+
+## Loading/sharing code
 
 To load a GitHub gist into cljsfiddle:
 
-Eg: https://gist.github.com/wavejumper/5d395f78257aab1da2536e5875b12d3d
+Gist: https://gist.github.com/wavejumper/05fca1e4d543078227e24081c2f2764c
 
-Becomes: https://cljsfiddle.net/gist/5d395f78257aab1da2536e5875b12d3d
+Becomes: https://cljsfiddle.dev/gist/05fca1e4d543078227e24081c2f2764c
 
-## Embedding
+The above link will always load the gist against the latest version of cljsfiddle
+
+To load a gist against a specific version of cljsfiddle:
+
+https://cljsfiddle.dev/gist/1/05fca1e4d543078227e24081c2f2764c
+
+Where `1` is the version of the sandbox
+
+## Embedding cljsfiddle
+
+cljsfiddle can be embedded into your website via an iframe:
+
+```html
+<iframe src="https://cljsfiddlle.dev/embed/GIST_ID" width="100%" height="400px" style="border:1px solid #ccc;"></iframe>
+```
 
 # Contributing 
 

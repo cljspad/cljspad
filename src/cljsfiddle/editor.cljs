@@ -86,7 +86,7 @@
         [:span.cljsfiddle-run-icon])
       "Run"]]))
 
-(defui editor [{:keys [compiler-state db monaco]} _]
+(defui editor [{:keys [compiler-state db monaco]} {:keys [height]}]
   (let [[monaco _] (rehook/use-atom monaco)
         [run set-run] (rehook/use-state nil)
         [source _] (rehook/use-atom-path db [:source])]
@@ -107,7 +107,7 @@
              (js/window.removeEventListener "resize" resize))))
        [])
 
-      [:div {:style {:width "100%" :height "calc(100vH - 250px)"}}
+      [:div {:style {:width "100%" :height height}}
        [toolbar {:run run}]
        [MonacoEditor {:language "clojure"
                       :theme    "vs-light"

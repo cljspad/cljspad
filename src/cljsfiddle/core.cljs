@@ -8,6 +8,7 @@
             [cljsfiddle.editor :as editor]
             [cljsfiddle.logging :as log]
             [cljsfiddle.right-pane :as right-pane]
+            [cljsfiddle.embed :as embed]
             [cljs.core.async :refer-macros [go]]
             ["react" :as react]
             ["react-dom" :as react-dom]
@@ -42,7 +43,7 @@
   [:div.cljsfiddle-left-pane
    [:div {:style {:display       "flex"
                   :flexDirection "column"}}
-    [editor/editor]
+    [editor/editor {:height "calc(100vH - 250px)"}]
     [repl/repl]]])
 
 (defui right-pane [_ _]
@@ -58,16 +59,26 @@
    [left-pane]
    [right-pane]])
 
+(defui embed [_ _]
+  [:<>
+   [embed/tabs]
+   [embed/editor]
+   [embed/repl]
+   [right-pane/sandbox]])
+
 (defui dominant-component [{:keys [db]} _]
   (let [[loading? _] (rehook/use-atom-path db [:loading?])
-        [error _] (rehook/use-atom-path db [:error])]
+        [error _] (rehook/use-atom-path db [:error])
+        [embed? _] (rehook/use-atom-path db [:opts :embed])]
     (cond
       loading? [loading]
       error [:div (str error)]
+      embed? [embed]
       :else [app])))
 
 (defui root-component [_ _]
   [:<>
+   [effects/default-embed-tab]
    [effects/monaco-ref]
    [effects/gist]
    [effects/highlight]
