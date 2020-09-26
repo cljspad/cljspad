@@ -2,8 +2,6 @@
 
 [cljsfiddle](https://cljsfiddle.dev) is a code playground for [ClojureScript](https://clojurescript.org/)
 
-cljsfiddle allows you to share code snippets online and embed them into your blog.
-
 ## Examples
 
 * Reagent + re-frame

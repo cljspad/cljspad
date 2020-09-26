@@ -1,5 +1,5 @@
 {:sandbox/version       "1.0.0"
- :clojurescript/version "1.10.741"
+ :clojurescript/version "1.10.771"
  :packages              [{:name      "reagent"
                           :type      :cljs
                           :doc       "A minimalistic ClojureScript interface to React.js"

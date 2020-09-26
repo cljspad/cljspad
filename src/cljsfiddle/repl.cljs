@@ -215,8 +215,13 @@
           (do (write-lines term curr-state val)
               (recur)))))))
 
-(defui repl-header [{:keys [db]} _]
-  (let [[version _] (rehook/use-atom-path db [:version])]
+(defui repl-header [{:keys [db compiler-state]} _]
+  (let [[version _] (rehook/use-atom-path db [:version])
+        [cljs-version _] (rehook/use-atom-path db [:manifest version :clojurescript/version])
+        [nses _] (rehook/use-atom-fn compiler-state (fn [x]
+                                                   (keys (:cljs.analyzer/namespaces x)))
+                                  nil)]
+
     [:div {:style {:borderTop       "1px solid #ccc"
                    :backgroundColor "#fafafa"
                    :borderBottom    "1px solid #ccc"
@@ -224,15 +229,21 @@
                    :padding         "5px"
                    :width           "100%"}}
      [:div {:style {:display "flex"}}
-      [:div {:style {:flex 2}}
+      [:div {:style {:flex 1}}
        [:span.cljsfiddle-repl-icon {}]
        [:strong " REPL"]]
       [:div {:style {:flex       1
                      :textAlign  "right"
                      :fontSize   "10px"
-                     :lineHeight "20px"}}
-       [:span {:style {}}
-        "Sandbox version: " [:strong (str version)]]]]]))
+                     :lineHeight "20px"
+                     :userSelect "none"}}
+       [:span.hint--top.hint--large
+        {:aria-label (pr-str (sort nses))}
+        (count nses) " loaded namespaces"]
+       " | "
+       [:span "Cljs version: " [:strong (str cljs-version)]]
+       " | "
+       [:span "Sandbox version: " [:strong (str version)]]]]]))
 
 (defui repl [{:keys [compiler-state console]} _]
   (let [container (react/useRef)]
