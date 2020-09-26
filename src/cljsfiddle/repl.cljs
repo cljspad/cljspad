@@ -250,7 +250,7 @@
          (let [href (str "/gist/" gist-id)]
            [:<> " | " [:a {:href href} "Switch to latest sandbox"]]))]]]))
 
-(defui repl [{:keys [compiler-state console]} _]
+(defui repl [{:keys [compiler-state console]} {:keys [height]}]
   (let [container (react/useRef)]
     (rehook/use-effect
      (fn []
@@ -273,6 +273,6 @@
     [:<>
      [repl-header]
      [:div {:style {:width   "100%"
-                    :height  "200px"
+                    :height  height
                     :padding "5px"}
             :ref   container}]]))

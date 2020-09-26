@@ -31,4 +31,4 @@
 (defui repl [{:keys [db]} _]
   (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])]
     (when (= selected-tab :repl)
-      [repl/repl])))
+      [repl/repl {:height "calc(100vH - 50px)"}])))

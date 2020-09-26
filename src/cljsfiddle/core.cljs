@@ -44,7 +44,7 @@
    [:div {:style {:display       "flex"
                   :flexDirection "column"}}
     [editor/editor {:height "calc(100vH - 250px)"}]
-    [repl/repl]]])
+    [repl/repl {:height "200px"}]]])
 
 (defui right-pane [_ _]
   [:div.cljsfiddle-right-pane
