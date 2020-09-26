@@ -10,5 +10,4 @@ rm -rf resources/public/monaco
 
 npm install
 npx webpack --mode=development
-shadow-cljs compile bootstrap
 shadow-cljs watch app
