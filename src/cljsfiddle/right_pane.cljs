@@ -3,7 +3,7 @@
             [rehook.core :as rehook]
             [rehook.dom :refer-macros [defui]]
             [rehook.util :as util]
-            [zprint.core :as zp]
+            [cljs.pprint :as pprint]
             ["highlight.js" :as hljs]
             ["marked" :as marked]
             ["react" :as react]))
@@ -181,12 +181,12 @@
                                       require)))
                       (filter #(= :cljs (:type %)))
                       (keep :coord))]
-    [highlight (zp/zprint-str
-                {:deps (into {'org.clojure/clojurescript {:mvn/version cljs-version}}
-                             (map (fn [[dep coord]]
-                                    [(symbol dep) {:mvn/version coord}])
-                                  clj-deps))}
-                {:style :community})]))
+    [highlight (with-out-str
+                (pprint/pprint
+                 {:deps (into {'org.clojure/clojurescript {:mvn/version cljs-version}}
+                              (map (fn [[dep coord]]
+                                     [(symbol dep) {:mvn/version coord}])
+                                   clj-deps))}))]))
 
 (defui export [{:keys [db]} _]
   (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])
@@ -216,10 +216,10 @@
      [:h4 "deps.edn"]
      [deps-edn]
      [:h4 "shadow-cljs.edn"]
-     [highlight (zp/zprint-str
-                 '{:deps   true
-                   :builds {:app {:target  :browser
-                                  :modules {:base {:entries [app.main]}}}}}
-                 {:style :community})]
-     [:h4 "src/main/app.cljs"]
+     [highlight (with-out-str
+                 (pprint/pprint
+                  '{:deps   true
+                    :builds {:app {:target  :browser
+                                   :modules {:base {:entries [app.main]}}}}}))]
+     [:h4 "src/app/main.cljs"]
      [copy-to-clipboard]]))
