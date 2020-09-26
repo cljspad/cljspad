@@ -12,8 +12,7 @@
             ["react-dom" :as react-dom]
             ["marked" :as marked]
             [clojure.string :as str]
-            [cljsfiddle.logging :as log])
-  (:import (goog History)))
+            [cljsfiddle.logging :as log]))
 
 (goog-define version "dev")
 
@@ -25,13 +24,12 @@
    :source       ""
    :selected-tab :readme})
 
-(defn system []
+(defn system [opts]
   (let [compiler-state (env/state)
-        db             (atom initial-state)]
+        db             (atom (assoc initial-state :opts opts))]
     ;; TODO: move this effect into cljsfiddle.effects
     (env/init compiler-state version #(swap! db assoc :loading? false))
     {:compiler-state compiler-state
-     :history        (History.)
      :console        {:stdout log/stdout
                       :stderr log/stderr}
      :db             db}))
@@ -133,7 +131,7 @@
     (rehook/use-effect
      (fn []
        (when (= selected-tab :readme)
-         (-> (js/fetch "https://gist.githubusercontent.com/wavejumper/70f86410a293069a194be8ce85d9a018/raw/ce65506c72aa0141731d9cfcde5aafcda3aeaf38/README.md")
+         (-> (js/fetch "https://gist.githubusercontent.com/wavejumper/70f86410a293069a194be8ce85d9a018/raw/5551d5d780a4f2071b18fac097fb6a46e6f75559/README.md")
              (.then #(.text %))
              (.then #(aset (aget ref "current") "innerHTML" (marked %)))))
        (constantly nil))
@@ -238,22 +236,24 @@
 
 (defui root-component [_ _]
   [:<>
-   ;;[effects/history]
+   [effects/gist]
    [effects/highlight]
    [effects/logging]
    [effects/manifest]
    [dominant-component]])
 
-(defonce state
-  (system))
+(defonce app-state
+  (atom nil))
 
 (defn ^:dev/after-load render []
   (react-dom/render
-   (dom.browser/bootstrap state identity clj->js root-component)
+   (dom.browser/bootstrap @app-state identity clj->js root-component)
    (js/document.getElementById "app")))
 
-(defn main []
-  (aset js/window "onbeforeunload" (constantly true))
-  (render))
+(defn ^:export main [opts]
+  (let [opts (js->clj opts :keywordize-keys true)
+        sys  (system opts)]
+    (reset! app-state sys)
+    (render)))
 
-(main)
+#_(aset js/window "onbeforeunload" (constantly true))

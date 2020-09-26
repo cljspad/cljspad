@@ -5,7 +5,7 @@
 
  :builds         {:app       {:target           :browser
                               :output-dir       "resources/public/cljsfiddle"
-                              :asset-path       "/cljsfiddle"
+                              :asset-path       "/sandbox/dev/cljsfiddle"
                               :compiler-options {:optimizations :simple}
                               :modules          {:base {:entries [cljsfiddle.core]}}}
 

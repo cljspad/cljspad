@@ -5,7 +5,7 @@ module.exports = {
   output: {
     path: __dirname + "/resources/public/monaco",
     filename: "main.js",
-    publicPath: '/monaco/'
+    publicPath: '/sandbox/dev/monaco/'
   },
 
   plugins: [
