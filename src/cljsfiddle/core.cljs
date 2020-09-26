@@ -133,7 +133,7 @@
     (rehook/use-effect
      (fn []
        (when (= selected-tab :readme)
-         (-> (js/fetch "https://gist.githubusercontent.com/wavejumper/70f86410a293069a194be8ce85d9a018/raw/77014ca2ded7bc89d8bfb1bdd034769b61e3f08b/README.md")
+         (-> (js/fetch "https://gist.githubusercontent.com/wavejumper/70f86410a293069a194be8ce85d9a018/raw/ce65506c72aa0141731d9cfcde5aafcda3aeaf38/README.md")
              (.then #(.text %))
              (.then #(aset (aget ref "current") "innerHTML" (marked %)))))
        (constantly nil))
