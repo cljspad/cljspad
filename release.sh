@@ -1,5 +1,5 @@
 #! /bin/sh
-set -euxo pipefail
+set -euxo
 
 if [ -z "$*" ]; then
   echo "Missing version argument: ./release.sh VERSION_NUMBER"
