@@ -1,3 +1,6 @@
+![Clojure CI](https://github.com/cljsfiddle/cljsfiddle/workflows/Clojure%20CI/badge.svg?branch=master)
+[![Slack](https://img.shields.io/badge/Clojurians-cljspad-lightgrey)](https://clojurians.slack.com/messages/C01B1JQALKZ/)
+
 # cljspad
 
 [cljspad](https://cljspad.dev) is a code playground for [ClojureScript](https://clojurescript.org/)
