@@ -47,5 +47,5 @@
      (let [manifest (edn/read-string (slurp "resources/public/cljsfiddle.manifest.edn"))]
        (if (s/valid? ::manifest manifest)
          (System/exit 0)
-         (do (expound/expound ::manifest manifest)
+         (do (println (expound/expound-str ::manifest manifest))
              (System/exit 1))))))

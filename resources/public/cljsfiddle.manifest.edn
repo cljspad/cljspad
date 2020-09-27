@@ -33,6 +33,7 @@
                           :coord   [datascript "1.0.1"]
                           :require [[datascript.core]]}
                          {:name      "elkjs"
+                          :coord     [elkjs "0.7.0"]
                           :type      :js
                           :doc       "ELK's layout algorithms for JavaScript"
                           :url       "https://github.com/kieler/elkjs"
