@@ -3,10 +3,11 @@
   (:require [rehook.dom :refer-macros [defui]]
             [rehook.core :as rehook]
             [cljs.tools.reader.edn :as edn]
+            [cljsfiddle.logging :as log]
+            [cljsfiddle.env :as env]
             ["highlight.js" :as hljs]
             ["marked" :as marked]
-            ["react" :as react]
-            [cljsfiddle.logging :as log]))
+            ["react" :as react]))
 
 (defui manifest [{:keys [db]} _]
   (let [[version _] (rehook/use-atom-path db [:version])]
@@ -38,25 +39,28 @@
    []))
 
 (defn load-gist
-  [db id]
+  [db compiler-state id]
   (-> (js/fetch (str "/api/v1/gist/" id))
       (.then (fn [resp]
                (if (aget resp "ok")
                  (.text resp)
                  (prn (str "Failed to load gist " id ". Server responded with " (aget resp "status"))))))
       (.then (fn [source]
-               (swap! db assoc :source source)))
+               (when source
+                 (swap! db assoc :source source)
+                 (env/eval-form compiler-state source))))
       (.catch (fn [err]
                 (prn err)))))
 
-(defui gist [{:keys [db]} _]
-  (let [[gist-id _] (rehook/use-atom-path db [:opts :gist_id])]
+(defui gist [{:keys [db compiler-state]} _]
+  (let [[gist-id _] (rehook/use-atom-path db [:opts :gist_id])
+        [sandbox-ready? _] (rehook/use-atom-path db [:sandbox/ready?])]
     (rehook/use-effect
      (fn []
-       (when gist-id
-         (load-gist db gist-id))
+       (when (and gist-id sandbox-ready?)
+         (load-gist db compiler-state gist-id))
        (constantly nil))
-     [(str gist-id)])))
+     [(str gist-id) sandbox-ready?])))
 
 ;; monaco has to be global to support auxiliary functionality (copy to clipboard, eval gist on load)
 (defui monaco-ref

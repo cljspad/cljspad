@@ -95,11 +95,13 @@
 
     (rehook/use-effect
      (fn []
+       (swap! db assoc :sandbox/ready? true)
        (set! js/__cljsfiddle_sandbox
              (fn []
                (set-selected-tab :sandbox)
                (aget ref "current")))
        (fn []
+         (swap! db assoc :sandbox/ready? false)
          (set! js/__cljsfiddle_sandbox
                (fn []
                  (throw (ex-info "Cannot render, sandbox has been unmounted from DOM." {})))))))

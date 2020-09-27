@@ -65,6 +65,7 @@ Where the path param `/1/` is the version of the sandbox
 ### Notes on Gist loading
 
 cljsfiddle will load the first file in the gist containing the `.cljs` extension. 
+
 If no files are found with a `.cljs` extension, the first file from the API response will be loaded instead.
 
 ## Embedding cljsfiddle
