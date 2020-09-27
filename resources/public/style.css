@@ -41,7 +41,7 @@ body, html {
   width: 100%;
 }
 
-.cljsfiddle-readme, .cljsfiddle-sandbox, .cljsfiddle-packages, .cljsfiddle-export {
+.cljsfiddle-readme, .cljsfiddle-sandbox, .cljsfiddle-library, .cljsfiddle-export {
   height: calc(100vh - 30px);
   overflow: scroll;
   overflow-y: auto;

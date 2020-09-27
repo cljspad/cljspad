@@ -47,7 +47,7 @@
   [:div.cljsfiddle-right-pane
    [right-pane/right-pane-tabs]
    [right-pane/readme]
-   [right-pane/packages]
+   [right-pane/libraries]
    [right-pane/export]
    [right-pane/sandbox]])
 

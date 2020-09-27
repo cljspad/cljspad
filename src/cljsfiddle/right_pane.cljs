@@ -8,15 +8,15 @@
             ["marked" :as marked]
             ["react" :as react]))
 
-(defui package-meta
-  [_ {:keys [package]}]
+(defui library-meta
+  [_ {:keys [library]}]
   (let [[expanded set-expanded] (rehook/use-state false)]
     [:div {:style {:marginBottom "5px"}}
 
      [:div.button
       {:onClick #(set-expanded (not expanded))
        :style   {:width "300px"}}
-      [:span (:name package) " (" (-> package :type name) ")"]
+      [:span (:name library) " (" (-> library :type name) ")"]
       [:span {:style     {:float "right"}
               :className (if expanded
                            "cljsfiddle-caret-down-icon"
@@ -31,25 +31,25 @@
                       :paddingBottom "10px"
                       :border        "1px solid #ccc"
                       :borderRadius  "4px"}}
-        [:div (if-let [coord (:coord package)]
+        [:div (if-let [coord (:coord library)]
                 [:code.cljsfiddle-code (pr-str coord)]
-                [:code.cljsfiddle-code (:name package)])]
+                [:code.cljsfiddle-code (:name library)])]
 
         [:table {:style {:marginTop    "10px"
                          :marginBottom "10px"}}
          [:tbody
           [:tr
            [:td [:strong "About"]]
-           [:td (:doc package)]]
-          (when-let [website (:url package)]
+           [:td (:doc library)]]
+          (when-let [website (:url library)]
             [:tr
              [:td [:strong "Website"]]
              [:td [:a {:href website} website]]])
-          (when-let [render-fn (:render-fn package)]
+          (when-let [render-fn (:render-fn library)]
             [:tr
              [:td [:strong "Render fn"]]
              [:td [:code.cljsfiddle-code (str render-fn)]]])
-          (when-let [requires (seq (:require package))]
+          (when-let [requires (seq (:require library))]
             [:tr
              [:td [:strong "Namespaces"]]
              [:td (for [r requires]
@@ -57,19 +57,19 @@
 
         [:h3 "Examples"]])]))
 
-(defui loaded-packages
+(defui manifest-libraries
   [_ {:keys [manifest]}]
   [:div
-   (for [package (sort-by :name (:packages manifest))]
-     [:div {:key (str "loaded-package-" (:name package))}
-      [package-meta {:package package :available? false}]])])
+   (for [library (sort-by :name (:sandbox/libraries manifest))]
+     [:div {:key (str "loaded-library-" (:name library))}
+      [library-meta {:library library :available? false}]])])
 
 (defui manifest [{:keys [db]} _]
   (let [[version _] (rehook/use-atom-path db [:version])
         [manifest _] (rehook/use-atom-path db [:manifest version])]
     [:div
-     [:h1 "Packages"]
-     [loaded-packages {:manifest manifest}]]))
+     [:h1 "Libraries"]
+     [manifest-libraries {:manifest manifest}]]))
 
 (defui readme [{:keys [db]} _]
   (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])
@@ -117,9 +117,9 @@
        :onClick   #(set-selected-tab :readme)}
       "README.md"]
      [:div.button
-      {:className (when (= selected-tab :packages) "active")
-       :onClick   #(set-selected-tab :packages)}
-      "Packages"]
+      {:className (when (= selected-tab :library) "active")
+       :onClick   #(set-selected-tab :library)}
+      "Libraries"]
      [:div.button
       {:className (when (= selected-tab :export) "active")
        :onClick   #(set-selected-tab :export)}
@@ -131,10 +131,10 @@
                  :href  "https://github.com/cljsfiddle/cljsfiddle"}
       [:span.cljsfiddle-github-icon]]]))
 
-(defui packages [{:keys [db]} _]
+(defui libraries [{:keys [db]} _]
   (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])]
-    [:div.cljsfiddle-packages
-     {:style (when-not (= selected-tab :packages)
+    [:div.cljsfiddle-library
+     {:style (when-not (= selected-tab :library)
                {:display "none"})}
      [manifest]]))
 
@@ -173,8 +173,8 @@
         [nses _] (rehook/use-atom-fn compiler-state
                                      #(set (keys (:cljs.analyzer/namespaces %)))
                                      (constantly nil))
-        [packages _] (rehook/use-atom-path db [:manifest version :packages])
-        clj-deps (->> packages
+        [libraries _] (rehook/use-atom-path db [:manifest version :sandbox/libraries])
+        clj-deps (->> libraries
                       (filter (fn [{:keys [require]}]
                                 (some (fn [[r & _]]
                                         (contains? nses r))
