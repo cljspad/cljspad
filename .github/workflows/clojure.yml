@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install clj-kondo
-      run: npm install -g clj-kondo
+      run: sudo npm install -g clj-kondo
     - name: Download Clojure CLI tools
       run: curl -O https://download.clojure.org/install/linux-install-1.10.1.697.sh
     - name: chmod +x Clojure CLI tools
