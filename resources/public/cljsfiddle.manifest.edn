@@ -16,7 +16,9 @@
                           :render-fn sandbox.markdown/render
                           :require   [[sandbox.markdown]
                                       [marked]]
-                          :examples  []}
+                          :examples  [{:name    "Lorem Markdown"
+                                       :type    :gist
+                                       :gist-id "a9502f5137f2f3b99f2ec6cf7b44debb"}]}
                          {:name    "re-frame"
                           :type    :cljs
                           :doc     "A ClojureScript framework for building user interfaces, leveraging React"
