@@ -1,12 +1,11 @@
 (ns cljsfiddle.editor
   (:require [rehook.core :as rehook]
-            [rehook.dom :refer-macros [defui ui]]
+            [rehook.dom :refer-macros [defui]]
             [cljsfiddle.env :as env]
             [goog.object :as obj]
             [clojure.string :as str]
             [cljs.tools.reader :as reader]
             [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
-            ["react" :as react]
             ["monaco" :as MonacoEditor]))
 
 (defn ^js ref->editor [ref]

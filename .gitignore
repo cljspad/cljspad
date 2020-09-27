@@ -25,3 +25,4 @@ out/
 .shadow-cljs/
 /resources/public/bootstrap/
 /resources/public/monaco/
+.clj-kondo/.cache/

@@ -1,9 +1,9 @@
 (ns cljsfiddle.repl
   (:require [rehook.core :as rehook]
-            [rehook.dom :refer-macros [defui ui]]
+            [rehook.dom :refer-macros [defui]]
             [cljsfiddle.env :as env]
             [goog.object :as obj]
-            [cljs.core.async :as async :refer-macros [go go-loop]]
+            [cljs.core.async :as async :refer-macros [go-loop]]
             [cljs.tools.reader.edn :as edn]
             [clojure.string :as str]
             [zprint.core :as zp]

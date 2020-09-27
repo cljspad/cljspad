@@ -2,7 +2,6 @@
   "Global effects"
   (:require [rehook.dom :refer-macros [defui]]
             [rehook.core :as rehook]
-            [cljs.core.async.interop :refer-macros [<p!]]
             [cljs.tools.reader.edn :as edn]
             ["highlight.js" :as hljs]
             ["marked" :as marked]

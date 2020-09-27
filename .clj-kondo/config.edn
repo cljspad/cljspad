@@ -1,0 +1,2 @@
+{:lint-as {rehook.dom/defui clojure.core/defn
+           rehook.dom/ui    clojure.core/fn}}

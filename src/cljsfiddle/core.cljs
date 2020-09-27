@@ -1,6 +1,6 @@
 (ns cljsfiddle.core
   (:require [rehook.core :as rehook]
-            [rehook.dom :refer-macros [defui ui]]
+            [rehook.dom :refer-macros [defui]]
             [rehook.dom.browser :as dom.browser]
             [cljsfiddle.effects :as effects]
             [cljsfiddle.env :as env]
@@ -9,10 +9,7 @@
             [cljsfiddle.logging :as log]
             [cljsfiddle.right-pane :as right-pane]
             [cljsfiddle.embed :as embed]
-            [cljs.core.async :refer-macros [go]]
-            ["react" :as react]
-            ["react-dom" :as react-dom]
-            [clojure.string :as str]))
+            ["react-dom" :as react-dom]))
 
 (goog-define version "dev")
 
