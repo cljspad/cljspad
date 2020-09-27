@@ -84,7 +84,7 @@ If you would like to contribute by adding a library to the cljsfiddle sandbox:
 1) Add desired library to `package.json` or `deps.edn`
 2) Add an entry to [cljsfiddle.manifest.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/resources/public/cljsfiddle.manifest.edn)
 3) (Optional) add a helper namespace if your library renders anything to the right-hand pane. Eg: `sandbox.reagent`. Example [here](https://github.com/cljsfiddle/cljsfiddle/blob/master/src/sandbox/reagent.cljs)
-4) Add an entry for the desired namespaces in [shadow-cljs.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/shadow-cljs.edn)
+4) Add an entry for the desired namespace entries in [shadow-cljs.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/shadow-cljs.edn)
 
 Instructions on how to run cljsfiddle locally can be found in the server repo's [README](https://github.com/cljsfiddle/server)
 
@@ -95,8 +95,8 @@ If you would like to contribute by adding an example to the cljsfiddle sandbox:
 1) Create a public [gist](https://gist.github.com/) of your example
 2) Update [cljsfiddle.manifest.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/resources/public/cljsfiddle.manifest.edn) and include your example
 
-## Manifest
+## Manifest EDN
 
 You can view the spec for `cljsfiddle.manifest.edn` [here](https://github.com/cljsfiddle/cljsfiddle/blob/master/src/cljsfiddle/manifest.cljc)
 
-Running `./lint.sh` in the project's root will validate the EDN file conforms to the spec.
+Running `./lint.sh` in the project's root will validate that the EDN file conforms to the spec.
