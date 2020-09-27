@@ -192,12 +192,21 @@
 
 (defui export [{:keys [db]} _]
   (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])
-        [version _] (rehook/use-atom-path db [:version])]
+        [version _] (rehook/use-atom-path db [:version])
+        [sandbox-version set-sandbox-version] (rehook/use-state "stable")]
     [:div.cljsfiddle-export
      {:style (when-not (= selected-tab :export)
                {:display "none"})}
      [:h1 "Export instructions"]
 
+     [:h3 "Export Options"]
+     [:label "Sandbox version: "]
+     [:select {:onChange #(set-sandbox-version (-> % .-target .-value))
+               :value sandbox-version}
+      [:option {:value "stable"}
+       "Stable"]
+      [:option {:value "latest"}
+       "Latest"]]
      [:h3 "GitHub Gist"]
      [:p "Your cljsfiddle creation can be exported by creating a new public GitHub "
       [:a {:href "https://gist.github.com" :target "_blank"} "gist"]]
@@ -205,12 +214,16 @@
 
      [:h3 "Sharing"]
      [:p "Once you have created a gist, you can use this link to share your creation:"]
-     [highlight (str "https://cljsfiddle.dev/gist/" version "/GIST_ID")]
+     [highlight (if (= "stable" sandbox-version)
+                  (str "https://cljsfiddle.dev/gist/" version "/GIST_ID")
+                  (str "https://cljsfiddle.dev/gist/GIST_ID"))]
      [:p "Where " [:samp "GIST_ID"] " is the id of your freshly created gist (found in the navbar)"]
 
      [:h3 "Embedding"]
      [:p "If you would like to embed your creation, you can add this iframe to your website:"]
-     [highlight (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/" version "/GIST_ID\" width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>")]
+     [highlight (if (= "stable" sandbox-version)
+                  (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/" version "/GIST_ID\" width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>")
+                  (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/GIST_ID\" " "\"width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>"))]
      [:p "You can configure cljsfiddle by passing through the following query params:"]
      [:ul
       [:li [:samp "selected_tab"] " - (enum) the initial tab on load. Options: sandbox, repl, editor (default: editor)"]
