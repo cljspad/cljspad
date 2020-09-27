@@ -2,6 +2,7 @@
   "Global effects"
   (:require [rehook.dom :refer-macros [defui]]
             [rehook.core :as rehook]
+            [clojure.string :as str]
             [cljs.tools.reader.edn :as edn]
             [cljsfiddle.logging :as log]
             [cljsfiddle.env :as env]
@@ -26,7 +27,8 @@
    (fn []
      (hljs/initHighlightingOnLoad)
      (.setOptions marked #js {:highlight (fn [code lang]
-                                           (aget (hljs/highlight lang code) "value"))})
+                                           (when-not (str/blank? lang)
+                                             (aget (hljs/highlight lang code) "value")))})
      (constantly nil))
    []))
 
