@@ -17,7 +17,6 @@ resources/public/cache/
 resources/public/cljs-runtime/
 resources/public/main.js
 resources/public/manifest.edn
-resources/public/cljsfiddle/
 .idea/
 *.iml
 out/
@@ -25,4 +24,5 @@ out/
 .shadow-cljs/
 /resources/public/bootstrap/
 /resources/public/monaco/
+/resources/public/cljspad/
 .clj-kondo/.cache/
