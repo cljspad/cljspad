@@ -75,7 +75,9 @@ cljsfiddle can be embedded into your website via an iframe:
 <iframe src="https://cljsfiddlle.dev/embed/GIST_ID" width="100%" height="400px" style="border:1px solid #ccc;"></iframe>
 ```
 
-# Contributing 
+# Contributing
+
+## Libraries
 
 If you would like to contribute by adding a library to the cljsfiddle sandbox:
 
@@ -85,3 +87,10 @@ If you would like to contribute by adding a library to the cljsfiddle sandbox:
 4) Add an entry for the desired namespaces in [shadow-cljs.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/shadow-cljs.edn)
 
 Instructions on how to run cljsfiddle locally can be found in the server repo's [README](https://github.com/cljsfiddle/server)
+
+## Examples
+
+If you would like to contribute by adding an example to the cljsfiddle sandbox:
+
+1) Create a public [gist](https://gist.github.com/) of your example
+2) Update [cljsfiddle.manifest.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/resources/public/cljsfiddle.manifest.edn) and include your example
