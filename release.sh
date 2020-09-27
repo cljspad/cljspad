@@ -1,5 +1,5 @@
 #! /bin/sh
-set -euxo
+set -e
 
 if [ -z "$*" ]; then
   echo "Missing version argument: ./release.sh VERSION_NUMBER"

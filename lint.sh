@@ -1,5 +1,5 @@
 #! /bin/sh
-set -euxo
+set -e
 
 npx clj-kondo --lint src
-clojure -m cljsfiddle.manifest
+clj -m cljsfiddle.manifest

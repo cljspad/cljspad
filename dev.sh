@@ -1,5 +1,5 @@
 #! /bin/sh
-set -euxo pipefail
+set -e
 
 export SANDBOX_VERSION="dev"
 export SANDBOX_ASSET_PATH="/sandbox/${SANDBOX_VERSION}/cljsfiddle"
