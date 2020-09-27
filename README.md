@@ -1,6 +1,6 @@
-# cljsfiddle
+# cljspad
 
-[cljsfiddle](https://cljsfiddle.dev) is a code playground for [ClojureScript](https://clojurescript.org/)
+[cljspad](https://cljspad.dev) is a code playground for [ClojureScript](https://clojurescript.org/)
 
 ## Examples
 
@@ -9,15 +9,15 @@
 
 ## Sandbox
 
-cljsfiddle leverages the [cljs.js](http://cljs.github.io/api/cljs.js/) "Bootstrapped Compiler" at runtime to provide a sandboxed environment for code evaluation inside your browser.
+cljspad leverages the [cljs.js](http://cljs.github.io/api/cljs.js/) "Bootstrapped Compiler" at runtime to provide a sandboxed environment for code evaluation inside your browser.
 
 Sandboxes contain a common set of libraries (eg, reagent, re-frame) available for use in the environment.
 
 Sandboxed environments are versioned. Changes to the sandbox (library version bumps, additional libraries etc) constitute a new sandbox version.
 
-This means that every version of the cljsfiddle sandbox contains stable, known versions of packaged ClojureScript libraries. GitHub gists are saved against a sandbox version, meaning your gist should never break as cljsfiddle progresses.
+This means that every version of the cljspad sandbox contains stable, known versions of packaged ClojureScript libraries. GitHub gists are saved against a sandbox version, meaning your gist should never break as cljspad progresses.
 
-You can view the sandbox changelog by visiting the [releases](https://github.com/cljsfiddle/cljsfiddle/releases) page.
+You can view the sandbox changelog by visiting the [releases](https://github.com/cljspad/cljspad/releases) page.
 
 ## Rendering to the sandbox
 
@@ -48,29 +48,29 @@ If you would like to style the right-hand pane, you can use the `inject-styleshe
 
 ## Loading/sharing code
 
-To load a GitHub gist into cljsfiddle:
+To load a GitHub gist into cljspad:
 
 Gist: https://gist.github.com/wavejumper/05fca1e4d543078227e24081c2f2764c
 
-Becomes: https://cljsfiddle.dev/gist/05fca1e4d543078227e24081c2f2764c
+Becomes: https://cljspad.dev/gist/05fca1e4d543078227e24081c2f2764c
 
-The above link will always load the gist against the latest version of cljsfiddle
+The above link will always load the gist against the latest version of cljspad
 
-To load a gist against a specific version of cljsfiddle:
+To load a gist against a specific version of cljspad:
 
-https://cljsfiddle.dev/gist/1/05fca1e4d543078227e24081c2f2764c
+https://cljspad.dev/gist/1/05fca1e4d543078227e24081c2f2764c
 
 Where the path param `/1/` is the version of the sandbox
 
 ### Notes on Gist loading
 
-cljsfiddle will load the first file in the gist containing a `.cljs` extension. 
+cljspad will load the first file in the gist containing a `.cljs` extension. 
 
 If no files are found with a `.cljs` extension, the first file from the API response will be loaded instead.
 
-## Embedding cljsfiddle
+## Embedding cljspad
 
-cljsfiddle can be embedded into your website via an iframe:
+cljspad can be embedded into your website via an iframe:
 
 ```html
 <iframe src="https://cljsfiddlle.dev/embed/GIST_ID" width="100%" height="400px" style="border:1px solid #ccc;"></iframe>
@@ -80,24 +80,24 @@ cljsfiddle can be embedded into your website via an iframe:
 
 ## Libraries
 
-If you would like to contribute by adding a library to the cljsfiddle sandbox:
+If you would like to contribute by adding a library to the cljspad sandbox:
 
 1) Add desired library to `package.json` or `deps.edn`
-2) Add an entry to [cljsfiddle.manifest.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/resources/public/cljsfiddle.manifest.edn)
-3) (Optional) add a helper namespace if your library renders anything to the right-hand pane. Eg: `sandbox.reagent`. Example [here](https://github.com/cljsfiddle/cljsfiddle/blob/master/src/sandbox/reagent.cljs)
-4) Add an entry for the desired namespace entries in [shadow-cljs.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/shadow-cljs.edn)
+2) Add an entry to [cljspad.manifest.edn](https://github.com/cljspad/cljspad/blob/master/resources/public/cljspad.manifest.edn)
+3) (Optional) add a helper namespace if your library renders anything to the right-hand pane. Eg: `sandbox.reagent`. Example [here](https://github.com/cljspad/cljspad/blob/master/src/sandbox/reagent.cljs)
+4) Add an entry for the desired namespace entries in [shadow-cljs.edn](https://github.com/cljspad/cljspad/blob/master/shadow-cljs.edn)
 
-Instructions on how to run cljsfiddle locally can be found in the server repo's [README](https://github.com/cljsfiddle/server)
+Instructions on how to run cljspad locally can be found in the server repo's [README](https://github.com/cljspad/server)
 
 ## Examples
 
-If you would like to contribute by adding an example to the cljsfiddle sandbox:
+If you would like to contribute by adding an example to the cljspad sandbox:
 
 1) Create a public [gist](https://gist.github.com/) of your example
-2) Update [cljsfiddle.manifest.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/resources/public/cljsfiddle.manifest.edn) and include your example
+2) Update [cljspad.manifest.edn](https://github.com/cljspad/cljspad/blob/master/resources/public/cljspad.manifest.edn) and include your example
 
 ## Manifest EDN
 
-You can view the spec for `cljsfiddle.manifest.edn` [here](https://github.com/cljsfiddle/cljsfiddle/blob/master/src/cljsfiddle/manifest.cljc)
+You can view the spec for `cljspad.manifest.edn` [here](https://github.com/cljspad/cljspad/blob/master/src/cljspad/manifest.cljc)
 
 Running `./lint.sh` in the project's root will validate that the EDN file conforms to the spec.

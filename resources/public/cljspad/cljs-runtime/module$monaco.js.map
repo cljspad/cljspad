@@ -1,0 +1,9 @@
+{
+"version":3,
+"file":"module$monaco.js",
+"lineCount":1,
+"mappings":"AAAAA,cAAA,CAAe,aAAf,CAAkC,QAAQ,CAACC,MAAD,CAAQC,OAAR,CAAgBC,MAAhB,CAAuBC,OAAvB,CAAgC,CAC1ED,MAAA,CAAOC,OAAP,CAAgBC,YAD0D;",
+"sources":["global$module$monaco.js"],
+"sourcesContent":["shadow$provide[\"module$monaco\"] = function(global,require,module,exports) {\nmodule.exports=(MonacoEditor);\n};"],
+"names":["shadow$provide","global","require","module","exports","MonacoEditor"]
+}

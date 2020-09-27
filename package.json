@@ -1,7 +1,7 @@
 {
-  "name": "cljsfiddle",
+  "name": "cljspad",
   "version": "1.0.0",
-  "description": "[cljsfiddle](https://cljsfiddle.dev) is a code playground for [ClojureScript](https://clojurescript.org/)",
+  "description": "cljspad is a code playground for ClojureScript",
   "main": "index.js",
   "dependencies": {
     "ansi-escapes": "^4.3.1",
@@ -33,12 +33,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wavejumper/cljsfiddle.git"
+    "url": "git+https://github.com/wavejumper/cljspad.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/wavejumper/cljsfiddle/issues"
+    "url": "https://github.com/wavejumper/cljspad/issues"
   },
-  "homepage": "https://github.com/wavejumper/cljsfiddle#readme"
+  "homepage": "https://github.com/wavejumper/cljspad#readme"
 }

@@ -24,24 +24,24 @@ body, html {
   width: 100%;
 }
 
-.cljsfiddle-container {
+.cljspad-container {
   height: 100vh
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
 
-.cljsfiddle-left-pane {
+.cljspad-left-pane {
   border-right: 1px solid #ccc;
 }
 
-.cljsfiddle-right-pane {
+.cljspad-right-pane {
   overflow: hidden;
   height: 100%;
   width: 100%;
 }
 
-.cljsfiddle-readme, .cljsfiddle-sandbox, .cljsfiddle-library, .cljsfiddle-export {
+.cljspad-readme, .cljspad-sandbox, .cljspad-library, .cljspad-export {
   height: calc(100vh - 30px);
   overflow: scroll;
   overflow-y: auto;
@@ -50,7 +50,7 @@ body, html {
   padding: 10px;
 }
 
-.cljsfiddle-navbar {
+.cljspad-navbar {
   padding-left: 5px;
   padding-right: 5px;
   height: 49px;
@@ -59,23 +59,23 @@ body, html {
   border-bottom: 1px solid #ccc;
 }
 
-.cljsfiddle-logo {
+.cljspad-logo {
   height: 100%;
   display: inline-block;
   vertical-align: middle;
 }
 
-.cljsfiddle-action {
+.cljspad-action {
   color: #0366d6;
   user-select: none;
 }
 
-.cljsfiddle-action:hover {
+.cljspad-action:hover {
   text-decoration: underline;
   cursor: pointer;
 }
 
-.cljsfiddle-code {
+.cljspad-code {
   border-radius: 4px;
   font-size: 12px;
   font-family: Hack, monospace;
@@ -84,32 +84,32 @@ body, html {
   background-color: rgba(27,31,35,.05);
 }
 
-.cljsfiddle-repl-icon {
+.cljspad-repl-icon {
   content: url('https://api.iconify.design/mdi:console-line.svg?color=%2324292e&height=16');
   vertical-align: -0.125em;
 }
 
-.cljsfiddle-run-icon {
+.cljspad-run-icon {
   content: url('https://api.iconify.design/entypo:controller-play.svg?color=%238bc34a&height=16');
   vertical-align: -0.125em;
 }
 
-.cljsfiddle-github-icon {
+.cljspad-github-icon {
   content: url('https://api.iconify.design/ant-design:github-filled.svg?color=%2324292e&height=16');
   vertical-align: -0.125em;
 }
 
-.cljsfiddle-caret-right-icon {
+.cljspad-caret-right-icon {
   content: url('https://api.iconify.design/ant-design:caret-right-filled.svg?color=%2324292e&height=16');
   vertical-align: -0.125em;
 }
 
-.cljsfiddle-caret-down-icon {
+.cljspad-caret-down-icon {
   content: url('https://api.iconify.design/ant-design:caret-down-filled.svg?color=%2324292e&height=16');
   vertical-align: -0.125em;
 }
 
-.cljsfiddle-loading-icon {
+.cljspad-loading-icon {
   content: url('https://api.iconify.design/codicon:loading.svg?color=%2324292e&height=16');
   vertical-align: -0.125em;
   animation:spin 4s linear infinite;
