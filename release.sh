@@ -6,6 +6,8 @@ if [ -z "$*" ]; then
   exit 1;
 fi
 
+./lint.sh
+
 export SANDBOX_VERSION=$1
 export SANDBOX_ASSET_PATH="/sandbox/${SANDBOX_VERSION}/cljsfiddle"
 
