@@ -78,7 +78,7 @@
     (rehook/use-effect
      (fn []
        (when (= selected-tab :readme)
-         (-> (js/fetch "https://gist.githubusercontent.com/wavejumper/70f86410a293069a194be8ce85d9a018/raw/bf5438546b4bdaf47d29d09023ee06562573e96a/README.md")
+         (-> (js/fetch "https://raw.githubusercontent.com/cljsfiddle/cljsfiddle/master/README.md")
              (.then #(.text %))
              (.then #(aset (aget ref "current") "innerHTML" (marked %)))))
        (constantly nil))
