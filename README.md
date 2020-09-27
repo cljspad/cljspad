@@ -1,3 +1,5 @@
+![Clojure CI](https://github.com/cljsfiddle/cljsfiddle/workflows/Clojure%20CI/badge.svg?branch=master)
+
 # cljsfiddle
 
 [cljsfiddle](https://cljsfiddle.dev) is a code playground for [ClojureScript](https://clojurescript.org/)
