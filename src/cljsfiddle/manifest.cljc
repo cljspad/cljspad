@@ -12,7 +12,7 @@
 (s/def :sandbox.library/doc string?)
 (s/def :sandbox.library/url string?)
 (s/def :sandbox.library/render-fn symbol?)
-(s/def :sandbox.library/require (s/coll-of (s/coll-of (s/tuple symbol?))))
+(s/def :sandbox.library/require (s/coll-of (s/tuple symbol?)))
 
 (s/def :sandbox.library.example/name string?)
 (s/def :sandbox.library.example/gist-id string?)

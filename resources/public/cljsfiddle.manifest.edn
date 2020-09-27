@@ -11,6 +11,7 @@
                           :examples  []}
                          {:name      "marked"
                           :type      :js
+                          :coord     [marked "1.1.1"]
                           :doc       "A markdown parser and compiler. Built for speed."
                           :url       "https://github.com/markedjs/marked"
                           :render-fn sandbox.markdown/render
