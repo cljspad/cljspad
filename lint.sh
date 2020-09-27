@@ -1,5 +1,5 @@
 #! /bin/sh
 set -euxo pipefail
 
-clj-kondo --lint src
+npx clj-kondo --lint src
 clj -m cljsfiddle.manifest
