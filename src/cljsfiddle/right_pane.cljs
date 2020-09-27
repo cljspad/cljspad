@@ -55,7 +55,17 @@
              [:td (for [r requires]
                     [:div [:code.cljsfiddle-code (pr-str r)]])]])]]
 
-        [:h3 "Examples"]])]))
+        (when-let [examples (seq (:examples library))]
+          [:<>
+           [:h3 "Examples"]
+           [:table {:style {:marginTop "10px"
+                            :marginBottom "10px"}}
+            [:tbody
+             (for [example examples]
+               (let [href (str "https://cljsfiddle.dev/gist/" (:gist-id example))]
+                 [:tr {:key (str "loaded-library-" (:name library) "-example-" (:name example))}
+                  [:td (:name example)]
+                  [:td [:a {:href href} href]]]))]]])])]))
 
 (defui manifest-libraries
   [_ {:keys [manifest]}]
