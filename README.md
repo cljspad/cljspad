@@ -94,3 +94,9 @@ If you would like to contribute by adding an example to the cljsfiddle sandbox:
 
 1) Create a public [gist](https://gist.github.com/) of your example
 2) Update [cljsfiddle.manifest.edn](https://github.com/cljsfiddle/cljsfiddle/blob/master/resources/public/cljsfiddle.manifest.edn) and include your example
+
+## Manifest
+
+You can view the spec for `cljsfiddle.manifest.edn` [here](https://github.com/cljsfiddle/cljsfiddle/blob/master/src/cljsfiddle/manifest.cljc)
+
+Running `./lint.sh` in the project's root will validate the EDN file conforms to the spec.
