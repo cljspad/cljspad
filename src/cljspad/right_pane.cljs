@@ -222,6 +222,15 @@
                           :devDependencies {}})
                 nil 2)]))
 
+
+(defui embed-options
+  [_ _]
+  [:<>
+   [:p "You can configure cljspad by passing through the following query params:"]
+   [:ul
+    [:li [:samp "selected_tab"] " - (enum) the initial tab on load. Options: sandbox, repl, editor (default: editor)"]
+    [:li [:samp "defer_load"] " - (bool) whether to defer the loading of cljspad (default: true)"]]])
+
 (defui export-gist
   [_ {:keys [version sandbox-version]}]
   [:<>
@@ -242,10 +251,29 @@
    [highlight (if (= "stable" sandbox-version)
                 (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/gist/" version "/GIST_ID\" width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>")
                 (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/gist/GIST_ID\" " "\"width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>"))]
-   [:p "You can configure cljspad by passing through the following query params:"]
-   [:ul
-    [:li [:samp "selected_tab"] " - (enum) the initial tab on load. Options: sandbox, repl, editor (default: editor)"]
-    [:li [:samp "defer_load"] " - (bool) whether to defer the loading of cljspad (default: true)"]]])
+   [embed-options]])
+
+(defui export-snippet
+  [_ {:keys [version sandbox-version]}]
+  [:<>
+   [:h3 "GitLab Snippet"]
+   [:p "Your cljspad creation can be exported by creating a new public GitLab "
+    [:a {:href "https://gitlab.com/-/snippets/new" :target "_blank"} "snippet"]]
+   [copy-to-clipboard]
+
+   [:h3 "Sharing"]
+   [:p "Once you have created a snippet, you can use this link to share your creation:"]
+   [highlight (if (= "stable" sandbox-version)
+                (str "https://cljspad.dev/gitlab/" version "/SNIPPET_ID")
+                (str "https://cljspad.dev/gitlab/SNIPPET_ID"))]
+   [:p "Where " [:samp "SNIPPET_ID"] " is the id of your freshly created snippet (found in the navbar)"]
+
+   [:h3 "Embedding"]
+   [:p "If you would like to embed your creation, you can add this iframe to your website:"]
+   [highlight (if (= "stable" sandbox-version)
+                (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/gitlab/" version "/SNIPPET_ID\" width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>")
+                (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/gitlab/SNIPPET_ID\" " "\"width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>"))]
+   [embed-options]])
 
 (defui export-clj [_ _]
   [:<>
@@ -289,6 +317,8 @@
                :value    export-as}
       [:option {:value "gist"}
        "GitHub Gist"]
+      [:option {:value "snippet"}
+       "GitLab Snippet"]
       [:option {:value "clj"}
        "Clojure Project"]]
 
@@ -296,7 +326,15 @@
                    :borderTop "1px solid #ccc"}}]
 
      (case export-as
-       "gist" [export-gist {:version         version
-                            :sandbox-version sandbox-version}]
-       "clj" [export-clj]
+       "gist"
+       [export-gist {:version         version
+                     :sandbox-version sandbox-version}]
+
+       "snippet"
+       [export-snippet {:version         version
+                        :sandbox-version sandbox-version}]
+
+       "clj"
+       [export-clj]
+
        nil)]))

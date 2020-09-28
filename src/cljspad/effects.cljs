@@ -54,6 +54,20 @@
       (.catch (fn [err]
                 (prn err)))))
 
+(defn load-snippet
+  [db compiler-state id]
+  (-> (js/fetch (str "/api/v1/gitlab/" id))
+      (.then (fn [resp]
+               (if (aget resp "ok")
+                 (.text resp)
+                 (prn (str "Failed to load snippet " id ". Server responded with " (aget resp "status"))))))
+      (.then (fn [source]
+               (when source
+                 (swap! db assoc :source source)
+                 (env/eval-form compiler-state source))))
+      (.catch (fn [err]
+                (prn err)))))
+
 (defui gist [{:keys [db compiler-state]} _]
   (let [[gist-id _] (rehook/use-atom-path db [:opts :gist_id])
         [sandbox-ready? _] (rehook/use-atom-path db [:sandbox/ready?])]
@@ -63,6 +77,16 @@
          (load-gist db compiler-state gist-id))
        (constantly nil))
      [(str gist-id) sandbox-ready?])))
+
+(defui gitlab-snippet [{:keys [db compiler-state]} _]
+  (let [[snippet-id _] (rehook/use-atom-path db [:opts :snippet_id])
+        [sandbox-ready? _] (rehook/use-atom-path db [:sandbox/ready?])]
+    (rehook/use-effect
+     (fn []
+       (when (and snippet-id sandbox-ready?)
+         (load-snippet db compiler-state snippet-id))
+       (constantly nil))
+     [(str snippet-id) sandbox-ready?])))
 
 ;; monaco has to be global to support auxiliary functionality (copy to clipboard, eval gist on load)
 (defui monaco-ref
