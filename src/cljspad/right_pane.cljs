@@ -240,8 +240,8 @@
    [:h3 "Embedding"]
    [:p "If you would like to embed your creation, you can add this iframe to your website:"]
    [highlight (if (= "stable" sandbox-version)
-                (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/" version "/GIST_ID\" width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>")
-                (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/GIST_ID\" " "\"width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>"))]
+                (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/gist/" version "/GIST_ID\" width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>")
+                (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/gist/GIST_ID\" " "\"width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>"))]
    [:p "You can configure cljspad by passing through the following query params:"]
    [:ul
     [:li [:samp "selected_tab"] " - (enum) the initial tab on load. Options: sandbox, repl, editor (default: editor)"]

@@ -76,7 +76,7 @@ If no files are found with a `.cljs` extension, the first file from the API resp
 cljspad can be embedded into your website via an iframe:
 
 ```html
-<iframe src="https://cljsfiddlle.dev/embed/GIST_ID" width="100%" height="400px" style="border:1px solid #ccc;"></iframe>
+<iframe src="https://cljsfiddlle.dev/embed/gist/GIST_ID" width="100%" height="400px" style="border:1px solid #ccc;"></iframe>
 ```
 
 # Contributing
