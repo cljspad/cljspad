@@ -2,4 +2,9 @@
 set -e
 
 npx clj-kondo --lint src
-clj -m cljspad.manifest
+
+clojure -Sdeps '{:deps {cljfmt {:mvn/version "0.7.0"}}}' \
+  -m cljfmt.main check \
+  --indents indentation.edn
+
+clojure -m cljspad.manifest

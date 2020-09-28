@@ -219,8 +219,8 @@
   (let [[version _] (rehook/use-atom-path db [:version])
         [cljs-version _] (rehook/use-atom-path db [:manifest version :clojurescript/version])
         [nses _] (rehook/use-atom-fn compiler-state (fn [x]
-                                                   (keys (:cljs.analyzer/namespaces x)))
-                                  nil)
+                                                      (keys (:cljs.analyzer/namespaces x)))
+                                     nil)
         [gist-id _] (rehook/use-atom-path db [:opts :gist_id])
         [latest _] (rehook/use-atom-path db [:opts :latest])]
 

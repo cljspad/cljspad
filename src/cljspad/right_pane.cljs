@@ -194,11 +194,11 @@
                       (filter #(= :cljs (:type %)))
                       (keep :coord))]
     [highlight (with-out-str
-                (pprint/pprint
-                 {:deps (into {'org.clojure/clojurescript {:mvn/version cljs-version}}
-                              (map (fn [[dep coord]]
-                                     [(symbol dep) {:mvn/version coord}])
-                                   clj-deps))}))]))
+                 (pprint/pprint
+                  {:deps (into {'org.clojure/clojurescript {:mvn/version cljs-version}}
+                               (map (fn [[dep coord]]
+                                      [(symbol dep) {:mvn/version coord}])
+                                    clj-deps))}))]))
 
 (defui package-json [{:keys [compiler-state db]} _]
   (let [[version _] (rehook/use-atom-path db [:version])
@@ -221,7 +221,6 @@
                           :dependencies    js-deps
                           :devDependencies {}})
                 nil 2)]))
-
 
 (defui embed-options
   [_ _]
@@ -285,10 +284,10 @@
    [package-json]
    [:h4 "shadow-cljs.edn"]
    [highlight (with-out-str
-               (pprint/pprint
-                '{:deps   true
-                  :builds {:app {:target  :browser
-                                 :modules {:base {:entries [app.main]}}}}}))]
+                (pprint/pprint
+                 '{:deps   true
+                   :builds {:app {:target  :browser
+                                  :modules {:base {:entries [app.main]}}}}}))]
    [:h4 "src/app/main.cljs"]
    [copy-to-clipboard]
    [:div {:style {:height "20px"}}]])
