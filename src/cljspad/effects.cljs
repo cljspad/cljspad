@@ -36,8 +36,7 @@
   (rehook/use-effect
    (fn []
      (log/init!)
-     (fn []
-       (enable-console-print!)))
+     enable-console-print!)
    []))
 
 (defn load-gist

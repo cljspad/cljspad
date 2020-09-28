@@ -15,7 +15,6 @@
 
 (def initial-state
   {:loading?     true
-   :error?       false
    :version      version
    :manifest     {}
    :source       ""
@@ -65,11 +64,9 @@
 
 (defui dominant-component [{:keys [db]} _]
   (let [[loading? _] (rehook/use-atom-path db [:loading?])
-        [error _] (rehook/use-atom-path db [:error])
         [embed? _] (rehook/use-atom-path db [:opts :embed])]
     (cond
       loading? [loading]
-      error [:div (str error)]
       embed? [embed]
       :else [app])))
 
