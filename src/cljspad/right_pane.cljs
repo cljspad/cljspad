@@ -200,10 +200,76 @@
                                      [(symbol dep) {:mvn/version coord}])
                                    clj-deps))}))]))
 
+(defui package-json [{:keys [compiler-state db]} _]
+  (let [[version _] (rehook/use-atom-path db [:version])
+        [nses _] (rehook/use-atom-fn compiler-state
+                                     #(set (keys (:cljs.analyzer/namespaces %)))
+                                     (constantly nil))
+        [libraries _] (rehook/use-atom-path db [:manifest version :sandbox/libraries])
+        js-deps (->> libraries
+                     (filter (fn [{:keys [require]}]
+                               (some (fn [[r & _]]
+                                       (contains? nses r))
+                                     require)))
+                     (filter #(= :js (:type %)))
+                     (keep :coord)
+                     (into {}))]
+    [highlight (js/JSON.stringify
+                (clj->js {:name            ""
+                          :description     ""
+                          :version         "0.1.0"
+                          :dependencies    js-deps
+                          :devDependencies {}})
+                nil 2)]))
+
+(defui export-gist
+  [_ {:keys [version sandbox-version]}]
+  [:<>
+   [:h3 "GitHub Gist"]
+   [:p "Your cljspad creation can be exported by creating a new public GitHub "
+    [:a {:href "https://gist.github.com" :target "_blank"} "gist"]]
+   [copy-to-clipboard]
+
+   [:h3 "Sharing"]
+   [:p "Once you have created a gist, you can use this link to share your creation:"]
+   [highlight (if (= "stable" sandbox-version)
+                (str "https://cljspad.dev/gist/" version "/GIST_ID")
+                (str "https://cljspad.dev/gist/GIST_ID"))]
+   [:p "Where " [:samp "GIST_ID"] " is the id of your freshly created gist (found in the navbar)"]
+
+   [:h3 "Embedding"]
+   [:p "If you would like to embed your creation, you can add this iframe to your website:"]
+   [highlight (if (= "stable" sandbox-version)
+                (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/" version "/GIST_ID\" width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>")
+                (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/GIST_ID\" " "\"width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>"))]
+   [:p "You can configure cljspad by passing through the following query params:"]
+   [:ul
+    [:li [:samp "selected_tab"] " - (enum) the initial tab on load. Options: sandbox, repl, editor (default: editor)"]
+    [:li [:samp "defer_load"] " - (bool) whether to defer the loading of cljspad (default: true)"]]])
+
+(defui export-clj [_ _]
+  [:<>
+   [:h3 "Clojure project"]
+   [:p "If you would like to build a Clojure project out of your creation:"]
+   [:h4 "deps.edn"]
+   [deps-edn]
+   [:h4 "package.json"]
+   [package-json]
+   [:h4 "shadow-cljs.edn"]
+   [highlight (with-out-str
+               (pprint/pprint
+                '{:deps   true
+                  :builds {:app {:target  :browser
+                                 :modules {:base {:entries [app.main]}}}}}))]
+   [:h4 "src/app/main.cljs"]
+   [copy-to-clipboard]
+   [:div {:style {:height "20px"}}]])
+
 (defui export [{:keys [db]} _]
   (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])
         [version _] (rehook/use-atom-path db [:version])
-        [sandbox-version set-sandbox-version] (rehook/use-state "stable")]
+        [sandbox-version set-sandbox-version] (rehook/use-state "stable")
+        [export-as set-export-as] (rehook/use-state "gist")]
     [:div.cljspad-export
      {:style (when-not (= selected-tab :export)
                {:display "none"})}
@@ -212,42 +278,25 @@
      [:h3 "Export Options"]
      [:label "Sandbox version: "]
      [:select {:onChange #(set-sandbox-version (-> % .-target .-value))
-               :value sandbox-version}
+               :value    sandbox-version}
       [:option {:value "stable"}
        "Stable"]
       [:option {:value "latest"}
        "Latest"]]
-     [:h3 "GitHub Gist"]
-     [:p "Your cljspad creation can be exported by creating a new public GitHub "
-      [:a {:href "https://gist.github.com" :target "_blank"} "gist"]]
-     [copy-to-clipboard]
+     [:br]
+     [:label "Export as: "]
+     [:select {:onChange #(set-export-as (-> % .-target .-value))
+               :value    export-as}
+      [:option {:value "gist"}
+       "GitHub Gist"]
+      [:option {:value "clj"}
+       "Clojure Project"]]
 
-     [:h3 "Sharing"]
-     [:p "Once you have created a gist, you can use this link to share your creation:"]
-     [highlight (if (= "stable" sandbox-version)
-                  (str "https://cljspad.dev/gist/" version "/GIST_ID")
-                  (str "https://cljspad.dev/gist/GIST_ID"))]
-     [:p "Where " [:samp "GIST_ID"] " is the id of your freshly created gist (found in the navbar)"]
+     [:hr {:style {:border    "none"
+                   :borderTop "1px solid #ccc"}}]
 
-     [:h3 "Embedding"]
-     [:p "If you would like to embed your creation, you can add this iframe to your website:"]
-     [highlight (if (= "stable" sandbox-version)
-                  (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/" version "/GIST_ID\" width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>")
-                  (str "<iframe src=\"" "https://cljsfiddlle.dev/embed/GIST_ID\" " "\"width=\"100%\" height=\"400px\" style=\"border:1px solid #ccc;\"></iframe>"))]
-     [:p "You can configure cljspad by passing through the following query params:"]
-     [:ul
-      [:li [:samp "selected_tab"] " - (enum) the initial tab on load. Options: sandbox, repl, editor (default: editor)"]
-      [:li [:samp "defer_load"] " - (bool) whether to defer the loading of cljspad (default: true)"]]
-
-     [:h3 "Clojure project"]
-     [:p "If you would like to build a Clojure project out of your creation:"]
-     [:h4 "deps.edn"]
-     [deps-edn]
-     [:h4 "shadow-cljs.edn"]
-     [highlight (with-out-str
-                 (pprint/pprint
-                  '{:deps   true
-                    :builds {:app {:target  :browser
-                                   :modules {:base {:entries [app.main]}}}}}))]
-     [:h4 "src/app/main.cljs"]
-     [copy-to-clipboard]]))
+     (case export-as
+       "gist" [export-gist {:version         version
+                            :sandbox-version sandbox-version}]
+       "clj" [export-clj]
+       nil)]))

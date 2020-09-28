@@ -46,7 +46,7 @@
 (defn read* [reader]
   (try (reader/read {:eof nil} reader)
        (catch :default e
-         (prn (-> e ex-message))
+         (prn e)
          nil)))
 
 ;; TODO: smarter reading. Tracking of line numbers where exceptions occur would be ideal...

@@ -193,7 +193,7 @@
   [term curr-state lines]
   (try (.writeln term "")
        (doseq [line lines]
-         (.write term (str (zp/czprint-str line {:parse-string? true}) " ")))
+         (.write term (str line " ")))
        (.writeln term "")
        (when (str/blank? (:form curr-state))
          (.write term (str (:ns curr-state) "=> ")))

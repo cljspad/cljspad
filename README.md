@@ -81,6 +81,17 @@ cljspad can be embedded into your website via an iframe:
 
 # Contributing
 
+**Note:** as the maintainer of cljspad, I want to curate a high quality collection of Cljs/Js libraries that have been adopted by the community. 
+
+In order to keep things maintainable (eg, to not dive in dependency hell) I require:
+
+1) that the library itself does not depend on cljsjs dependencies
+2) if depending on core libraries (eg, React), that the library is well maintained/adopted.
+
+More concrete requirements will come as cljspad matures/progresses.
+
+I highly encourage contribution! So please either raise an [issue](https://github.com/cljspad/cljspad/issues/new) or have a chat in our Slack if in doubt :)
+
 ## Libraries
 
 If you would like to contribute by adding a library to the cljspad sandbox:
