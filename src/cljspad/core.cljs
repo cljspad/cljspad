@@ -81,16 +81,15 @@
    [effects/manifest]
    [dominant-component]])
 
-(defonce app-state
-  (atom nil))
+(defonce app-state nil)
 
 (defn ^:dev/after-load render []
   (react-dom/render
-   (dom.browser/bootstrap @app-state identity clj->js root-component)
+   (dom.browser/bootstrap app-state identity clj->js root-component)
    (js/document.getElementById "app")))
 
 (defn ^:export main [opts]
   (let [opts (js->clj opts :keywordize-keys true)
         sys  (system opts)]
-    (reset! app-state sys)
+    (set! app-state sys)
     (render)))
