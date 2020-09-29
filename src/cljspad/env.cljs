@@ -92,14 +92,16 @@
       ;;
       ;; Breaking down the evaliation into a sequence of forms has the advantage of being able
       ;; to eventually have better error handling/feedback (see comment at top of defn)
+
+
       (:form reader-result)
       (-> (eval-str-promise compiler-state (str (:form reader-result)))
           (.then (fn [result]
                    (if-let [err (error-message result)]
                      (cb (assoc reader-result
-                           :result result
-                           :error {:type    :runtime-error
-                                   :message err}))
+                                :result result
+                                :error {:type    :runtime-error
+                                        :message err}))
                      (eval-form* compiler-state reader cb))))
           (.catch (fn [err]
                     (cb (assoc reader-result :error {:type    :uncaught-exception
