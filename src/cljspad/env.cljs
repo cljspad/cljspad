@@ -62,10 +62,9 @@
          {:pos (calculate-pos reader)
           :eof true})
        (catch :default e
-         (let [pos (calculate-pos reader)]
-           {:error {:message (ex-message e)
-                    :type    :reader-error}
-            :pos   pos}))))
+         {:error {:message (ex-message e)
+                  :type    :reader-error}
+          :pos   (calculate-pos reader)})))
 
 ;; TODO: smarter reading. Tracking of line numbers where exceptions occur would be ideal...
 ;; having errors reflected inside of monaco would be even cooler
