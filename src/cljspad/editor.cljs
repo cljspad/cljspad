@@ -36,18 +36,18 @@
 (defn eval-form-markers
   [^js model {:keys [pos error]}]
   (when error
-    (let [[a b] (js->clj (.matchBracket model (position pos)) :keywordize-keys true)
-          start-line-number (or (:startLineNumber a) (first pos))
-          start-column      (or (:startColumn a) (second pos))
-          end-line-number   (or (:endLineNumber b) (inc (first pos)))
-          end-column        (or (:endColumn b) (second pos))]
-      (let [marker {:startLineNumber start-line-number
-                    :startColumn     start-column
-                    :endLineNumber   end-line-number
-                    :endColumn       end-column
-                    :message         (str (:message error))
-                    :severity        4}]
-        (set-model-markers model "cljspad" [marker])))))
+    (let [[start-pos end-pos] (js->clj (.matchBracket model (position pos)) :keywordize-keys true)
+          start-line-number (or (:startLineNumber start-pos) (first pos))
+          start-column      (or (:startColumn start-pos) (second pos))
+          end-line-number   (or (:endLineNumber end-pos) (inc (first pos)))
+          end-column        (or (:endColumn end-pos) (second pos))
+          marker            {:startLineNumber start-line-number
+                             :startColumn     start-column
+                             :endLineNumber   end-line-number
+                             :endColumn       end-column
+                             :message         (str (:message error))
+                             :severity        4}]
+      (set-model-markers model "cljspad" [marker]))))
 
 (defn run-code
   [compiler-state ^js editor]

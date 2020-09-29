@@ -46,6 +46,7 @@
    (defn -main [& _]
      (let [manifest (edn/read-string (slurp "resources/public/cljspad.manifest.edn"))]
        (if (s/valid? ::manifest manifest)
-         (System/exit 0)
+         (do (println "resources/public/cljspad.manifest.edn conforms to spec!")
+             (System/exit 0))
          (do (println (expound/expound-str ::manifest manifest))
              (System/exit 1))))))
