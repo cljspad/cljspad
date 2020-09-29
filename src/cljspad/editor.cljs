@@ -24,12 +24,38 @@
          (prn e)
          false)))
 
+(defn set-model-markers
+  [model id markers]
+  (let [f (obj/getValueByKeys js/monaco "editor" "setModelMarkers")]
+    (f model id (clj->js markers))))
+
+(defn position [[line column]]
+  (js/monaco.Position. line column))
+
+;; TODO: more accurate markers...
+(defn eval-form-markers
+  [^js model {:keys [pos error]}]
+  (when error
+    (let [[a b] (js->clj (.matchBracket model (position pos)) :keywordize-keys true)
+          start-line-number (or (:startLineNumber a) (first pos))
+          start-column      (or (:startColumn a) (second pos))
+          end-line-number   (or (:endLineNumber b) (inc (first pos)))
+          end-column        (or (:endColumn b) (second pos))]
+      (let [marker {:startLineNumber start-line-number
+                    :startColumn     start-column
+                    :endLineNumber   end-line-number
+                    :endColumn       end-column
+                    :message         (str (:message error))
+                    :severity        4}]
+        (set-model-markers model "cljspad" [marker])))))
+
 (defn run-code
   [compiler-state ^js editor]
   (fn []
     (let [model (.getModel editor)
           value (.getValue model)]
-      (env/eval-form compiler-state value))))
+      (set-model-markers model "cljspad" [])
+      (env/eval-form compiler-state value (partial eval-form-markers model)))))
 
 (defui toolbar
   [{:keys [compiler-state]} {:keys [run]}]

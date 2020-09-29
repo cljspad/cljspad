@@ -75,7 +75,6 @@
       (:error reader-result)
       (cb reader-result)
 
-
       ;; TODO: another (possible) shadow or cljs.js bug
       ;; cljs.js/eval returns exception: 'no *eval-fn* defined' on initial evaluation
       ;; cljs.js/eval-str does not exhibit this behaviour.
@@ -92,8 +91,6 @@
       ;;
       ;; Breaking down the evaliation into a sequence of forms has the advantage of being able
       ;; to eventually have better error handling/feedback (see comment at top of defn)
-
-
       (:form reader-result)
       (-> (eval-str-promise compiler-state (str (:form reader-result)))
           (.then (fn [result]
@@ -130,14 +127,17 @@
     (when-let [err (-> result :result :error)]
       (js/console.log err))))
 
+;; TODO: fix the callback hell I have created
 (defn eval-form
-  [compiler-state source-str]
-  (let [reader (string-push-back-reader source-str)]
-    (swap! compiler-state assoc ::evaluating? true)
-    (let [cb (fn [result]
-               (swap! compiler-state assoc ::evaluating? false)
-               (when (:error result)
-                 (print-friendly-error-message result)
-                 ;; TODO: mutate monaco to render some squiggly lines at loc where error occurred
-                 ))]
-      (eval-form* compiler-state reader cb))))
+  ([compiler-state source-str]
+   (eval-form compiler-state source-str (constantly nil)))
+
+  ([compiler-state source-str cb]
+   (let [reader (string-push-back-reader source-str)]
+     (swap! compiler-state assoc ::evaluating? true)
+     (let [cb (fn [result]
+                (swap! compiler-state assoc ::evaluating? false)
+                (when (:error result)
+                  (print-friendly-error-message result)
+                  (cb result)))]
+       (eval-form* compiler-state reader cb)))))
