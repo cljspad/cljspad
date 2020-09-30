@@ -6,6 +6,7 @@
             [cljs.tools.reader.edn :as edn]
             [cljspad.logging :as log]
             [cljspad.env :as env]
+            [cljspad.util :as util]
             ["highlight.js" :as hljs]
             ["marked" :as marked]
             ["react" :as react]))
@@ -108,3 +109,19 @@
 
        (constantly nil))
      [embed? (str selected-tab)])))
+
+(defui load-share-code
+  [{:keys [db compiler-state]} _]
+  (let [[code _] (rehook/use-atom-path db [:opts :share_code])]
+    (rehook/use-effect
+     (fn []
+       (when code
+         (try
+           (let [value (util/inflate-str code)]
+             (swap! db assoc :source value)
+             (env/eval-form compiler-state value))
+           (catch :default e
+             (prn "Error: unable to load share code. Check browser console for stacktrace")
+             (js/console.error e))))
+       (constantly nil))
+     [code])))

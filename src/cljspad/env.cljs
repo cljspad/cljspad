@@ -5,7 +5,7 @@
             [cljs.tools.reader :as reader]
             [clojure.string :as str]
             [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
-            [cljspad.ansi :as ansi]))
+            [cljspad.util :as util]))
 
 (defn error-message [result]
   (-> result :error ex-cause ex-message))
@@ -115,16 +115,16 @@
                    :reader-error "Reader error"
                    nil "Unknown error")
         err-msg  (:message error)]
-    (println (str (str (ansi/style-str [:bold] err-type) " at "
-                       (ansi/style-str [:bold] (pr-str pos)) ": " err-msg)
+    (println (str (str (util/ansi-style [:bold] err-type) " at "
+                       (util/ansi-style [:bold] (pr-str pos)) ": " err-msg)
                   (when (= (:type error) :uncaught-exception)
                     (str "\n\rThis suggests a bug in cljspad. Consider raising an issue: https://github.com/cljspad/cljspad/issues/new"))
                   (when form
-                    (str "\n\rEvaluated form ----> " (ansi/style-str [:underline] form)))
+                    (str "\n\rEvaluated form ----> " (util/ansi-style [:underline] form)))
                   (when (= :runtime-error (:type error))
                     (str "\n\rA detailed stacktrace can be found in your browsers console."))))
     (when-let [err (-> result :result :error)]
-      (js/console.log err))))
+      (js/console.error err))))
 
 ;; TODO: fix the callback hell I have created
 (defn eval-form

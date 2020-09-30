@@ -72,12 +72,13 @@
 
 (defui root-component [_ _]
   [:<>
+   [effects/logging]
    [effects/default-embed-tab]
    [effects/monaco-ref]
    [effects/gist]
    [effects/gitlab-snippet]
    [effects/highlight]
-   [effects/logging]
+   [effects/load-share-code]
    [effects/manifest]
    [dominant-component]])
 

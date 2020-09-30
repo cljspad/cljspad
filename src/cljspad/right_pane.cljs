@@ -1,10 +1,11 @@
 (ns cljspad.right-pane
   (:require [cljspad.editor :as editor]
+            [cljspad.util :as util]
             [rehook.core :as rehook]
             [rehook.dom :refer-macros [defui]]
-            [rehook.util :as util]
+            [rehook.util :as rehook.util]
             [cljs.pprint :as pprint]
-            ["highlight.js" :as hljs]
+            ["highlight.js/lib/core" :as hljs]
             ["marked" :as marked]
             ["react" :as react]))
 
@@ -159,7 +160,7 @@
 
     [:pre
      [:code {:ref ref :className "language-clojure"}
-      (util/children props)]]))
+      (rehook.util/children props)]]))
 
 (defui copy-to-clipboard [{:keys [monaco]} _]
   (let [[monaco _] (rehook/use-atom monaco)
@@ -292,11 +293,33 @@
    [copy-to-clipboard]
    [:div {:style {:height "20px"}}]])
 
+(defui export-link [{:keys [monaco]} {:keys [sandbox-version version]}]
+  (let [[monaco _] (rehook/use-atom monaco)
+        [copy-link set-copy-link] (rehook/use-state nil)]
+    [:<>
+     [:h3 "Clojure project"]
+     [:p "Export creation as a hyperlink:"]
+     [:div.button {:onClick #(set-copy-link (util/deflate-str (editor/monaco-value monaco)))}
+      "Generate link"]
+     (if (> (count (str copy-link)) 1024 )
+       [:div
+        [:p [:strong "Unable to generate link"]]
+        [:p "Compressed code exceeds 1024 characters, the maximum suggested character limit of a query string."]
+        [:p "Perhaps try exporting as a gist instead?"]]
+
+       (when copy-link
+         (let [link (if (= "stable" sandbox-version)
+                      (str "https://cljspad.dev/share/" version "?c=" copy-link)
+                      (str "https://cljspad.dev/share?c=" copy-link))]
+           [:div {:style {:marginTop "10px"
+                          :wordBreak "break-all"}}
+            [:a {:href link} link]])))]))
+
 (defui export [{:keys [db]} _]
   (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])
         [version _] (rehook/use-atom-path db [:version])
         [sandbox-version set-sandbox-version] (rehook/use-state "stable")
-        [export-as set-export-as] (rehook/use-state "gist")]
+        [export-as set-export-as] (rehook/use-state "link")]
     [:div.cljspad-export
      {:style (when-not (= selected-tab :export)
                {:display "none"})}
@@ -314,6 +337,8 @@
      [:label "Export as: "]
      [:select {:onChange #(set-export-as (-> % .-target .-value))
                :value    export-as}
+      [:option {:value "link"}
+       "Link"]
       [:option {:value "gist"}
        "GitHub Gist"]
       [:option {:value "snippet"}
@@ -325,6 +350,10 @@
                    :borderTop "1px solid #ccc"}}]
 
      (case export-as
+       "link"
+       [export-link {:version         version
+                     :sandbox-version sandbox-version}]
+
        "gist"
        [export-gist {:version         version
                      :sandbox-version sandbox-version}]

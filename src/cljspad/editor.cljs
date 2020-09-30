@@ -9,10 +9,13 @@
 (defn ^js ref->editor [ref]
   (obj/getValueByKeys ref "current" "editor"))
 
+(defn monaco-value [monaco-ref]
+  (let [editor (ref->editor monaco-ref)
+        model  (.getModel editor)]
+    (.getValue model)))
+
 (defn copy-to-clipboard [monaco-ref]
-  (try (let [editor (ref->editor monaco-ref)
-             model  (.getModel editor)
-             value  (.getValue model)
+  (try (let [value  (monaco-value monaco-ref)
              elem   (js/document.createElement "textarea")]
          (js/document.body.appendChild elem)
          (aset elem "value" value)
