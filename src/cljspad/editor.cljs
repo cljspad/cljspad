@@ -100,6 +100,8 @@
                    :height   "100%"
                    :width    "100%"
                    :value    source
+                   :onChange #(when-let [editor (ref->editor ref)]
+                                (set-model-markers (.getModel editor) "cljspad" []))
                    :options  {:minimap {:enabled false}}
                    :ref      ref}]))
 
