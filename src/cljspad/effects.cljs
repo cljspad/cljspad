@@ -8,8 +8,7 @@
             [cljspad.env :as env]
             [cljspad.util :as util]
             ["highlight.js" :as hljs]
-            ["marked" :as marked]
-            ["react" :as react]))
+            ["marked" :as marked]))
 
 (defui manifest [{:keys [db]} _]
   (let [[version _] (rehook/use-atom-path db [:version])]
