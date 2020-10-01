@@ -299,7 +299,7 @@
      [:p "Export creation as a hyperlink:"]
      [:div.button {:onClick #(some-> @monaco editor/monaco-value util/deflate-str set-copy-link)}
       "Generate link"]
-     (if (> (count (str copy-link)) 1024 )
+     (if (> (count (str copy-link)) 1024)
        [:div
         [:p [:strong "Unable to generate link"]]
         [:p "Compressed code exceeds 1024 characters, the maximum suggested character limit of a query string."]
