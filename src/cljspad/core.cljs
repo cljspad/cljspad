@@ -74,7 +74,6 @@
   [:<>
    [effects/logging]
    [effects/default-embed-tab]
-   [effects/monaco-ref]
    [effects/gist]
    [effects/gitlab-snippet]
    [effects/highlight]

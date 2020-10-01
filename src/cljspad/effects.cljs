@@ -88,16 +88,6 @@
        (constantly nil))
      [(str snippet-id) sandbox-ready?])))
 
-;; monaco has to be global to support auxiliary functionality (copy to clipboard, eval gist on load)
-(defui monaco-ref
-  [{:keys [monaco]} _]
-  (let [ref (react/useRef)]
-    (rehook/use-effect
-     (fn []
-       (reset! monaco ref)
-       (fn []
-         (reset! monaco nil))))))
-
 (defui default-embed-tab
   [{:keys [db]} _]
   (let [[selected-tab _] (rehook/use-atom-path db [:opts :selected_tab])
@@ -112,10 +102,11 @@
 
 (defui load-share-code
   [{:keys [db compiler-state]} _]
-  (let [[code _] (rehook/use-atom-path db [:opts :share_code])]
+  (let [[code _] (rehook/use-atom-path db [:opts :share_code])
+        [sandbox-ready? _] (rehook/use-atom-path db [:sandbox/ready?])]
     (rehook/use-effect
      (fn []
-       (when code
+       (when (and sandbox-ready? code)
          (try
            (let [value (util/inflate-str code)]
              (swap! db assoc :source value)
@@ -124,4 +115,4 @@
              (prn "Error: unable to load share code. Check browser console for stacktrace")
              (js/console.error e))))
        (constantly nil))
-     [code])))
+     [code sandbox-ready?])))

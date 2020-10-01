@@ -163,8 +163,7 @@
       (rehook.util/children props)]]))
 
 (defui copy-to-clipboard [{:keys [monaco]} _]
-  (let [[monaco _] (rehook/use-atom monaco)
-        initial-copy-text "Copy code to clipboard"
+  (let [initial-copy-text "Copy code to clipboard"
         [copy-text set-copy-text] (rehook/use-state initial-copy-text)]
 
     (rehook/use-effect
@@ -175,7 +174,7 @@
          (constantly nil)))
      [copy-text])
 
-    [:div.button {:onClick #(if (editor/copy-to-clipboard monaco)
+    [:div.button {:onClick #(if (editor/copy-to-clipboard @monaco)
                               (set-copy-text "Copied to clipboard!")
                               (set-copy-text "Failed to copy to clipboard :("))}
      copy-text]))
@@ -294,12 +293,11 @@
    [:div {:style {:height "20px"}}]])
 
 (defui export-link [{:keys [monaco]} {:keys [sandbox-version version]}]
-  (let [[monaco _] (rehook/use-atom monaco)
-        [copy-link set-copy-link] (rehook/use-state nil)]
+  (let [[copy-link set-copy-link] (rehook/use-state nil)]
     [:<>
      [:h3 "Clojure project"]
      [:p "Export creation as a hyperlink:"]
-     [:div.button {:onClick #(set-copy-link (util/deflate-str (editor/monaco-value monaco)))}
+     [:div.button {:onClick #(some-> @monaco editor/monaco-value util/deflate-str set-copy-link)}
       "Generate link"]
      (if (> (count (str copy-link)) 1024 )
        [:div

@@ -137,6 +137,6 @@
      (let [cb (fn [result]
                 (swap! compiler-state assoc ::evaluating? false)
                 (when (:error result)
-                  (print-friendly-error-message result)
-                  (cb result)))]
+                  (print-friendly-error-message result))
+                (cb result))]
        (eval-form* compiler-state reader cb)))))

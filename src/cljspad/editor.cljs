@@ -4,28 +4,30 @@
             [cljspad.env :as env]
             [goog.object :as obj]
             [clojure.string :as str]
-            ["monaco" :as MonacoEditor]))
+            ["monaco" :as MonacoEditor]
+            ["react" :as react]))
 
 (defn ^js ref->editor [ref]
   (obj/getValueByKeys ref "current" "editor"))
 
-(defn monaco-value [monaco-ref]
-  (let [editor (ref->editor monaco-ref)
-        model  (.getModel editor)]
-    (.getValue model)))
+(defn monaco-value [^js editor]
+  (when editor
+    (let [model (.getModel editor)]
+      (.getValue model))))
 
-(defn copy-to-clipboard [monaco-ref]
-  (try (let [value  (monaco-value monaco-ref)
-             elem   (js/document.createElement "textarea")]
-         (js/document.body.appendChild elem)
-         (aset elem "value" value)
-         (.select elem)
-         (js/document.execCommand "copy")
-         (js/document.body.removeChild elem)
-         true)
-       (catch :default e
-         (prn e)
-         false)))
+(defn copy-to-clipboard [^js editor]
+  (when-let [value (monaco-value editor)]
+    (try
+      (let [elem (js/document.createElement "textarea")]
+        (js/document.body.appendChild elem)
+        (aset elem "value" value)
+        (.select elem)
+        (js/document.execCommand "copy")
+        (js/document.body.removeChild elem)
+        true)
+      (catch :default e
+        (prn e)
+        false))))
 
 (defn set-model-markers
   [model id markers]
@@ -54,50 +56,54 @@
 
 (defn run-code
   [compiler-state ^js editor]
-  (fn []
-    (let [model (.getModel editor)
-          value (.getValue model)]
-      (set-model-markers model "cljspad" [])
-      (env/eval-form compiler-state value (partial eval-form-markers model)))))
+  (let [model (.getModel editor)
+        value (.getValue model)]
+    (set-model-markers model "cljspad" [])
+    (env/eval-form compiler-state value (partial eval-form-markers model))))
+
+(defui run-icon [{:keys [compiler-state]} _]
+  (let [[loading? _] (rehook/use-atom-path compiler-state [::env/evaluating?])]
+    (if loading?
+      [:span.cljspad-loading-icon]
+      [:span.cljspad-run-icon])))
 
 (defui toolbar
-  [{:keys [compiler-state]} {:keys [run]}]
-  (let [[loading? _] (rehook/use-atom-path compiler-state [::env/evaluating?])
-        run (:run run)]
-    [:div.toolbar
-     [:div.button {:onClick #(run)}
-      (if loading?
-        [:span.cljspad-loading-icon]
-        [:span.cljspad-run-icon])
-      "Run"]]))
+  [{:keys [monaco compiler-state]} _]
+  [:div.toolbar
+   [:div.button {:onClick #(some->> @monaco (run-code compiler-state))}
+    [run-icon] "Run"]])
 
-(defui editor [{:keys [compiler-state db monaco]} {:keys [height]}]
-  (let [[monaco _] (rehook/use-atom monaco)
-        [run set-run] (rehook/use-state nil)
+(defui monaco-editor [{:keys [db monaco]} _]
+  (let [ref (react/useRef)
         [source _] (rehook/use-atom-path db [:source])]
-    (when monaco
-      (rehook/use-effect
-       (fn []
-         (let [editor (ref->editor monaco)
-               resize (fn [] (.layout editor))
-               unload (fn []
-                        (let [model (.getModel editor)
-                              value (.getValue model)]
-                          (when-not (str/blank? value)
-                            true)))]
-           (js/window.addEventListener "resize" resize)
-           (set-run {:run (run-code compiler-state editor)})
-           (aset js/window "onbeforeunload" unload)
-           (fn []
-             (js/window.removeEventListener "resize" resize))))
-       [])
 
-      [:div {:style {:width "100%" :height height}}
-       [toolbar {:run run}]
-       [MonacoEditor {:language "clojure"
-                      :theme    "vs-light"
-                      :height   "100%"
-                      :width    "100%"
-                      :value    source
-                      :options  {:minimap {:enabled false}}
-                      :ref      monaco}]])))
+    (rehook/use-effect
+     (fn []
+       (let [editor (ref->editor ref)
+             resize (fn [] (.layout editor))
+             unload (fn []
+                      (let [model (.getModel editor)
+                            value (.getValue model)]
+                        (when-not (str/blank? value)
+                          true)))]
+         (reset! monaco editor)
+         (js/window.addEventListener "resize" resize)
+         (aset js/window "onbeforeunload" unload)
+         (fn []
+           (reset! monaco nil)
+           (aset js/window "onbeforeunload" nil)
+           (js/window.removeEventListener "resize" resize))))
+     [])
+
+    [MonacoEditor {:language "clojure"
+                   :theme    "vs-light"
+                   :height   "100%"
+                   :width    "100%"
+                   :value    source
+                   :options  {:minimap {:enabled false}}
+                   :ref      ref}]))
+
+(defui editor [_ {:keys [height]}]
+  [:div {:style {:width "100%" :height height}}
+   [toolbar]
+   [monaco-editor]])
