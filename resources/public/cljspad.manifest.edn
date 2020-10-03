@@ -1,4 +1,4 @@
-{:sandbox/version       "1.0.0"
+{:sandbox/version       "1"
  :clojurescript/version "1.10.771"
  :sandbox/libraries     [{:name      "reagent"
                           :type      :cljs
