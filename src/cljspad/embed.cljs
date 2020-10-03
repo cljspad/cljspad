@@ -19,7 +19,7 @@
       {:className (when (= selected-tab :sandbox) "active")
        :onClick   #(set-selected-tab :sandbox)} "Output"]
      [:a.cljspad-button {:style {:marginLeft "auto"}
-                 :href  "https://github.com/cljspad/cljspad"}
+                         :href  "https://github.com/cljspad/cljspad"}
       [:span.cljspad-github-icon]]]))
 
 (defui editor [{:keys [db]} _]

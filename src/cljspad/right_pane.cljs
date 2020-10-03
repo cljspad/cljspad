@@ -141,7 +141,7 @@
       {:className (when (= selected-tab :sandbox) "active")
        :onClick   #(set-selected-tab :sandbox)} "Output"]
      [:a.cljspad-button {:style {:marginLeft "auto"}
-                 :href  "https://github.com/cljspad/cljspad"}
+                         :href  "https://github.com/cljspad/cljspad"}
       [:span.cljspad-github-icon]]]))
 
 (defui libraries [{:keys [db]} _]
@@ -175,8 +175,8 @@
      [copy-text])
 
     [:div.cljspad-button {:onClick #(if (editor/copy-to-clipboard @monaco)
-                              (set-copy-text "Copied to clipboard!")
-                              (set-copy-text "Failed to copy to clipboard :("))}
+                                      (set-copy-text "Copied to clipboard!")
+                                      (set-copy-text "Failed to copy to clipboard :("))}
      copy-text]))
 
 (defui deps-edn [{:keys [compiler-state db]} _]
