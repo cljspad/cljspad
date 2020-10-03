@@ -6,19 +6,19 @@
 
 (defui tabs [{:keys [db]} _]
   (let [[selected-tab set-selected-tab] (rehook/use-atom-path db [:selected-tab])]
-    [:div.toolbar
-     [:div.button
+    [:div.cljspad-toolbar
+     [:div.cljspad-button
       {:className (when (= selected-tab :editor) "active")
        :onClick   #(set-selected-tab :editor)}
       "Editor"]
-     [:div.button
+     [:div.cljspad-button
       {:className (when (= selected-tab :repl) "active")
        :onClick   #(set-selected-tab :repl)}
       "REPL"]
-     [:div.button
+     [:div.cljspad-button
       {:className (when (= selected-tab :sandbox) "active")
        :onClick   #(set-selected-tab :sandbox)} "Output"]
-     [:a.button {:style {:marginLeft "auto"}
+     [:a.cljspad-button {:style {:marginLeft "auto"}
                  :href  "https://github.com/cljspad/cljspad"}
       [:span.cljspad-github-icon]]]))
 

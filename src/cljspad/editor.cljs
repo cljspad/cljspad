@@ -69,8 +69,8 @@
 
 (defui toolbar
   [{:keys [monaco compiler-state]} _]
-  [:div.toolbar
-   [:div.button {:onClick #(some->> @monaco (run-code compiler-state))}
+  [:div.cljspad-toolbar
+   [:div.cljspad-button {:onClick #(some->> @monaco (run-code compiler-state))}
     [run-icon] "Run"]])
 
 (defui monaco-editor [{:keys [db monaco]} _]

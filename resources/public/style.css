@@ -19,7 +19,7 @@ body, html {
   box-sizing: border-box;
 }
 
-#app {
+#cljspad-app {
   height: 100%;
   width: 100%;
 }
@@ -119,7 +119,7 @@ body, html {
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
 
-.button {
+.cljspad-button {
   display: inline-block;
   margin-right: 10px;
   background-color: rgba(0, 0, 0, 0.08);
@@ -129,16 +129,16 @@ body, html {
   user-select: none;
 }
 
-.button.active {
+.cljspad-button.active {
   border-bottom: 2px solid #f9826c;
 }
 
-.button:hover {
+.cljspad-button:hover {
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.04);
 }
 
-.toolbar {
+.cljspad-toolbar {
   height: 30px;
   background-color: #fafafa;
   border-bottom: 1px solid #ccc;

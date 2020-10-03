@@ -14,7 +14,7 @@
   (let [[expanded set-expanded] (rehook/use-state false)]
     [:div {:style {:marginBottom "5px"}}
 
-     [:div.button
+     [:div.cljspad-button
       {:onClick #(set-expanded (not expanded))
        :style   {:width "300px"}}
       [:span (:name library) " (" (-> library :type name) ")"]
@@ -124,23 +124,23 @@
 
 (defui right-pane-tabs [{:keys [db]} _]
   (let [[selected-tab set-selected-tab] (rehook/use-atom-path db [:selected-tab])]
-    [:div.toolbar
-     [:div.button
+    [:div.cljspad-toolbar
+     [:div.cljspad-button
       {:className (when (= selected-tab :readme) "active")
        :onClick   #(set-selected-tab :readme)}
       "README.md"]
-     [:div.button
+     [:div.cljspad-button
       {:className (when (= selected-tab :library) "active")
        :onClick   #(set-selected-tab :library)}
       "Libraries"]
-     [:div.button
+     [:div.cljspad-button
       {:className (when (= selected-tab :export) "active")
        :onClick   #(set-selected-tab :export)}
       "Export"]
-     [:div.button
+     [:div.cljspad-button
       {:className (when (= selected-tab :sandbox) "active")
        :onClick   #(set-selected-tab :sandbox)} "Output"]
-     [:a.button {:style {:marginLeft "auto"}
+     [:a.cljspad-button {:style {:marginLeft "auto"}
                  :href  "https://github.com/cljspad/cljspad"}
       [:span.cljspad-github-icon]]]))
 
@@ -174,7 +174,7 @@
          (constantly nil)))
      [copy-text])
 
-    [:div.button {:onClick #(if (editor/copy-to-clipboard @monaco)
+    [:div.cljspad-button {:onClick #(if (editor/copy-to-clipboard @monaco)
                               (set-copy-text "Copied to clipboard!")
                               (set-copy-text "Failed to copy to clipboard :("))}
      copy-text]))
@@ -297,7 +297,7 @@
     [:<>
      [:h3 "Clojure project"]
      [:p "Export creation as a hyperlink:"]
-     [:div.button {:onClick #(some-> @monaco editor/monaco-value util/deflate-str set-copy-link)}
+     [:div.cljspad-button {:onClick #(some-> @monaco editor/monaco-value util/deflate-str set-copy-link)}
       "Generate link"]
      (if (> (count (str copy-link)) 1024)
        [:div

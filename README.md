@@ -7,8 +7,7 @@
 
 ## Examples
 
-* Reagent + re-frame
-* ElkJS
+* [Reagent TodoMVC](https://cljspad.dev/gist/ef50850eceb027072fe7d5cbe598cf72)
 
 ## Sandbox
 
@@ -48,6 +47,16 @@ If you would like to style the right-hand pane, you can use the `inject-styleshe
 ```clojure 
 (inject-stylesheet "https://path/to/stylesheet.css")
 ```
+
+### Writing to the DOM
+
+If you want to output a simple value to the sandbox DOM without depending on React/etc:
+
+``` 
+(write-output "Hello world")
+```
+
+See the [datascript example](https://cljspad.dev/gist/fd1fa56ac2f4ec2d516fb07b49641097)
 
 ## Loading/sharing code
 

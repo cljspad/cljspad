@@ -9,6 +9,7 @@
             [cljspad.logging :as log]
             [cljspad.right-pane :as right-pane]
             [cljspad.embed :as embed]
+            [datascript.core :as d]
             ["react-dom" :as react-dom]))
 
 (goog-define version "dev")
@@ -86,10 +87,22 @@
 (defn ^:dev/after-load render []
   (react-dom/render
    (dom.browser/bootstrap app-state identity clj->js root-component)
-   (js/document.getElementById "app")))
+   (js/document.getElementById "cljspad-app")))
 
 (defn ^:export main [opts]
   (let [opts (js->clj opts :keywordize-keys true)
         sys  (system opts)]
     (set! app-state sys)
     (render)))
+
+(let [schema {:aka {:db/cardinality :db.cardinality/many}}
+      conn   (d/create-conn schema)]
+  (d/transact! conn [ { :db/id -1
+                       :name  "Maksim"
+                       :age   45
+                       :aka   ["Max Otto von Stierlitz", "Jack Ryan"] } ])
+  (prn (d/q '[:find ?n ?a
+              :where [?e :aka "Max Otto von Stierlitz"]
+              [?e :name ?n]
+              [?e :age ?a]]
+            @conn)))
