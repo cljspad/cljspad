@@ -1,4 +1,4 @@
-{:sandbox/version       "1"
+{:sandbox/version       "2"
  :clojurescript/version "1.10.771"
  :sandbox/libraries     [{:name      "reagent"
                           :type      :cljs
@@ -10,7 +10,10 @@
                                       [sandbox.reagent]]
                           :examples  [{:name    "TodoMVC"
                                        :type    :gist
-                                       :gist-id "ef50850eceb027072fe7d5cbe598cf72"}]}
+                                       :gist-id "ef50850eceb027072fe7d5cbe598cf72"}
+                                      {:name    "highlight.js"
+                                       :type    :gist
+                                       :gist-id "0c7168819b05c803a2963191f51eb321"}]}
                          {:name      "marked"
                           :type      :js
                           :coord     [marked "1.1.1"]

@@ -15,6 +15,7 @@
                               :exclude          #{cljs.js datascript.db}
                               :compiler-options {:externs ["datascript/externs.js"]}
                               :entries          [cljs.js
+                                                 cljs.pprint
                                                  reagent.core
                                                  reagent.dom
                                                  re-frame.core
@@ -25,5 +26,6 @@
                                                  react-dom
                                                  sandbox.user
                                                  sandbox.reagent
-                                                 sandbox.markdown]
+                                                 sandbox.markdown
+                                                 cljs.tools.reader.edn]
                               :macros           []}}}
