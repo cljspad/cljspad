@@ -336,7 +336,7 @@
      [:select {:onChange #(set-export-as (-> % .-target .-value))
                :value    export-as}
       #_[:option {:value "link"}
-       "Link"]
+         "Link"]
       [:option {:value "gist"}
        "GitHub Gist"]
       [:option {:value "snippet"}
@@ -350,7 +350,7 @@
      (case export-as
        #_"link"
        #_[export-link {:version         version
-                     :sandbox-version sandbox-version}]
+                       :sandbox-version sandbox-version}]
 
        "gist"
        [export-gist {:version         version
