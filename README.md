@@ -52,7 +52,7 @@ If you would like to style the right-hand pane, you can use the `inject-styleshe
 
 If you want to output a simple value to the sandbox DOM without depending on React/etc:
 
-``` 
+```clojure
 (write-output "Hello world")
 ```
 
