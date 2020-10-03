@@ -317,7 +317,7 @@
   (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])
         [version _] (rehook/use-atom-path db [:version])
         [sandbox-version set-sandbox-version] (rehook/use-state "stable")
-        [export-as set-export-as] (rehook/use-state "link")]
+        [export-as set-export-as] (rehook/use-state "gist")]
     [:div.cljspad-export
      {:style (when-not (= selected-tab :export)
                {:display "none"})}
@@ -335,7 +335,7 @@
      [:label "Export as: "]
      [:select {:onChange #(set-export-as (-> % .-target .-value))
                :value    export-as}
-      [:option {:value "link"}
+      #_[:option {:value "link"}
        "Link"]
       [:option {:value "gist"}
        "GitHub Gist"]
@@ -348,8 +348,8 @@
                    :borderTop "1px solid #ccc"}}]
 
      (case export-as
-       "link"
-       [export-link {:version         version
+       #_"link"
+       #_[export-link {:version         version
                      :sandbox-version sandbox-version}]
 
        "gist"
