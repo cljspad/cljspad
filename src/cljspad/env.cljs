@@ -20,9 +20,10 @@
 
 (defn eval-opts
   [compiler-state]
-  {:eval cljs.js/js-eval
-   :load (partial boot/load compiler-state)
-   :ns   (symbol "sandbox.user")})
+  {:eval          cljs.js/js-eval
+   :load          (partial boot/load compiler-state)
+   :def-emits-var true
+   :ns            (symbol "sandbox.user")})
 
 (defn eval-str
   [compiler-state form cb]
