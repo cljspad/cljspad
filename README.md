@@ -91,30 +91,4 @@ cljspad can be embedded into your website via an iframe:
 
 # Contributing
 
-**Note:** as the maintainer of cljspad, I want to curate a high quality collection of libraries that have been adopted by the community. 
-
-In order to keep things maintainable (eg, to not dive into dependency hell) I hope to add some requirements around libraries as cljspad progresses.
-
-## Libraries
-
-If you would like to contribute by adding a library to the cljspad sandbox:
-
-1) Add desired library to `package.json` or `deps.edn`
-2) Add an entry to [cljspad.manifest.edn](https://github.com/cljspad/cljspad/blob/master/resources/public/cljspad.manifest.edn)
-3) (Optional) add a helper namespace if your library renders anything to the right-hand pane. Eg: `sandbox.reagent`. Example [here](https://github.com/cljspad/cljspad/blob/master/src/sandbox/reagent.cljs)
-4) Add an entry for the desired namespace entries in [shadow-cljs.edn](https://github.com/cljspad/cljspad/blob/master/shadow-cljs.edn)
-
-Instructions on how to run cljspad locally can be found in the server repo's [README](https://github.com/cljspad/server)
-
-## Examples
-
-If you would like to contribute by adding an example to the cljspad sandbox:
-
-1) Create a public [gist](https://gist.github.com/) of your example
-2) Update [cljspad.manifest.edn](https://github.com/cljspad/cljspad/blob/master/resources/public/cljspad.manifest.edn) and include your example
-
-## Manifest EDN
-
-You can view the spec for `cljspad.manifest.edn` [here](https://github.com/cljspad/cljspad/blob/master/src/cljspad/manifest.cljc)
-
-Running `./lint.sh` in the project's root will validate that the EDN file conforms to the spec.
+See [CONTRIBUTING.md](https://github.com/cljspad/cljspad/blob/master/CONTRIBUTING.md)
