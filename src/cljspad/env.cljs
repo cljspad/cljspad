@@ -104,9 +104,9 @@
           (.then (fn [result]
                    (if-let [err (error-message result)]
                      (cb (assoc reader-result
-                           :result result
-                           :error {:type    :runtime-error
-                                   :message err}))
+                                :result result
+                                :error {:type    :runtime-error
+                                        :message err}))
                      (eval-form* compiler-state reader cb))))
           (.catch (fn [err]
                     (cb (assoc reader-result :error {:type    :uncaught-exception
