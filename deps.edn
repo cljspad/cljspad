@@ -3,7 +3,6 @@
          expound                    {:mvn/version "0.8.5"}
          org.clojure/core.async     {:mvn/version "1.3.610"}
          rehook                     {:mvn/version "2.1.11"}
-         rehook/dom                 {:local/root "../rehook/rehook-dom"}
          com.cognitect/transit-cljs {:mvn/version "0.8.264"}
          cljspad/depstrap           {:mvn/version "0.1.0"}}
  :paths ["src"]}
