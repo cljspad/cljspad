@@ -8,6 +8,7 @@
 ## Examples
 
 * [Reagent TodoMVC](https://cljspad.dev/gist/ef50850eceb027072fe7d5cbe598cf72)
+* [Read EDN from a public S3 bucket](https://cljspad.dev/gist/6be511ddd6f884e468a5e771d6857461)
 
 ## Sandbox
 
