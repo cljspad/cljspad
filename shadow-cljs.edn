@@ -3,29 +3,9 @@
  :build-defaults {:js-options {:resolve {"monaco" {:target :global
                                                    :global "MonacoEditor"}}}}
 
- :builds         {:app       {:target           :browser
-                              :output-dir       "resources/public/cljspad"
-                              :asset-path       #shadow/env "SANDBOX_ASSET_PATH"
-                              :compiler-options {:optimizations :simple}
-                              :modules          {:base {:entries [cljspad.core]}}
-                              :closure-defines  {cljspad.core/version #shadow/env "SANDBOX_VERSION"}}
-
-                  :bootstrap {:target           :bootstrap
-                              :output-dir       "resources/public/bootstrap"
-                              :exclude          #{cljs.js datascript.db}
-                              :compiler-options {:externs ["datascript/externs.js"]}
-                              :entries          [cljs.js
-                                                 cljs.pprint
-                                                 reagent.core
-                                                 reagent.dom
-                                                 re-frame.core
-                                                 datascript.core
-                                                 re-frame.core
-                                                 marked
-                                                 react
-                                                 react-dom
-                                                 sandbox.user
-                                                 sandbox.reagent
-                                                 sandbox.markdown
-                                                 cljs.tools.reader.edn]
-                              :macros           []}}}
+ :builds         {:app {:target           :browser
+                        :output-dir       "resources/public/cljspad"
+                        :asset-path       #shadow/env "SANDBOX_ASSET_PATH"
+                        :compiler-options {:optimizations :simple}
+                        :modules          {:base {:entries [cljspad.core]}}
+                        :closure-defines  {cljspad.core/version #shadow/env "SANDBOX_VERSION"}}}}

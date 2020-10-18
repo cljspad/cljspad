@@ -14,6 +14,14 @@
                                       {:name    "highlight.js"
                                        :type    :gist
                                        :gist-id "0c7168819b05c803a2963191f51eb321"}]}
+                         {:name    "cljspad/sandbox"
+                          :type    :cljs
+                          :coord   [cljspad/sandbox "0.1.1"]
+                          :url     "https://github.com/cljspad/sandbox"
+                          :doc     "Utility functions for the cljspad sandbox"
+                          :require [sandbox.user
+                                    sandbox.markdown
+                                    sandbox.reagent]}
                          {:name      "marked"
                           :type      :js
                           :coord     [marked "1.1.1"]

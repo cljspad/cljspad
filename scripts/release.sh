@@ -17,4 +17,4 @@ rm -rf resources/public/monaco
 
 npm install
 npx webpack --mode=production
-shadow-cljs compile bootstrap app
+shadow-cljs compile app

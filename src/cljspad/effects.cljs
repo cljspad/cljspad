@@ -115,3 +115,14 @@
              (js/console.error e))))
        (constantly nil))
      [code sandbox-ready?])))
+
+(defui depstrap
+  [{:keys [db compiler-state]} _]
+  (let [[version _]  (rehook/use-atom-path db [:version])
+        [manifest _] (rehook/use-atom-path db [:manifest version])]
+    (rehook/use-effect
+     (fn []
+       (when manifest
+         (env/init compiler-state manifest #(swap! db assoc :loading? false)))
+       (constantly nil))
+     [(pr-str manifest)])))

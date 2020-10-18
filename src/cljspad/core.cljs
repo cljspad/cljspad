@@ -23,8 +23,6 @@
 (defn system [opts]
   (let [compiler-state (env/state)
         db             (atom (assoc initial-state :opts opts))]
-    ;; TODO: move this effect into cljspad.effects
-    (env/init compiler-state version #(swap! db assoc :loading? false))
     {:compiler-state compiler-state
      :console        {:stdout log/stdout
                       :stderr log/stderr}
@@ -79,6 +77,7 @@
    [effects/highlight]
    [effects/load-share-code]
    [effects/manifest]
+   [effects/depstrap]
    [dominant-component]])
 
 (defonce app-state nil)

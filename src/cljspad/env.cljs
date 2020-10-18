@@ -1,11 +1,11 @@
 (ns cljspad.env
   (:refer-clojure :exclude [eval])
   (:require [cljs.js :as cljs.js]
-            [shadow.cljs.bootstrap.browser :as boot]
             [cljs.tools.reader :as reader]
             [clojure.string :as str]
             [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
-            [cljspad.util :as util]))
+            [cljspad.util :as util]
+            [depstrap.api :as depstrap]))
 
 (defn error-message [result]
   (-> result :error ex-cause ex-message))
@@ -13,17 +13,25 @@
 (defn state []
   (cljs.js/empty-state))
 
+(defn manifest->deps [manifest]
+  (->> manifest
+       (:sandbox/libraries)
+       (filter #(= :cljs (:type %)))
+       (keep :coord)))
+
+(defn opts [manifest]
+  {:depstrap/dependencies (manifest->deps manifest)
+   :load-on-init          '#{sandbox.user}})
+
 (defn init
-  [compiler-state sandbox-version cb]
-  (let [path (str "/sandbox/" sandbox-version "/bootstrap")]
-    (boot/init compiler-state {:path path :load-on-init '#{sandbox.user}} cb)))
+  [compiler-state manifest cb]
+  (depstrap/init compiler-state (opts manifest) cb))
 
 (defn eval-opts
   [compiler-state]
-  {:eval          cljs.js/js-eval
-   :load          (partial boot/load compiler-state)
-   :def-emits-var true
-   :ns            (symbol "sandbox.user")})
+  {:eval cljs.js/js-eval
+   :load (partial depstrap/load compiler-state)
+   :ns   (symbol "sandbox.user")})
 
 (defn eval-str
   [compiler-state form cb]
@@ -96,9 +104,9 @@
           (.then (fn [result]
                    (if-let [err (error-message result)]
                      (cb (assoc reader-result
-                                :result result
-                                :error {:type    :runtime-error
-                                        :message err}))
+                           :result result
+                           :error {:type    :runtime-error
+                                   :message err}))
                      (eval-form* compiler-state reader cb))))
           (.catch (fn [err]
                     (cb (assoc reader-result :error {:type    :uncaught-exception
