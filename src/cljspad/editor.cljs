@@ -108,4 +108,4 @@
 (defui editor [_ {:keys [height]}]
   [:div {:style {:width "100%" :height height}}
    [toolbar]
-   [monaco-editor]])
+   [editor]])

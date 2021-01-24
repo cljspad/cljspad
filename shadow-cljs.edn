@@ -6,6 +6,7 @@
  :builds         {:app {:target           :browser
                         :output-dir       "resources/public/cljspad"
                         :asset-path       #shadow/env "SANDBOX_ASSET_PATH"
-                        :compiler-options {:optimizations :simple}
+                        :compiler-options {:optimizations      :simple
+                                           :output-feature-set :es8}
                         :modules          {:base {:entries [cljspad.core]}}
                         :closure-defines  {cljspad.core/version #shadow/env "SANDBOX_VERSION"}}}}

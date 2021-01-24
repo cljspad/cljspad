@@ -1,8 +1,10 @@
-{:deps  {thheller/shadow-cljs       {:mvn/version "2.11.4"}
+{:deps  {thheller/shadow-cljs       {:mvn/version "2.11.14"}
          org.clojure/clojure        {:mvn/version "1.10.1"}
          expound                    {:mvn/version "0.8.5"}
          org.clojure/core.async     {:mvn/version "1.3.610"}
          rehook                     {:mvn/version "2.1.11"}
          com.cognitect/transit-cljs {:mvn/version "0.8.264"}
-         cljspad/depstrap           {:mvn/version "0.1.0"}}
+         cljspad/depstrap           {:mvn/version "0.1.0"}
+         nextjournal.clojure-mode   {:git/url "https://github.com/nextjournal/clojure-mode"
+                                     :sha     "f46688eba79953648e7a8920ca79e48fc1414867"}}
  :paths ["src"]}

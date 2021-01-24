@@ -6,6 +6,7 @@
             [cljspad.env :as env]
             [cljspad.repl :as repl]
             [cljspad.editor :as editor]
+            [cljspad.editor2 :as editor2]
             [cljspad.logging :as log]
             [cljspad.right-pane :as right-pane]
             [cljspad.embed :as embed]
@@ -27,6 +28,7 @@
      :console        {:stdout log/stdout
                       :stderr log/stderr}
      :monaco         (atom nil)
+     :editor-view    (atom nil)
      :db             db}))
 
 (defui loading [_ _]
@@ -37,7 +39,7 @@
   [:div.cljspad-left-pane
    [:div {:style {:display       "flex"
                   :flexDirection "column"}}
-    [editor/editor {:height "calc(100vH - 250px)"}]
+    [editor2/editor {:height "calc(100vH - 250px)"}]
     [repl/repl {:height "200px"}]]])
 
 (defui right-pane [_ _]
