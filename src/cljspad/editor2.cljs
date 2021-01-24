@@ -35,22 +35,25 @@
    :$cursor            {:visibility "hidden"}
    "$$focused $cursor" {:visibility "visible"}})
 
+(defn eval-callback [x]
+  (prn (-> x :result :value)))
+
 (defn eval-form
-  [compiler-state o]
-  (let [source (obj/getValueByKeys o "state" "doc")]
-    (env/eval-form compiler-state (str source))))
+  [compiler-state editor-view]
+  (let [source (obj/getValueByKeys editor-view "state" "doc")]
+    (env/eval-form compiler-state (str source) eval-callback)))
 
 (defn eval-top-level
-  [compiler-state o]
-  (let [state  (obj/getValueByKeys o "state")
+  [compiler-state editor-view]
+  (let [state  (obj/getValueByKeys editor-view "state")
         source (eval-region/cursor-node-string state)]
-    (env/eval-form compiler-state source)))
+    (env/eval-form compiler-state source eval-callback)))
 
 (defn eval-at-cursor
-  [compiler-state o]
-  (let [state  (obj/getValueByKeys o "state")
+  [compiler-state editor-view]
+  (let [state  (obj/getValueByKeys editor-view "state")
         source (eval-region/cursor-node-string state)]
-    (env/eval-form compiler-state source)))
+    (env/eval-form compiler-state source eval-callback)))
 
 (defn eval-keymap
   [compiler-state]
@@ -94,5 +97,6 @@
        (let [editor (EditorView. (clj->js (editor-opts compiler-state ref source)))]
          #(.destroy editor)))
      [])
+
     [:div {:style {:width "100%" :height height}}
      [:div {:ref ref :style {:max-height "420px"}}]]))

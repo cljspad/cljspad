@@ -77,7 +77,7 @@
 
 ;; TODO: smarter reading. Tracking of line numbers where exceptions occur would be ideal...
 ;; having errors reflected inside of monaco would be even cooler
-(defn eval-form* [compiler-state reader cb]
+(defn eval-form* [compiler-state reader cb result]
   (let [reader-result (read* reader)]
     (cond
       (:error reader-result)
@@ -107,13 +107,13 @@
                                 :result result
                                 :error {:type    :runtime-error
                                         :message err}))
-                     (eval-form* compiler-state reader cb))))
+                     (eval-form* compiler-state reader cb result))))
           (.catch (fn [err]
                     (cb (assoc reader-result :error {:type    :uncaught-exception
                                                      :message (ex-message err)})))))
 
       :else
-      (cb reader-result))))
+      (cb (assoc reader-result :result result)))))
 
 ;; TODO: even friendlier messages
 (defn print-friendly-error-message
@@ -148,4 +148,4 @@
                 (when (:error result)
                   (print-friendly-error-message result))
                 (cb result))]
-       (eval-form* compiler-state reader cb)))))
+       (eval-form* compiler-state reader cb nil)))))
