@@ -1,8 +1,5 @@
 {:deps           true
 
- :build-defaults {:js-options {:resolve {"monaco" {:target :global
-                                                   :global "MonacoEditor"}}}}
-
  :builds         {:app {:target           :browser
                         :output-dir       "resources/public/cljspad"
                         :asset-path       #shadow/env "SANDBOX_ASSET_PATH"

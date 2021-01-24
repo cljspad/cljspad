@@ -5,7 +5,7 @@
             [cljspad.effects :as effects]
             [cljspad.env :as env]
             [cljspad.repl :as repl]
-            [cljspad.editor2 :as editor2]
+            [cljspad.editor :as editor]
             [cljspad.logging :as log]
             [cljspad.right-pane :as right-pane]
             [cljspad.embed :as embed]
@@ -26,7 +26,6 @@
     {:compiler-state compiler-state
      :console        {:stdout log/stdout
                       :stderr log/stderr}
-     :monaco         (atom nil)
      :editor-view    (atom nil)
      :db             db}))
 
@@ -38,7 +37,7 @@
   [:div.cljspad-left-pane
    [:div {:style {:display       "flex"
                   :flexDirection "column"}}
-    [editor2/editor {:height "calc(100vH - 250px)"}]
+    [editor/editor {:height "calc(100vH - 250px)"}]
     [repl/repl {:height "200px"}]]])
 
 (defui right-pane [_ _]

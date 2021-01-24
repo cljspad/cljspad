@@ -1,22 +1,31 @@
 (ns cljspad.editor
-  (:require [rehook.core :as rehook]
-            [rehook.dom :refer-macros [defui]]
-            [cljspad.env :as env]
+  (:require ["@codemirror/closebrackets" :refer [closeBrackets]]
+            ["@codemirror/fold" :as fold]
+            ["@codemirror/gutter" :refer [lineNumbers]]
+            ["@codemirror/highlight" :as highlight]
+            ["@codemirror/history" :refer [history historyKeymap]]
+            ["@codemirror/state" :refer [EditorState]]
+            ["@codemirror/view" :as view :refer [EditorView]]
+            ["react" :as react]
             [goog.object :as obj]
-            [clojure.string :as str]
-            ["monaco" :as MonacoEditor]
-            ["react" :as react]))
+            [cljspad.env :as env]
+            [nextjournal.clojure-mode :as cm-clj]
+            [nextjournal.clojure-mode.live-grammar :as live-grammar]
+            [nextjournal.clojure-mode.test-utils :as test-utils]
+            [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
+            [rehook.core :as rehook]
+            [rehook.dom :refer-macros [defui]]))
 
-(defn ^js ref->editor [ref]
-  (obj/getValueByKeys ref "current" "editor"))
+(goog-define live-reloading? false)
 
-(defn monaco-value [^js editor]
-  (when editor
-    (let [model (.getModel editor)]
-      (.getValue model))))
+(defn editor-value
+  [editor-view]
+  (when editor-view
+    (str (obj/getValueByKeys editor-view "state" "doc"))))
 
-(defn copy-to-clipboard [^js editor]
-  (when-let [value (monaco-value editor)]
+(defn copy-to-clipboard
+  [editor-view]
+  (when-let [value (editor-value editor-view)]
     (try
       (let [elem (js/document.createElement "textarea")]
         (js/document.body.appendChild elem)
@@ -29,83 +38,88 @@
         (prn e)
         false))))
 
-(defn set-model-markers
-  [model id markers]
-  (let [f (obj/getValueByKeys js/monaco "editor" "setModelMarkers")]
-    (f model id (clj->js markers))))
+(def theme
+  {:$content           {:white-space "pre-wrap"
+                        :padding     "10px 0"}
+   :$$focused          {:outline "none"}
+   :$line              {:padding     "0 9px"
+                        :line-height "1.6"
+                        :font-size   "16px"
+                        :font-family "var(--code-font)"}
+   :$matchingBracket   {:border-bottom "1px solid var(--teal-color)"
+                        :color         "inherit"}
+   :$gutters           {:background "transparent"
+                        :border     "none"}
+   :$gutterElement     {:margin-left "5px"}
+   ;; only show cursor when focused
+   :$cursor            {:visibility "hidden"}
+   "$$focused $cursor" {:visibility "visible"}})
 
-(defn position [[line column]]
-  (js/monaco.Position. line column))
+(defn eval-callback [x]
+  (prn (-> x :result :value)))
 
-;; TODO: more accurate markers...
-(defn eval-form-markers
-  [^js model {:keys [pos error]}]
-  (when error
-    (let [[start-pos end-pos] (js->clj (.matchBracket model (position pos)) :keywordize-keys true)
-          start-line-number (or (:startLineNumber start-pos) (first pos))
-          start-column      (or (:startColumn start-pos) (second pos))
-          end-line-number   (or (:endLineNumber end-pos) (inc (first pos)))
-          end-column        (or (:endColumn end-pos) (second pos))
-          marker            {:startLineNumber start-line-number
-                             :startColumn     start-column
-                             :endLineNumber   end-line-number
-                             :endColumn       end-column
-                             :message         (str (:message error))
-                             :severity        4}]
-      (set-model-markers model "cljspad" [marker]))))
+(defn eval-form
+  [compiler-state editor-view]
+  (env/eval-form compiler-state (editor-value editor-view) eval-callback))
 
-(defn run-code
-  [compiler-state ^js editor]
-  (let [model (.getModel editor)
-        value (.getValue model)]
-    (set-model-markers model "cljspad" [])
-    (env/eval-form compiler-state value (partial eval-form-markers model))))
+(defn eval-top-level
+  [compiler-state editor-view]
+  (let [state  (obj/getValueByKeys editor-view "state")
+        source (eval-region/cursor-node-string state)]
+    (env/eval-form compiler-state source eval-callback)))
 
-(defui run-icon [{:keys [compiler-state]} _]
-  (let [[loading? _] (rehook/use-atom-path compiler-state [::env/evaluating?])]
-    (if loading?
-      [:span.cljspad-loading-icon]
-      [:span.cljspad-run-icon])))
+(defn eval-at-cursor
+  [compiler-state editor-view]
+  (let [state  (obj/getValueByKeys editor-view "state")
+        source (eval-region/cursor-node-string state)]
+    (env/eval-form compiler-state source eval-callback)))
 
-(defui toolbar
-  [{:keys [monaco compiler-state]} _]
-  [:div.cljspad-toolbar
-   [:div.cljspad-button {:onClick #(some->> @monaco (run-code compiler-state))}
-    [run-icon] "Run"]])
+(defn eval-keymap
+  [compiler-state]
+  [{:key "Mod-Enter"
+    :run (partial eval-form compiler-state)}
+   {:key   "Alt-Enter"
+    :shift (partial eval-top-level compiler-state)
+    :run   (partial eval-at-cursor compiler-state)}])
 
-(defui monaco-editor [{:keys [db monaco]} _]
+(defn extensions
+  [compiler-state]
+  ;; Adapted from https://github.com/nextjournal/clojure-mode/blob/master/demo/src/nextjournal/clojure_mode/demo.cljs
+  #js[(.theme EditorView (clj->js theme))
+      (history)
+      highlight/defaultHighlightStyle
+      (view/drawSelection)
+      (lineNumbers)
+      (fold/foldGutter)
+      (.. EditorState -allowMultipleSelections (of true))
+      (if live-reloading?
+        ;; use live-reloading grammar
+        #js[(cm-clj/syntax live-grammar/parser)
+            (.slice cm-clj/default-extensions 1)]
+        cm-clj/default-extensions)
+      (.of view/keymap cm-clj/complete-keymap)
+      (.of view/keymap historyKeymap)
+      (.of view/keymap (clj->js (eval-keymap compiler-state)))])
+
+(defn editor-opts
+  [compiler-state ^js ref source]
+  {:state  (test-utils/make-state (extensions compiler-state) source)
+   :parent (.-current ref)})
+
+(defui editor
+  [{:keys [db compiler-state editor-view]} {:keys [height]}]
   (let [ref (react/useRef)
         [source _] (rehook/use-atom-path db [:source])]
 
     (rehook/use-effect
      (fn []
-       (let [editor (ref->editor ref)
-             resize (fn [] (.layout editor))
-             unload (fn []
-                      (let [model (.getModel editor)
-                            value (.getValue model)]
-                        (when-not (str/blank? value)
-                          true)))]
-         (reset! monaco editor)
-         (js/window.addEventListener "resize" resize)
-         (aset js/window "onbeforeunload" unload)
+       (let [editor (EditorView. (clj->js (editor-opts compiler-state ref source)))]
+         ;; editor needs to be global so that auxiliary functionality like export/copy-to-clipboard work
+         (reset! editor-view editor)
          (fn []
-           (reset! monaco nil)
-           (aset js/window "onbeforeunload" nil)
-           (js/window.removeEventListener "resize" resize))))
+           (.destroy editor)
+           (reset! editor-view nil))))
      [])
 
-    [MonacoEditor {:language "clojure"
-                   :theme    "vs-light"
-                   :height   "100%"
-                   :width    "100%"
-                   :value    source
-                   :onChange #(when-let [editor (ref->editor ref)]
-                                (set-model-markers (.getModel editor) "cljspad" []))
-                   :options  {:minimap {:enabled false}}
-                   :ref      ref}]))
-
-(defui editor [_ {:keys [height]}]
-  [:div {:style {:width "100%" :height height}}
-   [toolbar]
-   [editor]])
+    [:div {:style {:width "100%" :height height}}
+     [:div {:ref ref :style {:max-height "420px"}}]]))

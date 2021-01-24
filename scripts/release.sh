@@ -16,5 +16,4 @@ rm -rf resources/public/cljspad
 rm -rf resources/public/monaco
 
 npm install
-npx webpack --mode=production
 shadow-cljs compile app
