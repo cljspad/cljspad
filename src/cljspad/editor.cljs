@@ -10,7 +10,6 @@
             [cljspad.env :as env]
             [nextjournal.clojure-mode :as cm-clj]
             [nextjournal.clojure-mode.live-grammar :as live-grammar]
-            [nextjournal.clojure-mode.test-utils :as test-utils]
             [nextjournal.clojure-mode.extensions.eval-region :as eval-region]
             [rehook.core :as rehook]
             [rehook.dom :refer-macros [defui]]))
@@ -43,7 +42,7 @@
    :$$focused          {:outline "none"}
    :$line              {:padding     "0 9px"
                         :line-height "1.6"
-                        :font-size   "16px"
+                        :font-size   "14px"
                         :font-family "Hack, monospace"}
    :$matchingBracket   {:border-bottom "1px solid #008080"
                         :color         "inherit"}
@@ -102,7 +101,8 @@
 
 (defn editor-opts
   [compiler-state ^js ref source]
-  {:state  (test-utils/make-state (extensions compiler-state) source)
+  {:state  (.create EditorState (clj->js {:doc        (str source)
+                                          :extensions (extensions compiler-state)}))
    :parent (.-current ref)})
 
 (defui editor
