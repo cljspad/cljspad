@@ -1,6 +1,5 @@
 (ns cljspad.editor
-  (:require ["@codemirror/closebrackets" :refer [closeBrackets]]
-            ["@codemirror/fold" :as fold]
+  (:require ["@codemirror/fold" :as fold]
             ["@codemirror/gutter" :refer [lineNumbers]]
             ["@codemirror/highlight" :as highlight]
             ["@codemirror/history" :refer [history historyKeymap]]
