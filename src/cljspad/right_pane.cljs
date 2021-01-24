@@ -1,6 +1,8 @@
 (ns cljspad.right-pane
   (:require [cljspad.editor :as editor]
             [cljspad.util :as util]
+            [nextjournal.clojure-mode.keymap :as keymap]
+            [clojure.string :as str]
             [rehook.core :as rehook]
             [rehook.dom :refer-macros [defui]]
             [rehook.util :as rehook.util]
@@ -129,6 +131,10 @@
       {:className (when (= selected-tab :readme) "active")
        :onClick   #(set-selected-tab :readme)}
       "README.md"]
+     [:div.cljspad-button
+      {:className (when (= selected-tab :keybindings) "active")
+       :onClick #(set-selected-tab :keybindings)}
+      "Keybindings"]
      [:div.cljspad-button
       {:className (when (= selected-tab :library) "active")
        :onClick   #(set-selected-tab :library)}
@@ -364,3 +370,77 @@
        [export-clj]
 
        nil)]))
+
+(defn linux? []
+  (some? (re-find #"(Linux)|(X11)" js/navigator.userAgent)))
+
+(defn mac? []
+  (and (not (linux?))
+       (some? (re-find #"(Mac)|(iPhone)|(iPad)|(iPod)" js/navigator.platform))))
+
+(defn key-mapping []
+  (cond-> {"ArrowUp" "↑"
+           "ArrowDown" "↓"
+           "ArrowRight" "→"
+           "ArrowLeft" "←"
+           "Mod" "Ctrl"}
+    (mac?)
+    (merge {"Alt" "⌥"
+            "Shift" "⇧"
+            "Enter" "⏎"
+            "Ctrl" "⌃"
+            "Mod" "⌘"})))
+
+(defn render-key [key]
+  (let [keys (into [] (map #(get ((memoize key-mapping)) % %) (str/split key #"-")))]
+    (into [:span]
+          (map-indexed (fn [i k]
+                         [:<>
+                          (when-not (zero? i) [:span " + "])
+                          [:kbd.kbd k]]) keys))))
+
+(def eval-keymap
+  {:eval-cell
+   [{:key "Mod-Enter"
+     :doc "Evaluate cell"}]
+   :eval-at-cursor
+   [{:key "Alt-Enter"
+     :doc "Evaluates form at cursor"}]
+   :eval-top-level
+   [{:key  "Alt-Shift-Enter"
+     :doc "Evaluates top-level form at cursor"}]})
+
+;; Adapted from https://github.com/nextjournal/clojure-mode/blob/master/demo/src/nextjournal/clojure_mode/demo.cljs#L131
+(defui keybindings-table [_ _]
+  [:table.w-full.text-sm
+   [:thead
+    [:tr.border-t
+     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Command"]
+     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Keybinding"]
+     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Alternate Binding"]
+     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 {:style {:min-width 290}} "Description"]]]
+   (into [:tbody]
+         (->> keymap/paredit-keymap*
+              (merge eval-keymap)
+              (sort-by first)
+              (map (fn [[command [{:keys [key shift doc]} & [{alternate-key :key}]]]]
+                     [:<>
+                      [:tr.border-t.hover:bg-gray-100
+                       [:td.px-3.py-1.align-top.monospace.whitespace-no-wrap [:b (name command)]]
+                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-no-wrap (render-key key)]
+                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-no-wrap (some-> alternate-key render-key)]
+                       [:td.px-3.py-1.align-top doc]]
+                      (when shift
+                        [:tr.border-t.hover:bg-gray-100
+                         [:td.px-3.py-1.align-top [:b (name shift)]]
+                         [:td.px-3.py-1.align-top.text-sm.whitespace-no-wrap.text-right
+                          (render-key (str "Shift-" key))]
+                         [:td.px-3.py-1.align-top.text-sm]
+                         [:td.px-3.py-1.align-top]])]))))])
+
+(defui keybindings
+  [{:keys [db]} _]
+  (let [[selected-tab _] (rehook/use-atom-path db [:selected-tab])]
+    [:div {:style (when-not (= selected-tab :keybindings)
+                    {:display "none"})}
+     [keybindings-table]]))

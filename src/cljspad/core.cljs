@@ -5,7 +5,6 @@
             [cljspad.effects :as effects]
             [cljspad.env :as env]
             [cljspad.repl :as repl]
-            [cljspad.editor :as editor]
             [cljspad.editor2 :as editor2]
             [cljspad.logging :as log]
             [cljspad.right-pane :as right-pane]
@@ -46,6 +45,7 @@
   [:div.cljspad-right-pane
    [right-pane/right-pane-tabs]
    [right-pane/readme]
+   [right-pane/keybindings]
    [right-pane/libraries]
    [right-pane/export]
    [right-pane/sandbox]])
