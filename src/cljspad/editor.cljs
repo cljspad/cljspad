@@ -15,7 +15,7 @@
             [rehook.core :as rehook]
             [rehook.dom :refer-macros [defui]]))
 
-(goog-define live-reloading? false)
+(goog-define live-reload? false)
 
 (defn editor-value
   [editor-view]
@@ -44,8 +44,8 @@
    :$line              {:padding     "0 9px"
                         :line-height "1.6"
                         :font-size   "16px"
-                        :font-family "var(--code-font)"}
-   :$matchingBracket   {:border-bottom "1px solid var(--teal-color)"
+                        :font-family "Hack, monospace"}
+   :$matchingBracket   {:border-bottom "1px solid #008080"
                         :color         "inherit"}
    :$gutters           {:background "transparent"
                         :border     "none"}
@@ -64,7 +64,7 @@
 (defn eval-top-level
   [compiler-state editor-view]
   (let [state  (obj/getValueByKeys editor-view "state")
-        source (eval-region/cursor-node-string state)]
+        source (eval-region/top-level-string state)]
     (env/eval-form compiler-state source eval-callback)))
 
 (defn eval-at-cursor
@@ -91,7 +91,7 @@
       (lineNumbers)
       (fold/foldGutter)
       (.. EditorState -allowMultipleSelections (of true))
-      (if live-reloading?
+      (if live-reload?
         ;; use live-reloading grammar
         #js[(cm-clj/syntax live-grammar/parser)
             (.slice cm-clj/default-extensions 1)]
@@ -118,7 +118,7 @@
          (fn []
            (.destroy editor)
            (reset! editor-view nil))))
-     [])
+     [source])
 
-    [:div {:style {:width "100%" :height height}}
-     [:div {:ref ref :style {:max-height "420px"}}]]))
+    [:div {:style {:overflow "auto" :height height}
+           :ref   ref}]))

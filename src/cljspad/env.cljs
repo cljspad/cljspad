@@ -141,6 +141,7 @@
    (eval-form compiler-state source-str (constantly nil)))
 
   ([compiler-state source-str cb]
+   (js/console.log "Eval => " source-str)
    (let [reader (string-push-back-reader source-str)]
      (swap! compiler-state assoc ::evaluating? true)
      (let [cb (fn [result]

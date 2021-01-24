@@ -215,12 +215,6 @@
           (do (write-lines term curr-state val)
               (recur)))))))
 
-(defui loading-icon
-  [{:keys [compiler-state]} _]
-  (let [[loading? _] (rehook/use-atom-path compiler-state [::env/evaluating?])]
-    (when loading?
-      [:<> " | evaluating... " [:span.cljspad-loading-icon]])))
-
 (defui repl-header [{:keys [db compiler-state]} _]
   (let [[version _] (rehook/use-atom-path db [:version])
         [cljs-version _] (rehook/use-atom-path db [:manifest version :clojurescript/version])
@@ -254,8 +248,7 @@
        [:span "Sandbox version: " [:strong (str version)]]
        (when (and gist-id (not= version latest))
          (let [href (str "/gist/" gist-id)]
-           [:<> " | " [:a {:href href} "Switch to latest sandbox"]]))
-       [loading-icon]]]]))
+           [:<> " | " [:a {:href href} "Switch to latest sandbox"]]))]]]))
 
 (defui repl [{:keys [compiler-state console]} {:keys [height]}]
   (let [container (react/useRef)]

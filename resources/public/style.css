@@ -25,10 +25,10 @@ body, html {
 }
 
 .cljspad-container {
-  height: 100vh
+  height: 100vh;
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .cljspad-left-pane {
