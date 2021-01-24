@@ -84,35 +84,15 @@
   {:state  (test-utils/make-state (extensions compiler-state) source)
    :parent (.-current ref)})
 
-(defui run-icon
-  [{:keys [compiler-state]} _]
-  (let [[loading? _] (rehook/use-atom-path compiler-state [::env/evaluating?])]
-    (if loading?
-      [:span.cljspad-loading-icon]
-      [:span.cljspad-run-icon])))
-
-(defui toolbar
-  [{:keys [editor-view compiler-state]} _]
-  [:div.cljspad-toolbar
-   [:div.cljspad-button {:onClick #(some->> editor-view deref (eval-form compiler-state))}
-    [run-icon] "Run"]])
-
-(defui codemirror
-  [{:keys [db editor-view compiler-state]} _]
+(defui editor
+  [{:keys [db compiler-state]} {:keys [height]}]
   (let [ref (react/useRef)
         [source _] (rehook/use-atom-path db [:source])]
 
     (rehook/use-effect
      (fn []
        (let [editor (EditorView. (clj->js (editor-opts compiler-state ref source)))]
-         (reset! editor-view editor)
-         (fn []
-           (.destroy editor)
-           (reset! editor-view nil))))
+         #(.destroy editor)))
      [])
-    [:div {:ref ref :style {:max-height "420px"}}]))
-
-(defui editor [_ {:keys [height]}]
-  [:div {:style {:width "100%" :height height}}
-   [toolbar]
-   [codemirror]])
+    [:div {:style {:width "100%" :height height}}
+     [:div {:ref ref :style {:max-height "420px"}}]]))
