@@ -397,7 +397,7 @@
           (map-indexed (fn [i k]
                          [:<>
                           (when-not (zero? i) [:span " + "])
-                          [:kbd.kbd k]]) keys))))
+                          [:span.kbd k]]) keys))))
 
 (def eval-keymap
   {:eval-cell
@@ -414,6 +414,7 @@
 (defui keybindings-table [_ _]
   [:div.cljspad-keybindings
    [:h1 "Keybindings"]
+   [:p "Powered by " [:a {:href "https://github.com/nextjournal/clojure-mode"} "clojure-mode"]]
    [:table
     [:thead
      [:tr

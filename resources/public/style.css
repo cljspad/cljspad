@@ -146,3 +146,13 @@ body, html {
   display: flex;
   align-items: center;
 }
+
+.kbd {
+  background-color: #ccc;
+  border-radius: 5px;
+  padding: 3px;
+}
+
+.cljspad-keybindings > table {
+  text-align: left;
+}

@@ -215,6 +215,25 @@
           (do (write-lines term curr-state val)
               (recur)))))))
 
+(defui evaluating [{:keys [compiler-state]} _]
+  (let [[evaluating? _] (rehook/use-atom-path compiler-state [::env/evaluating?])
+        dots-seq (cycle ["..." ".." "."])
+        [dots set-dots] (rehook/use-state 0)]
+
+    (rehook/use-effect
+     (fn []
+       (if evaluating?
+         (let [interval (js/setInterval
+                         (fn []
+                           (set-dots (inc dots)))
+                         2000)]
+           #(js/clearTimeout interval))
+         (constantly nil)))
+     [evaluating?])
+
+    (when evaluating?
+      [:span " | Loading namespace" (nth dots-seq dots)])))
+
 (defui repl-header [{:keys [db compiler-state]} _]
   (let [[version _] (rehook/use-atom-path db [:version])
         [cljs-version _] (rehook/use-atom-path db [:manifest version :clojurescript/version])
@@ -248,7 +267,8 @@
        [:span "Sandbox version: " [:strong (str version)]]
        (when (and gist-id (not= version latest))
          (let [href (str "/gist/" gist-id)]
-           [:<> " | " [:a {:href href} "Switch to latest sandbox"]]))]]]))
+           [:<> " | " [:a {:href href} "Switch to latest sandbox"]]))
+       [evaluating]]]]))
 
 (defui repl [{:keys [compiler-state console]} {:keys [height]}]
   (let [container (react/useRef)]
