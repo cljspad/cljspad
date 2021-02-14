@@ -5,7 +5,7 @@
             ["@codemirror/history" :refer [history historyKeymap]]
             ["@codemirror/state" :refer [EditorState]]
             ["@codemirror/view" :as view :refer [EditorView]]
-            ["@codemirror/lint" :as lint :refer [Diagnostic]]
+            ["@codemirror/lint" :as lint]
             ["react" :as react]
             [goog.object :as obj]
             [cljspad.env :as env]
