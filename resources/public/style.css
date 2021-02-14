@@ -41,7 +41,7 @@ body, html {
   width: 100%;
 }
 
-.cljspad-readme, .cljspad-sandbox, .cljspad-library, .cljspad-export {
+.cljspad-readme, .cljspad-sandbox, .cljspad-library, .cljspad-export, .cljspad-keybindings {
   height: calc(100vh - 30px);
   overflow: scroll;
   overflow-y: auto;

@@ -412,31 +412,33 @@
 
 ;; Adapted from https://github.com/nextjournal/clojure-mode/blob/master/demo/src/nextjournal/clojure_mode/demo.cljs#L131
 (defui keybindings-table [_ _]
-  [:table.w-full.text-sm
-   [:thead
-    [:tr.border-t
-     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Command"]
-     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Keybinding"]
-     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 "Alternate Binding"]
-     [:th.px-3.py-1.align-top.text-left.text-xs.uppercase.font-normal.black-50 {:style {:min-width 290}} "Description"]]]
-   (into [:tbody]
-         (->> keymap/paredit-keymap*
-              (merge eval-keymap)
-              (sort-by first)
-              (map (fn [[command [{:keys [key shift doc]} & [{alternate-key :key}]]]]
-                     [:<>
-                      [:tr.border-t.hover:bg-gray-100
-                       [:td.px-3.py-1.align-top.monospace.whitespace-no-wrap [:b (name command)]]
-                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-no-wrap (render-key key)]
-                       [:td.px-3.py-1.align-top.text-right.text-sm.whitespace-no-wrap (some-> alternate-key render-key)]
-                       [:td.px-3.py-1.align-top doc]]
-                      (when shift
-                        [:tr.border-t.hover:bg-gray-100
-                         [:td.px-3.py-1.align-top [:b (name shift)]]
-                         [:td.px-3.py-1.align-top.text-sm.whitespace-no-wrap.text-right
-                          (render-key (str "Shift-" key))]
-                         [:td.px-3.py-1.align-top.text-sm]
-                         [:td.px-3.py-1.align-top]])]))))])
+  [:div.cljspad-keybindings
+   [:h1 "Keybindings"]
+   [:table
+    [:thead
+     [:tr
+      [:th "Command"]
+      [:th "Keybinding"]
+      [:th "Alternate Binding"]
+      [:th "Description"]]]
+    (into [:tbody]
+          (->> keymap/paredit-keymap*
+               (merge eval-keymap)
+               (sort-by first)
+               (map (fn [[command [{:keys [key shift doc]} & [{alternate-key :key}]]]]
+                      [:<>
+                       [:tr
+                        [:td [:b (name command)]]
+                        [:td (render-key key)]
+                        [:td (some-> alternate-key render-key)]
+                        [:td doc]]
+                       (when shift
+                         [:tr
+                          [:td [:b (name shift)]]
+                          [:td
+                           (render-key (str "Shift-" key))]
+                          [:td]
+                          [:td]])]))))]])
 
 (defui keybindings
   [{:keys [db]} _]
